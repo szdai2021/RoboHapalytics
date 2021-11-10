@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class SectionVewControlManager : MonoBehaviour
 {
     public GameObject SlidingPlane;
-    public GameObject ViewObject;
+    //public GameObject ViewObject;
 
     public GameObject xPosSlider;
     public GameObject xRotSlider;
@@ -370,36 +370,36 @@ public class SectionVewControlManager : MonoBehaviour
             switch (Current_colliderArea)
             {
                 case 0:
-                    sliderPlaneVisualizerXLeft.SetActive(false);
-                    sliderPlaneVisualizerXRight.SetActive(false);
-                    sliderPlaneVisualizerYLeft.SetActive(false);
-                    sliderPlaneVisualizerYRight.SetActive(false);
-                    sliderPlaneVisualizerZTop.SetActive(false);
-                    sliderPlaneVisualizerZBottom.SetActive(false);
+                    sliderPlaneVisualizerXLeft.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerXRight.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerYLeft.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerYRight.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerZTop.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerZBottom.GetComponent<MeshRenderer>().enabled = false;
                     break;
                 case 1:
-                    sliderPlaneVisualizerXLeft.SetActive(true);
-                    sliderPlaneVisualizerXRight.SetActive(true);
-                    sliderPlaneVisualizerYLeft.SetActive(false);
-                    sliderPlaneVisualizerYRight.SetActive(false);
-                    sliderPlaneVisualizerZTop.SetActive(false);
-                    sliderPlaneVisualizerZBottom.SetActive(false);
+                    sliderPlaneVisualizerXLeft.GetComponent<MeshRenderer>().enabled = true;
+                    sliderPlaneVisualizerXRight.GetComponent<MeshRenderer>().enabled = true;
+                    sliderPlaneVisualizerYLeft.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerYRight.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerZTop.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerZBottom.GetComponent<MeshRenderer>().enabled = false;
                     break;
                 case 2:
-                    sliderPlaneVisualizerXLeft.SetActive(false);
-                    sliderPlaneVisualizerXRight.SetActive(false);
-                    sliderPlaneVisualizerYLeft.SetActive(true);
-                    sliderPlaneVisualizerYRight.SetActive(true);
-                    sliderPlaneVisualizerZTop.SetActive(false);
-                    sliderPlaneVisualizerZBottom.SetActive(false);
+                    sliderPlaneVisualizerXLeft.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerXRight.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerYLeft.GetComponent<MeshRenderer>().enabled = true;
+                    sliderPlaneVisualizerYRight.GetComponent<MeshRenderer>().enabled = true;
+                    sliderPlaneVisualizerZTop.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerZBottom.GetComponent<MeshRenderer>().enabled = false;
                     break;
                 case 3:
-                    sliderPlaneVisualizerXLeft.SetActive(false);
-                    sliderPlaneVisualizerXRight.SetActive(false);
-                    sliderPlaneVisualizerYLeft.SetActive(false);
-                    sliderPlaneVisualizerYRight.SetActive(false);
-                    sliderPlaneVisualizerZTop.SetActive(true);
-                    sliderPlaneVisualizerZBottom.SetActive(true);
+                    sliderPlaneVisualizerXLeft.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerXRight.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerYLeft.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerYRight.GetComponent<MeshRenderer>().enabled = false;
+                    sliderPlaneVisualizerZTop.GetComponent<MeshRenderer>().enabled = true;
+                    sliderPlaneVisualizerZBottom.GetComponent<MeshRenderer>().enabled = true;
                     break;
                 default:
                     break;

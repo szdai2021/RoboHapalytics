@@ -26,7 +26,7 @@ public class sliderValueControl : MonoBehaviour
     public UnityClient unity_client;
 
     public GameObject slidingPlaneVisualizer;
-    public GameObject slidingPlane;
+    //public GameObject slidingPlane;
 
     public GameObject finger;
 
@@ -74,9 +74,9 @@ public class sliderValueControl : MonoBehaviour
         y = slidingPlaneVisualizer.transform.position.y;
         z = slidingPlaneVisualizer.transform.position.z;
 
-        xl = slidingPlane.transform.localPosition.x;
-        yl = slidingPlane.transform.localPosition.y;
-        zl = slidingPlane.transform.localPosition.z;
+        //xl = slidingPlane.transform.localPosition.x;
+        //yl = slidingPlane.transform.localPosition.y;
+        //zl = slidingPlane.transform.localPosition.z;
     }
 
     // Update is called once per frame
@@ -89,17 +89,17 @@ public class sliderValueControl : MonoBehaviour
         switch (index)
         {
             case 1:
-                xl += (x - currentValue.x) * ratio;
+                //xl += (x - currentValue.x) * ratio;
                 x = currentValue.x;
                 movementSign = 1;
                 break;
             case 2:
-                yl += -(y - currentValue.y) * ratio;
+                //yl += -(y - currentValue.y) * ratio;
                 y = currentValue.y;
                 movementSign = -1;
                 break;
             case 3:
-                zl += (z - currentValue.z) * ratio;
+                //zl += (z - currentValue.z) * ratio;
                 z = currentValue.z;
                 movementSign = -1;
                 break;
@@ -113,7 +113,8 @@ public class sliderValueControl : MonoBehaviour
         yOffset = rangeValue * yOffsetA + yOffsetB;
         zOffset = rangeValue * zOffsetA + zOffsetB;
 
-        slidingPlane.transform.localPosition = new Vector3(xl-xOffset, yl-yOffset, zl-zOffset);
+        //slidingPlane.transform.localPosition = new Vector3(xl-xOffset, yl-yOffset, zl-zOffset);
+        //slidingPlane.transform.localPosition = new Vector3(x, y, z);
 
         if (isOn)
         {

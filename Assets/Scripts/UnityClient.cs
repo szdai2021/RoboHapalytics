@@ -293,6 +293,15 @@ public class UnityClient : MonoBehaviour
         receiveFlag = false;
     }
 
+    private void customMove(double xi, double yi, double zi, double rxi, double ryi, double rzi,
+        double acc = 0.3, double speed = 0.3, double btn_press = 0, double scenario = 0, bool speedAdopt = false, double angle_bias = 0, int joint_index = 5, int movementType = 0) // movementType 0: jointspace linear; Type 1: toolspace linear
+    {
+        string cmd = packCMD(xi, yi, zi, rxi, ryi, rzi, acc, speed, btn_press, scenario, speedAdopt, angle_bias, joint_index, movementType);
+        outChannel.Write(cmd);
+        outChannel.Flush();
+        receiveFlag = false;
+    }
+
     private string packCMD(double Pos_x = 0.2, double Pos_y = 0.2, double Pos_z = 0.07, double Rot_x = -0.6, double Rot_y = 1.47, double Rot_z = 0.62, 
         double acc = 0.3, double speed = 0.3, double btn_press = 0, double scenario = 0, bool speedAdopt = false, double angle_bias = 0, int joint_index = 5, int movementType = 0) // movementType 0: jointspace linear; Type 1: toolspace linear
     {
