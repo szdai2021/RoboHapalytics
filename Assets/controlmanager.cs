@@ -19,6 +19,11 @@ public class controlmanager : MonoBehaviour
     public double angleBias = 0;
     public int jointIndex = 0;
 
+    public int moveType = 0;
+    public float extra1 = 0;
+    public float extra2 = 0;
+    public float extra3 = 0;
+
     public UnityClient unity_client;
     public GameObject dropDownButton;
 
@@ -159,8 +164,10 @@ public class controlmanager : MonoBehaviour
                 force_flag = 0;
                 //unity_client.circularMove(0.085512, 0.397466, 0.316909, 0.701469, 1.82303, 1.77534, 0);
             }
-            
-            unity_client.circularMove(x,y,z,rx,ry,rz,0,angle: angleBias, jointIndex: jointIndex);
+
+            //unity_client.circularMove(x,y,z,rx,ry,rz,0,angle: angleBias, jointIndex: jointIndex);
+
+            unity_client.customMove(x,y,z,rx,ry,rz, angle_bias: angleBias, joint_index: jointIndex, movementType: moveType, extra1: extra1, extra2: extra2, extra3: extra3);
 
             Origin.transform.position = sliderKnob.transform.position;
             Origin.transform.eulerAngles = new Vector3(0, 0, 0);
