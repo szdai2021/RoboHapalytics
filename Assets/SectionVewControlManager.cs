@@ -38,6 +38,10 @@ public class SectionVewControlManager : MonoBehaviour
     private List<float> test2 = new List<float> { -0.183151f, -0.1211f, 0.372502f, -1.24571f, -2.85157f, 0.0393199f };
     private List<float> test3 = new List<float> { -0.00595115f, 0.0915175f, 0.686242f, -1.22094f, 1.14528f, -1.12578f };
 
+    private List<float> test1R = new List<float> { -4.51976f, 0.130553f, -1.32996f, -2.07984f, 0.573835f, -4.63f };
+    private List<float> test2R = new List<float> { -0.0578583f, 0.0322039f, -1.07046f, -2.12128f, 0.894812f, -4.7f };
+    private List<float> test3R = new List<float> { -2.7639f, -1.37618f, 0.006307f, -1.76509f, 1.94257f, -6.26f };
+
     private List<float> test1_mid = new List<float> { 0.315f, 0.067f, 0.169f, -0.62f, 1.51f, 0.594f };
     private List<float> test2_mid = new List<float> { -0.22f, 0.182f, 0.44f, -1.06f, -1.31f, 1.665f };
     private List<float> test3_mid = new List<float> { -0.07f, 0.18f, 0.6f, -2.09f, 0.372f, 0.521f };
@@ -99,16 +103,16 @@ public class SectionVewControlManager : MonoBehaviour
 
     public bool fastMoveFlag = false;
 
-    private int moveType = 0;
+    private int moveType = 3;
 
     // Start is called before the first frame update
     void Start()
     {
         this.gameObject.SetActive(false);
 
-        Vector3 RobotCoord = resetPos;
-        Vector3 RobotRot = xRotPar;
-}
+        Vector3 RobotCoord = new Vector3(-1.8765f, -1.22337f, 2.4f);
+        Vector3 RobotRot = new Vector3(-1.19516f, 2.06182f, -7.85783f);
+    }
 
     // Update is called once per frame
     void Update()
@@ -121,7 +125,7 @@ public class SectionVewControlManager : MonoBehaviour
             {
                 if (xCollider.bounds.Contains(p0))
                 {
-                    moveType = 0;
+                    //moveType = 0;
                     Current_colliderArea = 1;
                     virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, 0, 90f);
 
@@ -170,7 +174,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (yCollider.bounds.Contains(p0))
                 {
-                    moveType = 0;
+                    //moveType = 0;
                     Current_colliderArea = 2;
                     virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, -90f, 90f);
 
@@ -219,7 +223,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (zCollider.bounds.Contains(p0))
                 {
-                    moveType = 0;
+                    //moveType = 0;
                     Current_colliderArea = 3;
                     virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, -90f, 0);
 
@@ -268,7 +272,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (xRotoryCollider.bounds.Contains(p0))
                 {
-                    moveType = 2;
+                    //moveType = 2;
                     rotoryFlag = true;
 
                     if (!xRotoryEncoder.GetComponent<RotationalEncoder>().isOn)
@@ -279,7 +283,7 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(test1_mid[0], test1_mid[1], test1_mid[2], test1[0], test1[1], test1[2], movementType: 2);
                         //unity_client.customMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], movementType: 0);
 
-                        unity_client.customMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], movementType: 2, extra1: test1_mid[0], extra2: test1_mid[1], extra3:test1_mid[2]);
+                        unity_client.customMove(test1R[0], test1R[1], test1R[2], test1R[3], test1R[4], test1R[5], movementType: 3);
                     }
 
                     midPoint = test1_mid;
@@ -290,7 +294,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (yRotoryCollider.bounds.Contains(p0))
                 {
-                    moveType = 2;
+                    //moveType = 2;
                     rotoryFlag = true;
 
                     if (!yRotoryEncoder.GetComponent<RotationalEncoder>().isOn)
@@ -301,7 +305,7 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(test2_mid[0], test2_mid[1], test2_mid[2], test2[0], test2[1], test2[2], movementType: 2);
                         //unity_client.customMove(test2[0], test2[1], test2[2], test2[3], test2[4], test2[5], movementType: 0);
 
-                        unity_client.customMove(test2[0], test2[1], test2[2], test2[3], test2[4], test2[5], movementType: 2, extra1: test2_mid[0], extra2: test2_mid[1], extra3: test2_mid[2]);
+                        unity_client.customMove(test2R[0], test2R[1], test2R[2], test2R[3], test2R[4], test2R[5], movementType: 3);
                     }
 
                     midPoint = test2_mid;
@@ -311,7 +315,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (zRotoryCollider.bounds.Contains(p0))
                 {
-                    moveType = 2;
+                    //moveType = 2;
                     rotoryFlag = true;
 
                     if (!zRotoryEncoder.GetComponent<RotationalEncoder>().isOn)
@@ -322,7 +326,7 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(test3_mid[0], test3_mid[1], test3_mid[2], test3[0], test3[1], test3[2], movementType: 2);
                         //unity_client.customMove(test3[0], test3[1], test3[2], test3[3], test3[4], test3[5], movementType: 0);
 
-                        unity_client.customMove(test3[0], test3[1], test3[2], test3[3], test3[4], test3[5], movementType: 2, extra1: test3_mid[0], extra2: test3_mid[1], extra3: test3_mid[2]);
+                        unity_client.customMove(test3R[0], test3R[1], test3R[2], test3R[3], test3R[4], test3R[5], movementType: 3);
                     }
 
                     midPoint = test3_mid;
@@ -333,7 +337,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else
                 {
-
+                    /*
                     if (Pre_colliderArea == 2)
                     {
                         moveType = 1;
@@ -342,14 +346,31 @@ public class SectionVewControlManager : MonoBehaviour
                     {
                         moveType = 0;
                     }
+                    */
 
                     sliderMoveFlag = true;
                     onSliderIndex = 0;
+
+                    RobotCoord = new Vector3(-1.8765f, -1.22337f, 2.4f);
+                    RobotRot = new Vector3(-1.19516f, 2.06182f, -7.85783f);
+
+                    Current_colliderArea = 0;
+
+                    moveType = 3;
+
+                    if (rotoryFlag)
+                    {
+                        rotoryFlag = false;
+
+                        unity_client.customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
+                    }
+
+                    /*
                     if (!rotoryFlag)
                     {
                         Current_colliderArea = 0;
-                        RobotCoord = resetPos;
-                        RobotRot = xRotPar;
+                        //RobotCoord = resetPos;
+                        //RobotRot = xRotPar;
                     }
                     else
                     {
@@ -358,19 +379,19 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(midPoint[0], midPoint[1], midPoint[2], 0, 0.25, 0.1, movementType: 2);
                         //unity_client.customMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, movementType: 0);
 
-                        unity_client.customMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, movementType: 2, extra1: midPoint[0], extra2: midPoint[1], extra3: midPoint[2]);
+                        unity_client.customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
 
                         //unity_client.circularMove(midPoint[0], midPoint[1], midPoint[2], midPoint[3], midPoint[4], midPoint[5], 0);
                         //unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
 
                         rotoryFlag = false;
-                    }
+                    }*/
                 }
 
                 if (((pre_pos != RobotCoord) | (pre_rot != RobotRot)) & sliderMoveFlag)
                 {
                     //unity_client.circularMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, 0);
-                    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: 0);
+                    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType);
 
                     //sliderMoveFlag = false;
                 }

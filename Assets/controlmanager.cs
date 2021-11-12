@@ -76,9 +76,13 @@ public class controlmanager : MonoBehaviour
 
     public GameObject sectionView;
 
-    private List<float> test1 = new List<float> { 0.271818f, -0.198235f, 0.335298f, -0.61464f, 1.56437f, 0.602621f };
-    private List<float> test2 = new List<float> { -0.183151f, -0.1211f, 0.372502f, -1.24571f, -2.85157f, 0.0393199f };
-    private List<float> test3 = new List<float> { -0.00595115f, 0.0915175f, 0.686242f, -1.22094f, 1.14528f, -1.12578f };
+    private List<float> test1 = new List<float> { 0.229276f, -0.223641f, 0.396649f, -0.647695f, 1.54944f, 0.551866f };
+    private List<float> test2 = new List<float> { -0.295316f, -0.147816f, 0.411297f, 0.584606f, 1.50867f, -0.56811f };
+    private List<float> test3 = new List<float> { -0.018218f, 0.0830661f, 0.685242f, -0.779805f, -1.72632f, 1.75751f };
+
+    private List<float> test1R = new List<float> { -4.51976f, 0.130553f, -1.32996f, -2.07984f, 0.573835f, -4.63f };
+    private List<float> test2R = new List<float> { -0.0578583f, 0.0322039f, -1.07046f, -2.12128f, 0.894812f, -4.7f };
+    private List<float> test3R = new List<float> { -2.7639f, -1.37618f, 0.006307f, -1.76509f, 1.94257f, -6.26f };
 
     private List<float> test1_mid = new List<float> { 0.315f, 0.067f, 0.169f, -0.62f, 1.51f, 0.594f };
     private List<float> test2_mid = new List<float> { -0.22f, 0.182f, 0.44f, -1.06f, -1.31f, 1.665f };
@@ -207,28 +211,31 @@ public class controlmanager : MonoBehaviour
         }
         else if (Input.GetKeyDown("1"))
         {
-            unity_client.circularMove(test1_mid[0], test1_mid[1], test1_mid[2], test1_mid[3], test1_mid[4], test1_mid[5], 0);
-            unity_client.circularMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], 0);
+            //unity_client.circularMove(test1_mid[0], test1_mid[1], test1_mid[2], test1_mid[3], test1_mid[4], test1_mid[5], 0);
+            //unity_client.circularMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], 0);
+            unity_client.customMove(test1R[0], test1R[1], test1R[2], test1R[3], test1R[4], test1R[5], movementType: moveType);
 
             midPoint = test1_mid;
         }
         else if (Input.GetKeyDown("2"))
         {
-            unity_client.circularMove(test2_mid[0], test2_mid[1], test2_mid[2], test2_mid[3], test2_mid[4], test2_mid[5], 0);
-            unity_client.circularMove(test2[0], test2[1], test2[2], test2[3], test2[4], test2[5], 0);
+            //unity_client.circularMove(test2_mid[0], test2_mid[1], test2_mid[2], test2_mid[3], test2_mid[4], test2_mid[5], 0);
+            //unity_client.circularMove(test2[0], test2[1], test2[2], test2[3], test2[4], test2[5], 0);
+            unity_client.customMove(test2R[0], test2R[1], test2R[2], test2R[3], test2R[4], test2R[5], movementType: moveType);
 
             midPoint = test2_mid;
         }
         else if (Input.GetKeyDown("3"))
         {
-            unity_client.circularMove(test3_mid[0], test3_mid[1], test3_mid[2], test3_mid[3], test3_mid[4], test3_mid[5], 0);
-            unity_client.circularMove(test3[0], test3[1], test3[2], test3[3], test3[4], test3[5], 0);
+            //unity_client.circularMove(test3_mid[0], test3_mid[1], test3_mid[2], test3_mid[3], test3_mid[4], test3_mid[5], 0);
+            //unity_client.circularMove(test3[0], test3[1], test3[2], test3[3], test3[4], test3[5], 0);
+            unity_client.customMove(test3R[0], test3R[1], test3R[2], test3R[3], test3R[4], test3R[5], movementType: moveType);
 
             midPoint = test3_mid;
         }
         else if (Input.GetKeyDown("0"))
         {
-            unity_client.circularMove(midPoint[0], midPoint[1], midPoint[2], midPoint[3], midPoint[4], midPoint[5], 0);
+            //unity_client.circularMove(midPoint[0], midPoint[1], midPoint[2], midPoint[3], midPoint[4], midPoint[5], 0);
             unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
         }
 
