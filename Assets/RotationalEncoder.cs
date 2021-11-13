@@ -36,12 +36,19 @@ public class RotationalEncoder : MonoBehaviour
     private float zStep = 0;
 
     private int stepNum = 60;
+
+    public GameObject rotationIndicator;
+
+    private Quaternion startUpQuat;
+
     // Start is called before the first frame update
     void Start()
     {
         //test = virtualTouchPoint.transform.position;
         rotStat = Object.transform.eulerAngles;
         //testcube.transform.position = test;
+
+        startUpQuat = Object.transform.rotation;
     }
 
     // Update is called once per frame
@@ -49,9 +56,13 @@ public class RotationalEncoder : MonoBehaviour
     {
         if (isOn)
         {
+            rotationIndicator.SetActive(true);
+
             if (!pre_isOn)
             {
                 rotStat = Object.transform.eulerAngles;
+                startUpQuat = Object.transform.rotation;
+
                 stepNum = 60;
             }
 
@@ -85,6 +96,8 @@ public class RotationalEncoder : MonoBehaviour
             {
                 //Object.transform.eulerAngles = rotStat; //new Vector3(rotStat.x + xStep, rotStat.y + yStep, rotStat.z + zStep);
 
+                Object.transform.rotation = startUpQuat * Quaternion.Euler(xStep, yStep, zStep);
+
                 xChangeTotal -= xStep;
                 yChangeTotal -= yStep;
                 zChangeTotal -= zStep;
@@ -92,6 +105,10 @@ public class RotationalEncoder : MonoBehaviour
 
             stepNum--;
             currentValue = wirelessAxis.rotary;
+        }
+        else
+        {
+            rotationIndicator.SetActive(false);
         }
 
         pre_isOn = isOn;
