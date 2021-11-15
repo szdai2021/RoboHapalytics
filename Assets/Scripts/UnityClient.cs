@@ -152,14 +152,15 @@ public class UnityClient : MonoBehaviour
         StartCoroutine(executeJointTrajectory());
 
         //circularMove(0.085512,0.397466,0.316909,0.701469,1.82303,1.77534,0);
-        sliderTest_OnChange(0, 0);
 
-        posCalibration();
+        //sliderTest_OnChange(0, 0);
+
+        initialPos();
     }
 
-    private void posCalibration()
+    private void initialPos()
     {
-        var A = 0;
+        customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
     }
 
     public void activate(GameObject virtual_plane_on_tcp)

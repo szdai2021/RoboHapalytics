@@ -41,6 +41,8 @@ public class RotationalEncoder : MonoBehaviour
 
     private Quaternion startUpQuat;
 
+    public Vector3 test;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -64,6 +66,8 @@ public class RotationalEncoder : MonoBehaviour
                 startUpQuat = Object.transform.rotation;
 
                 stepNum = 60;
+
+                currentValue = wirelessAxis.rotary;
             }
 
             if (wirelessAxis.rotary - currentValue != 0)
@@ -96,11 +100,13 @@ public class RotationalEncoder : MonoBehaviour
             {
                 //Object.transform.eulerAngles = rotStat; //new Vector3(rotStat.x + xStep, rotStat.y + yStep, rotStat.z + zStep);
 
-                Object.transform.rotation = startUpQuat * Quaternion.Euler(xStep, yStep, zStep);
+                Object.transform.rotation = startUpQuat * Quaternion.Euler(xStep, -yStep, -zStep);
 
                 xChangeTotal -= xStep;
                 yChangeTotal -= yStep;
                 zChangeTotal -= zStep;
+
+                startUpQuat = Object.transform.rotation;
             }
 
             stepNum--;

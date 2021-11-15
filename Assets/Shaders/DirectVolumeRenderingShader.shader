@@ -21,6 +21,7 @@
         Pass
         {
             CGPROGRAM
+             #include "UnityCG.cginc"
             #pragma multi_compile MODE_DVR MODE_MIP MODE_SURF
             #pragma multi_compile __ TF2D_ON
             #pragma multi_compile __ CUTOUT_PLANE CUTOUT_BOX_INCL CUTOUT_BOX_EXCL
@@ -29,7 +30,7 @@
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
+           
 
             #define CUTOUT_ON CUTOUT_PLANE || CUTOUT_BOX_INCL || CUTOUT_BOX_EXCL
 
@@ -38,6 +39,7 @@
                 float4 vertex : POSITION;
                 float4 normal : NORMAL;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct frag_in
@@ -46,6 +48,8 @@
                 float2 uv : TEXCOORD0;
                 float3 vertexLocal : TEXCOORD1;
                 float3 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
             };
 
             struct frag_out
@@ -140,6 +144,11 @@
             frag_in vert_main (vert_in v)
             {
                 frag_in o;
+
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 o.vertexLocal = v.vertex;

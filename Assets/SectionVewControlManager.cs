@@ -84,7 +84,7 @@ public class SectionVewControlManager : MonoBehaviour
 
     public bool start = false;
 
-    private int Pre_colliderArea = 0;
+    private int Pre_colliderArea = 5;
     private int Current_colliderArea = 0;
 
     private Vector3 pre_pos = new Vector3();
@@ -283,6 +283,7 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(test1_mid[0], test1_mid[1], test1_mid[2], test1[0], test1[1], test1[2], movementType: 2);
                         //unity_client.customMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], movementType: 0);
 
+                        unity_client.customMove(-4.52, 0.13, -2.016, -1.1745, 0.62645, -4.7525, movementType: 3, radius: 0.1); // middle point to reduce the risk
                         unity_client.customMove(test1R[0], test1R[1], test1R[2], test1R[3], test1R[4], test1R[5], movementType: 3);
                     }
 
@@ -365,6 +366,10 @@ public class SectionVewControlManager : MonoBehaviour
                         unity_client.customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
                     }
 
+                    xRotoryEncoder.GetComponent<RotationalEncoder>().isOn = false;
+                    yRotoryEncoder.GetComponent<RotationalEncoder>().isOn = false;
+                    zRotoryEncoder.GetComponent<RotationalEncoder>().isOn = false;
+
                     /*
                     if (!rotoryFlag)
                     {
@@ -390,6 +395,12 @@ public class SectionVewControlManager : MonoBehaviour
 
                 if (((pre_pos != RobotCoord) | (pre_rot != RobotRot)) & sliderMoveFlag)
                 {
+
+                    if (Pre_colliderArea == 0 & Current_colliderArea != 0)
+                    {
+                        moveType = 0;
+                    }
+
                     //unity_client.circularMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, 0);
                     unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType);
 
