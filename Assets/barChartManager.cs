@@ -65,7 +65,11 @@ public class barChartManager : MonoBehaviour
 
         drewPlot();
 
-        unity_client.circularMove(0, 0.25f, 0.1f, -0.6, 1.47, 0.62, 0);
+        //unity_client.customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
+
+        reScalePlot();
+
+        this.transform.parent.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -134,10 +138,8 @@ public class barChartManager : MonoBehaviour
             checkCounterRange();
         }
 
-        if (Input.GetKeyDown("r")) // move to the next one
+        if (Input.GetKeyDown("r"))
         {
-            unity_client.circularMove(0, 0.25f, 0.1f, -0.6, 1.47, 0.62, 0);
-
             this.transform.localScale = new Vector3(0.07f, 0.07f, 0.07f);
             this.transform.localPosition = newLocation;
             this.transform.localEulerAngles = new Vector3(0, 180f, 0);
@@ -297,5 +299,12 @@ public class barChartManager : MonoBehaviour
         countryIndex = Mathf.CeilToInt((controlller.transform.localPosition.y-controllerMin)/step);
 
         checkCounterRange();
+    }
+
+    private void reScalePlot()
+    {
+        this.transform.localScale = new Vector3(0.07f, 0.07f, 0.07f);
+        this.transform.localPosition = newLocation;
+        this.transform.localEulerAngles = new Vector3(0, 180f, 0);
     }
 }

@@ -75,6 +75,8 @@ public class controlmanager : MonoBehaviour
     public ViconMixedRealityCalibration vmrc;
 
     public GameObject sectionView;
+    public GameObject scatterPlot;
+    public GameObject barChart;
 
     private List<float> test1 = new List<float> { 0.229276f, -0.223641f, 0.396649f, -0.647695f, 1.54944f, 0.551866f };
     private List<float> test2 = new List<float> { -0.295316f, -0.147816f, 0.411297f, 0.584606f, 1.50867f, -0.56811f };
@@ -97,17 +99,31 @@ public class controlmanager : MonoBehaviour
         HideShowTagGameObject("Slider", false);
         HideShowTagGameObject("Test", false);
 
-        if (scenario == 1)
+        if (scenario == 1) // section view
         {
-            //HideShowTagGameObject("ScatterPlot", false);
-            //HideShowTagGameObject("SectionView", true);
+            scatterPlot.SetActive(false);
+            barChart.SetActive(false);
             sectionView.SetActive(true);
 
             svcm.start = true;
         }
-        else if (scenario == 2)
+        else if (scenario == 2) // scatter plot
         {
-            //HideShowTagGameObject("SectionView", false);
+            scatterPlot.SetActive(true);
+            barChart.SetActive(false);
+            sectionView.SetActive(false);
+        }
+        else if (scenario == 3) // bar chart
+        {
+            scatterPlot.SetActive(false);
+            barChart.SetActive(true);
+            sectionView.SetActive(false);
+        }
+        else
+        {
+            scatterPlot.SetActive(false);
+            barChart.SetActive(false);
+            sectionView.SetActive(false);
         }
     }
 

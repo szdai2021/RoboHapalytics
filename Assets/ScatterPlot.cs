@@ -89,6 +89,9 @@ public class ScatterPlot : MonoBehaviour
 
         drewPlot();
 
+        reScalePlot();
+
+        this.transform.parent.gameObject.SetActive(false);
         //showIndicationLine(emptyPoint1.transform);
     }
 
@@ -430,7 +433,7 @@ public class ScatterPlot : MonoBehaviour
         }
         
 
-        if (Input.GetKeyDown("r")) // move to the next one
+        if (Input.GetKeyDown("r"))
         {
             this.transform.localScale = new Vector3(localScale, localScale, localScale);
             this.transform.localPosition = newLocation;
@@ -549,5 +552,25 @@ public class ScatterPlot : MonoBehaviour
         angle = Mathf.Rad2Deg*Mathf.Atan(aa);
 
         gradientIndicator.transform.localEulerAngles = new Vector3(0, 0, angle);
+    }
+
+    private void reScalePlot() {
+        this.transform.localScale = new Vector3(localScale, localScale, localScale);
+        this.transform.localPosition = newLocation;
+
+        this.transform.localEulerAngles = new Vector3(0, 180f, 0);
+
+        var line = Instantiate(linePrefb, new Vector3(0, 0, 0), Quaternion.identity);
+        line.transform.SetParent(indicatorLine.transform);
+        line.GetComponent<CurvedLineRenderer>().radius = 0.001f;
+        line.GetComponent<MeshRenderer>().material = indicatorColor;
+
+        GameObject newPoint1 = Instantiate(pointPrefb, new Vector3(0, 0, 0), Quaternion.identity);
+        newPoint1.transform.SetParent(line.transform);
+        newPoint1.transform.position = emptyPoint1.transform.position;
+
+        GameObject newPoint2 = Instantiate(pointPrefb, new Vector3(0, 0, 0), Quaternion.identity);
+        newPoint2.transform.SetParent(line.transform);
+        newPoint2.transform.position = emptyPoint1.transform.position;
     }
 }
