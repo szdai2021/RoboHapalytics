@@ -78,7 +78,7 @@ public class RotationalEncoder : MonoBehaviour
             switch (index)
             {
                 case 1:
-                    xChangeTotal += -(wirelessAxis.rotary - currentValue) * 20;
+                    xChangeTotal += (wirelessAxis.rotary - currentValue) * 20;
                     xStep = xChangeTotal / stepNum;
                     rotStat.x += xStep;
                     break;
@@ -100,7 +100,7 @@ public class RotationalEncoder : MonoBehaviour
             {
                 //Object.transform.eulerAngles = rotStat; //new Vector3(rotStat.x + xStep, rotStat.y + yStep, rotStat.z + zStep);
 
-                Object.transform.rotation = startUpQuat * Quaternion.Euler(xStep, -yStep, -zStep);
+                Object.transform.rotation = Quaternion.Euler(xStep, yStep, zStep) * startUpQuat;
 
                 xChangeTotal -= xStep;
                 yChangeTotal -= yStep;

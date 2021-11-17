@@ -65,6 +65,9 @@ public class sliderValueControl : MonoBehaviour
     public bool sliderMoveFlag = true;
     public bool localCentreFlag = false;
 
+    private float onSliderTCPMax = 1.95f;
+    private float onSliderTCPMin = -1.6f;
+
     //public Text text;
 
     // Start is called before the first frame update
@@ -120,8 +123,18 @@ public class sliderValueControl : MonoBehaviour
         {
             //text.text = sliderMoveFlag.ToString() + ", " + unity_client.receiveFlag.ToString() + ", " + Vector3.Distance(knobCentreReference.transform.position, finger.transform.GetChild(0).transform.position).ToString("f3");
 
-            if (wirelessAxes.sliderOne > 220 | wirelessAxes.sliderOne < 30)
+            if ((wirelessAxes.sliderOne > 220 | wirelessAxes.sliderOne < 30) | (sliderNobe.transform.localPosition.y < onSliderTCPMin | sliderNobe.transform.localPosition.y > onSliderTCPMax))
             {
+                if (sliderNobe.transform.localPosition.y < onSliderTCPMin)
+                {
+                    sliderNobe.transform.localPosition = new Vector3(0, onSliderTCPMin, 0);
+                }
+
+                if(sliderNobe.transform.localPosition.y > onSliderTCPMax)
+                {
+                    sliderNobe.transform.localPosition = new Vector3(0, onSliderTCPMax, 0);
+                }
+
                 wirelessAxes.sendSlider(0, 127);
                 sliderMoveFlag = true;
             }

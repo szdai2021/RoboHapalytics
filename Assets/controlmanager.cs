@@ -90,6 +90,8 @@ public class controlmanager : MonoBehaviour
 
     private List<float> midPoint = new List<float> { 0f, 0.25f, 0.1f, -0.63f, 1.47f, 0.62f };
 
+    public Material transparent;
+
     public void startScenario()
     {
         HideShowTagGameObject("Slider", false);
@@ -118,14 +120,25 @@ public class controlmanager : MonoBehaviour
 
         foreach (Renderer rr in Robot_rs)
         {
-            rr.enabled = robotRender;
+            //rr.enabled = robotRender;
+
+            Material[] mats = rr.materials;
+
+            for (int i = 0; i < rr.materials.Length; i++)
+            {
+                mats[i] = transparent;
+            }
+
+            rr.materials = mats;
         }
 
         Renderer[] Axis_rs = axis.GetComponentsInChildren<Renderer>();
 
         foreach (Renderer ar in Axis_rs)
         {
-            ar.enabled = axisRender;
+            //ar.enabled = axisRender;
+
+            ar.material = transparent;
         }
     }
 
