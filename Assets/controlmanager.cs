@@ -25,6 +25,7 @@ public class controlmanager : MonoBehaviour
     public float extra3 = 0;
 
     public UnityClient unity_client;
+    public WirelessAxes wireless;
     public GameObject dropDownButton;
 
     public GameObject sliderModel;
@@ -93,6 +94,9 @@ public class controlmanager : MonoBehaviour
     private List<float> midPoint = new List<float> { 0f, 0.25f, 0.1f, -0.63f, 1.47f, 0.62f };
 
     public Material transparent;
+
+    private bool prototypeFlag = false;
+    private int prev_sliderOne = 0;
 
     public void startScenario()
     {
@@ -184,7 +188,7 @@ public class controlmanager : MonoBehaviour
     {
         //print(sliderKnob.transform.position);
 
-        if (Input.GetKeyDown("space"))
+        if (Input.GetKeyDown("space")) // position test
         {
             svcm.start = false;
             if (force_flag == 0)
@@ -226,17 +230,26 @@ public class controlmanager : MonoBehaviour
             t3.text = (Mathf.Deg2Rad*angle * xyz).ToString("f5");
             */
         }
-        else if (Input.GetKeyDown("t"))
+        else if (Input.GetKeyDown("t")) // get current robot pose
         {
             /*
             svcm.start = false;
             unity_client.TCPAngleMove(10);
             */
             unity_client.getCurrentPos();
-        }
-        else if (Input.GetKeyDown("r"))
+        } 
+        else if (Input.GetKeyDown("r")) // reset camera and vr space
         {
             vmrc.ApplyOffset();
+        }
+        else if (Input.GetKeyDown("p")) // prototype test
+        {
+            prototypeFlag = !prototypeFlag;
+
+            if (prototypeFlag)
+            {
+                unity_client.customMove(0.35, 0.1, 0.1, -0.6,1.5,0.62,movementType: 1);
+            }
         }
         else if (Input.GetKeyDown("1"))
         {
@@ -266,6 +279,24 @@ public class controlmanager : MonoBehaviour
         {
             //unity_client.circularMove(midPoint[0], midPoint[1], midPoint[2], midPoint[3], midPoint[4], midPoint[5], 0);
             unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
+        }
+
+        if (prototypeFlag)
+        {
+            if (wireless.sliderOne > 200 & prev_sliderOne < 200)
+            {
+                unity_client.customMove(0.05, 0.4, 0.1, -0.6, 1.5, 0.62, movementType: 1);
+            }
+            else if (wireless.sliderOne < 55 & prev_sliderOne > 55)
+            {
+                unity_client.customMove(0.35, 0.1, 0.1, -0.6, 1.5, 0.62, movementType: 1);
+            }
+            else if ((wireless.sliderOne > 100 & wireless.sliderOne < 150) & (prev_sliderOne < 100 | prev_sliderOne > 150))
+            {
+                unity_client.stopRobot();
+            }
+
+            prev_sliderOne = wireless.sliderOne;
         }
 
         if (!testFlag)
