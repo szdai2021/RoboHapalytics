@@ -34,11 +34,7 @@ public class UnityClient : MonoBehaviour
     public string host_ip = "localhost";
     public int host_port = 27;
 
-    public GameObject VRController;
     public GameObject Virtual_end_effector;
-    public GameObject RobotActualTCPIndicator;
-    public GameObject Movement_indicator; //assigned a cube of different color to Virtual_end_effector
-
 
     public GameObject UR3;
     public GameObject[] joint_links;
@@ -161,21 +157,6 @@ public class UnityClient : MonoBehaviour
     private void initialPos()
     {
         customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
-    }
-
-    public void activate(GameObject virtual_plane_on_tcp)
-    {
-        controller_endEffector_offset = Virtual_end_effector.transform.position - VRController.transform.position;
-        previous_controller_pos = VRController.transform.position;
-        //End_effector_virtual_plane = virtual_plane_on_tcp;
-        previous_ee_orientation = virtual_plane_on_tcp.transform.rotation;
-
-        desired_pos = virtual_plane_on_tcp.transform.position;
-        Virtual_end_effector.transform.position = desired_pos;
-        //Virtual_end_effector.transform.rotation = End_effector_virtual_plane.transform.rotation;
-
-       /* desired_orientation_q =  Virtual_end_effector.transform.rotation * Quaternion.identity;
-        Virtual_end_effector.transform.rotation = desired_orientation_q;*/
     }
 
     public void resetRobot()
@@ -366,75 +347,6 @@ public class UnityClient : MonoBehaviour
         */
     }
 
-    public void interact(GameObject virtual_plane_on_tcp)
-    {
-        
-        if (posQueue.Count > 0)
-        {
-            cur_tcp_pos = posQueue[posQueue.Count - 1];
-            posQueue.Clear();
-            print("cur_tcp_pos is not null: " + cur_tcp_pos);
-        }
-
-        if (cur_tcp_pos == null)
-        {
-            cur_tcp_pos = new float[6] { 
-                Virtual_end_effector.transform.position.x,
-                Virtual_end_effector.transform.position.y,
-                Virtual_end_effector.transform.position.z,
-                Virtual_end_effector.transform.rotation.eulerAngles.x,
-                Virtual_end_effector.transform.rotation.eulerAngles.y,
-                Virtual_end_effector.transform.rotation.eulerAngles.z,
-            };
-        }
-        
-        Vector3 RobotPos = Robot2UnityCoor(new Vector3(cur_tcp_pos[0], cur_tcp_pos[1], cur_tcp_pos[2]));
-        RobotActualTCPIndicator.transform.position = RobotPos;
-
-        virtual_plane_on_tcp.transform.position = VRController.transform.position + controller_endEffector_offset;
-        virtual_plane_on_tcp.transform.rotation = VRController.transform.rotation;
-        controller_pos = VRController.transform.position;
-        Vector3 actual_movement = controller_pos - previous_controller_pos;
-
-        Quaternion rotation_diff = virtual_plane_on_tcp.transform.rotation * Quaternion.Inverse(previous_ee_orientation);
-        desired_orientation_q = rotation_diff * Virtual_end_effector.transform.rotation;
-        desired_orientation_e = virtual_plane_on_tcp.transform.rotation.eulerAngles;
-
-        desired_pos = virtual_plane_on_tcp.transform.position;
-
-        Virtual_end_effector.transform.position = desired_pos;
-        Virtual_end_effector.transform.rotation = desired_orientation_q;
-
-        //Virtual_end_effector.transform.rotation = desired_orientation_q;
-
-        if (actual_movement.magnitude > 0.01) //0.01, 0.008
-        {
-            /*Vector3 actual_tcp_movement =  (VRtracker_TCP_offset + tracker_pos) - previous_tcp_pos;
-            Vector3 wanted_tcp_movement = actual_tcp_movement / 10;
-            desired_pos = previous_tcp_pos + wanted_tcp_movement;*/
-
-            Movement_indicator.transform.position = desired_pos;
-            Movement_indicator.transform.rotation = desired_orientation_q;
-
-            string cmd = packCommand(desired_pos, desired_orientation_q, actual_movement.magnitude);
-            //Debug.Log("pos sent to relay server: " + cmd);
-            outChannel.Write(cmd);
-            outChannel.Flush();
-
-            previous_controller_pos = controller_pos;
-            // previous_tcp_pos = desired_pos;
-
-        }
-        previous_ee_orientation = virtual_plane_on_tcp.transform.rotation;
-        /*}*/
-        
-
-
-        //transform.position = desired_pos;
-
-        diaplayControllerPosInfo();
-    }
-
     private IEnumerator executeJointTrajectory()
     {
         while (true)
@@ -597,52 +509,6 @@ public class UnityClient : MonoBehaviour
         }
     }
 
-    private string packCommand(Vector3 desired_pos, Quaternion desired_orientation, float movement_length)
-    {
-
-        Vector3 FLU = Unity2RobotCoor(desired_pos);
-
-        Vector3 axisAngle = Quaternion2axisAngle(desired_orientation);
-        /*float angle;
-        Vector3 axis;
-        
-
-        desired_orientation.ToAngleAxis(out angle, out axis);
-        axisAngle = new Vector3(axis.z, -axis.x, axis.y) * angle;*/
-        float t = timeBasedOnMove(movement_length); //0.07f;
-        float lk_ahead_t = lkatBasedOnMove(movement_length); //0.05f; 
-
-        if (t < 0f)
-        {
-            t = 0f;
-        }
-        else if(t > 0.02f)
-        {
-            t = 0.02f;
-        }
-
-        t = 0.2f;
-
-        if (lk_ahead_t < 0.03f)
-        {
-            lk_ahead_t = 0.03f;
-        }else if(lk_ahead_t > 0.2f)
-        {
-            lk_ahead_t = 0.2f;
-        }
-
-        lk_ahead_t = 0.1f;
-
-        //Debug.Log("movement is " + movement_length + "t: " + t + "lk_ahead_t: " + lk_ahead_t);
-
-         string pose_6_tuple = "(" + FLU.x + "," + FLU.y + "," + FLU.z + ","
-            + axisAngle.x + "," + axisAngle.y + "," + axisAngle.z+ ","
-            + 1 + "," + 0.5 + "," + 0 + ")";
-            //+t + "," + lk_ahead_t + ")";
-
-        return pose_6_tuple;
-    }
-
     private float timeBasedOnMove(float movement)
     {
         return (float)movement * 6f+0.07f;
@@ -651,11 +517,6 @@ public class UnityClient : MonoBehaviour
     private float lkatBasedOnMove(float movement)
     {
         return (float)movement * -3.5f + 0.225f;
-    }
-
-    private float blocking_time_bound(float x)
-    {
-        return (float) Math.Log(3 * x + 1); //find the base of log?
     }
 
    /* private string packCommand(Vector3 desired_pos, Vector3 desired_orientation)
@@ -681,78 +542,4 @@ public class UnityClient : MonoBehaviour
 
     }
 
-
-    private Vector3 Robot2UnityCoor(Vector3 FLU) //FLU 2 RUF
-    {
-
-        return new Vector3(-FLU.y, FLU.z ,FLU.x);
-    }
-
-    private Vector3 Unity2RobotCoor(Vector3 RUF) //RUF 2 FLU
-    {
-        return new Vector3(RUF.z, -RUF.x, RUF.y);
-    }
-
-    private Vector3 Eular2axisAngle(double theta, double phi, double psi) //RUF 2 FLU conversion is done
-    {
-        double c1 = Math.Cos(theta / 2);
-        double s1 = Math.Sin(theta / 2);
-
-        double c2 = Math.Cos(phi / 2);
-        double s2 = Math.Sin(phi / 2);
-
-        double c3 = Math.Cos(psi / 2);
-        double s3 = Math.Sin(psi / 2);
-
-        double w = c1 * c2 * c3 - s1 * s2 * s3;
-        double x = c1 * c2 * s3 + s1 * s2 * c3;
-        double y = s1 * c2 * c3 + c1 * s2 * s3;
-        double z = c1 * s2 * c3 - s1 * c2 * s3;
-        double angle = 2 * Math.Acos(w);
-        double norm = x * x + y * y + z * z;
-        if (norm < 0.001)
-        {
-            x = 1;
-            y = z = 0;
-        }
-        else
-        {
-            norm = Math.Sqrt(norm);
-            x /= norm;
-            y /= norm;
-            z /= norm;
-        }
-
-        return new Vector3((float)z, (float)-x, (float)y) * (float)angle;
-    }
-
-    private Vector3 Quaternion2axisAngle(Quaternion orientation) //RUF 2 FLU conversion is done
-    {
-        if (orientation.w > 1) orientation.Normalize();
-        double angle = 2 * Math.Acos(orientation.w);
-        double s = Math.Sqrt(1 - orientation.w * orientation.w);
-
-        double x = orientation.x;
-        double y = orientation.y;
-        double z = orientation.z;
-
-        if (s >= 0.001)
-        {
-            x /= s;
-            y /= s;
-            z /= s;
-        }
-        Vector3 axisAngle = new Vector3((float)z, (float)-x, (float)y) * (float)angle;
-        //Debug.Log("orientation conversion result: " + axisAngle);
-        //should this be converted to radian?
-        return axisAngle;
-    }
-
-
-    private void diaplayControllerPosInfo()
-    {
-        trackerPos_x = controller_pos.x;
-        trackerPos_y = controller_pos.y;
-        trackerPos_z = controller_pos.z;
-    }
 }
