@@ -25,7 +25,8 @@ public class controlmanager : MonoBehaviour
     public float extra3 = 0;
 
     public UnityClient unity_client;
-    public WirelessAxes wireless;
+    //public WirelessAxes wireless;
+    public MadeAxisOscRecieve axisReciever;
     public GameObject dropDownButton;
 
     public GameObject sliderModel;
@@ -283,20 +284,20 @@ public class controlmanager : MonoBehaviour
 
         if (prototypeFlag)
         {
-            if (wireless.sliderOne > 200 & prev_sliderOne < 200)
+            if (axisReciever.sliderOne > 200 & prev_sliderOne < 200)
             {
                 unity_client.customMove(0.05, 0.4, 0.1, -0.6, 1.5, 0.62, movementType: 1);
             }
-            else if (wireless.sliderOne < 55 & prev_sliderOne > 55)
+            else if (axisReciever.sliderOne < 55 & prev_sliderOne > 55)
             {
                 unity_client.customMove(0.35, 0.1, 0.1, -0.6, 1.5, 0.62, movementType: 1);
             }
-            else if ((wireless.sliderOne > 100 & wireless.sliderOne < 150) & (prev_sliderOne < 100 | prev_sliderOne > 150))
+            else if ((axisReciever.sliderOne > 100 & axisReciever.sliderOne < 150) & (prev_sliderOne < 100 | prev_sliderOne > 150))
             {
                 unity_client.stopRobot();
             }
 
-            prev_sliderOne = wireless.sliderOne;
+            prev_sliderOne = axisReciever.sliderOne;
         }
 
         if (!testFlag)
