@@ -313,7 +313,6 @@ public class controlmanager : MonoBehaviour
         counter++;
     }
 
-
     private void followUpTest()
     {
         svcm.start = false;
@@ -360,9 +359,7 @@ public class controlmanager : MonoBehaviour
             prev_x = p1.x;
             prev_y = p1.y;
             prev_z = p1.z;
-            
         }
-        
     }
 
     public void dropDownOnChange()
