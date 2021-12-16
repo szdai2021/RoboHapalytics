@@ -38,6 +38,7 @@ public class UserStudyControl : MonoBehaviour
     public float randomPointOffset;
 
     public int fileIndex = 0;
+    public string fileName = "test_result";
 
     [HideInInspector] public float virtualKnobMax = 2.928f; //2.4f; //2.928
     [HideInInspector] public float virtualKnobMin = -2.918f; //-2.4f; //-2.918
@@ -58,6 +59,9 @@ public class UserStudyControl : MonoBehaviour
     private bool sFlag = false;
     private int test_Num;
     private int rangeIndex = 3;
+
+    private bool triggerFlag = false;
+    private bool prev_triggerFlag = false;
 
     // Saved data
     private List<DateTime> triggerTime = new List<DateTime>();
@@ -171,7 +175,20 @@ public class UserStudyControl : MonoBehaviour
                             break;
                     }
 
-                    if (Input.GetKeyDown("t")) // trigger random point
+                    var inputDevices = new List<UnityEngine.XR.InputDevice>();
+                    UnityEngine.XR.InputDevices.GetDevices(inputDevices);
+                    UnityEngine.XR.InputDevice device = inputDevices[0];
+                    for (int i = 0; i < inputDevices.Count; i++)
+                    {
+                        if (inputDevices[i].name == "Spatial Controller - Left")
+                        {
+                            device = inputDevices[i];
+                        }
+                    }
+
+                    bool triggerValue;
+                    triggerFlag = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
+                    if (triggerFlag && !prev_triggerFlag) // trigger random point
                     {
                         if (triggerTime.Count > 0)
                         {
@@ -196,6 +213,8 @@ public class UserStudyControl : MonoBehaviour
                         randomPoint.SetActive(false);
                         saveToLocal();
                     }
+
+                    prev_triggerFlag = triggerFlag;
                 }
             }
         }
@@ -206,12 +225,12 @@ public class UserStudyControl : MonoBehaviour
 
     private void saveToLocal()
     {
-        string saveFileName = "data/test_result" + fileIndex.ToString() +".txt";
+        string saveFileName = "data/" + fileName + fileIndex.ToString() +".txt";
 
         while (File.Exists(saveFileName))
         {
             fileIndex++;
-            saveFileName = "data/test_result" + fileIndex.ToString() + ".txt";
+            saveFileName = "data/" + fileName + fileIndex.ToString() + ".txt";
         }
 
         StreamWriter sw = new StreamWriter(saveFileName);
