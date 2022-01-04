@@ -13,10 +13,12 @@ public class UserStudyControl : MonoBehaviour
     public GameObject randomPoint;
 
     public GameObject sliderKnobReference;
+    public GameObject transSphere;
 
     //public WirelessAxes wireless;
     public MadeAxisOscRecieve axisReciever;
     public UnityClient unity_client;
+    public colliderCheck colliderCheck;
 
     public GameObject robot;
     public GameObject axis;
@@ -63,6 +65,8 @@ public class UserStudyControl : MonoBehaviour
     private bool triggerFlag = false;
     private bool prev_triggerFlag = false;
 
+    private bool onControllerRaySelect = false;
+
     // Saved data
     private List<DateTime> triggerTime = new List<DateTime>();
     private List<double> reactionTime = new List<double>();
@@ -100,6 +104,8 @@ public class UserStudyControl : MonoBehaviour
                 sliderknob.transform.localPosition = new Vector3(0, virtualKnobMin, 0);
             }
 
+            sliderknob.transform.localPosition = new Vector3(0, sliderknob.transform.localPosition.y, 0);
+
             if (randomPoint.transform.localPosition.x > randomPointMax)
             {
                 randomPoint.transform.localPosition = new Vector3(randomPointMax, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
@@ -115,8 +121,10 @@ public class UserStudyControl : MonoBehaviour
             switch (scenario) // five different setups
             {
                 case 1:
+                    virtualKnobUpdateFromControllerPointing();
                     break;
                 case 2:
+                    virtualKnobUpdateFromControllerGrabbing();
                     break;
                 case 3:
                     moveRobot(200, 55, 100, 150);
@@ -301,6 +309,46 @@ public class UserStudyControl : MonoBehaviour
 
         distanceToKnob.Add(sliderknob.transform.localPosition.y - randomPoint.transform.localPosition.y);
 
+    }
+
+    private void virtualKnobUpdateFromControllerGrabbing()
+    {
+        var inputDevices = new List<UnityEngine.XR.InputDevice>();
+        UnityEngine.XR.InputDevices.GetDevices(inputDevices);
+        UnityEngine.XR.InputDevice device = inputDevices[0];
+        for (int i = 0; i < inputDevices.Count; i++)
+        {
+            if (inputDevices[i].name == "Spatial Controller - Left")
+            {
+                device = inputDevices[i];
+            }
+        }
+
+        bool triggerValue;
+        triggerFlag = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
+        if (triggerFlag && !prev_triggerFlag && colliderCheck.collisionCheck)
+        {
+            transSphere.GetComponent<MeshRenderer>().enabled = false;
+
+            sliderknob.transform.position = transSphere.transform.position;
+        }
+        else
+        {
+            transSphere.GetComponent<MeshRenderer>().enabled = true;
+        }
+    }
+
+    private void virtualKnobUpdateFromControllerPointing()
+    {
+        if (onControllerRaySelect)
+        {
+
+        }
+    }
+
+    public void controllerRaySelect(bool select)
+    {
+        onControllerRaySelect = select;
     }
 
     private void virtualKnobUpdateFromRobotAxis()

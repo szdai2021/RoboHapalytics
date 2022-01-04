@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Gesture_Grab
   m_EditorClassIdentifier: 
   allFingersMustBeAtLeastPartiallyBentForGrab: 1
-  includeThumbInGrabGesture: 0
   includeThumbInBendCount: 1
-  numberOfFullyBentFingersRequiredForGrab: 3
+  numberOfFullyBentFingersRequiredForGrab: 2
   valueAboveWhichFingerIsConsideredPartiallyBent: 0.5
   valueAboveWhichFingerIsConsideredFullyBent: 0.7

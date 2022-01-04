@@ -15,6 +15,9 @@ namespace Manus.Interaction
 		/// Called when this starts getting grabbed.
 		/// </summary>
 		/// <param name="p_Object">Contains information about the grab</param>
+		/// 
+
+	
 		public void OnGrabbedStart(GrabbedObject p_Object)
 		{
 		}
@@ -148,12 +151,12 @@ namespace Manus.Interaction
 				p_Object.rigidBody.velocity = Vector3.zero;
 				p_Object.rigidBody.angularVelocity = Vector3.zero;
 				p_Object.rigidBody.MovePosition(t_Pos);
-				p_Object.rigidBody.MoveRotation(t_Rot);
+				//p_Object.rigidBody.MoveRotation(t_Rot);
 			}
 			else
 			{
 				transform.position = t_Pos;
-				transform.rotation = t_Rot;
+				//transform.rotation = t_Rot;
 			}
 		}
 	}

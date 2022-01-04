@@ -1,0 +1,16 @@
+This prefab depends on having WindowsMixed reality set up in Build Settings > Player settings > XR plugin Management. Tracked Pose Driver scripts will be missing until you do this.
+Once Windows MixedReality has been set up here, right click on main camera in hierarchy, > Xr > Convert main camera to XR rig.
+Then drag the ViconMR Calibration prefab to be a child of "CameraOffset".
+Tracked Pose driver sripts may need to be set up on lefthand and right hand controller.
+The ViconMixedRealityCalibration script is looking for literal GameObject name strings for the vicon controllers, the xr rig and the MR left and right controllers, so will break if the names are changed
+leftMRController = transform.Find("LeftHandController");
+rightMRController = transform.Find("RightHandController");
+XRrig = transform.Find("XRRig");
+GameObject left = GameObject.Find("controllerLeft");
+GameObject right = GameObject.Find("controllerRight");
+The two public referenceprefabs are uneccessary, but it makes things easier to use the controller models and the colour coding of the vicons.
+
+Place the two controllers in the 3d printed vicon frames, Vicon needs to be tracking a controllerLeft and a controllerRight.
+Windows MR needs both controllers to be on and lit up which can be fiddly and frustrating.
+Calibration will happen when all four objects are tracked simultaneously.
+
