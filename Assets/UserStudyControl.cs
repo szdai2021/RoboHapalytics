@@ -29,6 +29,8 @@ public class UserStudyControl : MonoBehaviour
 
     public GameObject realSliderReference;
 
+    public GameObject vrHandInteraction;
+
     [Header("Parameters")]
     public int sliderBufferOne;
     public int sliderBufferTwo;
@@ -120,19 +122,25 @@ public class UserStudyControl : MonoBehaviour
 
             switch (scenario) // five different setups
             {
-                case 1:
-                    virtualKnobUpdateFromControllerPointing();
+                case 1: // interacting with virtual slider with virtual hand only without hatpic feedback
+                    //virtualKnobUpdateFromControllerPointing();
+                    vrHandInteraction.SetActive(true);
+                    virtualKnobUpdateFromVrHandControl();
                     break;
-                case 2:
+                case 2: // interacting with virtual slider which is aliged with a full size physical slider with haptic feedback
+                    vrHandInteraction.SetActive(false);
                     virtualKnobUpdateFromControllerGrabbing();
                     break;
-                case 3:
+                case 3: // interacting with virutal slider where a short physical slider is mounted on a robotic arm to cover the whole range
+                    vrHandInteraction.SetActive(false);
                     moveRobot(200, 55, 100, 150);
                     virtualKnobUpdateFromRobotAxis();
                     break;
                 case 4:
+                    vrHandInteraction.SetActive(false);
                     break;
                 case 5:
+                    vrHandInteraction.SetActive(false);
                     break;
                 default:
                     break;
@@ -344,6 +352,11 @@ public class UserStudyControl : MonoBehaviour
         {
 
         }
+    }
+
+    private void virtualKnobUpdateFromVrHandControl()
+    {
+        unity_client.customMove(0f, 0.25f, 0.1f, -0.6f, 1.47f, 0.62f, movementType: 1);
     }
 
     public void controllerRaySelect(bool select)
