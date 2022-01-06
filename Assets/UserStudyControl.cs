@@ -13,12 +13,12 @@ public class UserStudyControl : MonoBehaviour
     public GameObject randomPoint;
 
     public GameObject sliderKnobReference;
-    public GameObject transSphere;
+    //public GameObject transSphere;
 
     //public WirelessAxes wireless;
     public MadeAxisOscRecieve axisReciever;
     public UnityClient unity_client;
-    public colliderCheck colliderCheck;
+    //public colliderCheck colliderCheck;
 
     public GameObject robot;
     public GameObject axis;
@@ -26,10 +26,15 @@ public class UserStudyControl : MonoBehaviour
 
     public GameObject virtualFingerTouchPoint;
     public GameObject virtualEndEffector;
-
     public GameObject realSliderReference;
-
     public GameObject vrHandInteraction;
+
+    public GameObject instructionPanel;
+    public GameObject confirmationPanel;
+    public GameObject finishPanel;
+
+    public GameObject sliderModelReference1;
+    public GameObject sliderModelReference2;
 
     [Header("Parameters")]
     public int sliderBufferOne;
@@ -40,9 +45,6 @@ public class UserStudyControl : MonoBehaviour
     public float rangeThree;
 
     public float randomPointOffset;
-
-    public int fileIndex = 0;
-    public string fileName = "test_result";
 
     [HideInInspector] public float virtualKnobMax = 2.928f; //2.4f; //2.928
     [HideInInspector] public float virtualKnobMin = -2.918f; //-2.4f; //-2.918
@@ -57,6 +59,9 @@ public class UserStudyControl : MonoBehaviour
     public bool testFlag = false;
     public int iterations = 10;
 
+    public int fileIndex = 0;
+    public string fileName = "test_result";
+
     // PRIVATE
     private bool pre_startFlag = false;
     private int prev_sliderOne;
@@ -64,10 +69,19 @@ public class UserStudyControl : MonoBehaviour
     private int test_Num;
     private int rangeIndex = 3;
 
+    private int experimentStage = 1;
+
     private bool triggerFlag = false;
     private bool prev_triggerFlag = false;
+    private bool trialFlag = false;
+    private bool confirmFlag = false;
 
     private bool onControllerRaySelect = false;
+
+    private Vector3 virtualSliderPos1;
+    private Quaternion virtualSliderRot1;
+    private Vector3 virtualSliderPos2;
+    private Quaternion virtualSliderRot2;
 
     // Saved data
     private List<DateTime> triggerTime = new List<DateTime>();
@@ -81,6 +95,16 @@ public class UserStudyControl : MonoBehaviour
         randomPoint.SetActive(false);
 
         test_Num = iterations;
+
+        virtualSliderPos1 = sliderModelReference1.transform.position;
+        virtualSliderRot1 = sliderModelReference1.transform.rotation;
+
+        virtualSliderPos2 = sliderModelReference2.transform.position;
+        virtualSliderRot2 = sliderModelReference2.transform.rotation;
+
+        instructionPanel.SetActive(false);
+        confirmationPanel.SetActive(false);
+        finishPanel.SetActive(false);
     }
 
     // Update is called once per frame
@@ -129,7 +153,8 @@ public class UserStudyControl : MonoBehaviour
                     break;
                 case 2: // interacting with virtual slider which is aliged with a full size physical slider with haptic feedback
                     vrHandInteraction.SetActive(false);
-                    virtualKnobUpdateFromControllerGrabbing();
+                    //virtualKnobUpdateFromControllerGrabbing();
+                    virtualKnobUpdateFromVrPhysicalSlider();
                     break;
                 case 3: // interacting with virutal slider where a short physical slider is mounted on a robotic arm to cover the whole range
                     vrHandInteraction.SetActive(false);
@@ -146,7 +171,7 @@ public class UserStudyControl : MonoBehaviour
                     break;
             }
 
-            if (Input.GetKeyDown("space"))
+            if (Input.GetKeyDown("space")) // move robotic arm to position
             {
                 virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, 0, 90f);
 
@@ -159,84 +184,128 @@ public class UserStudyControl : MonoBehaviour
                 unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: 1);
             }
 
+            triggerFlag = checkControllerTrigger();
+
             if (testFlag)
             {
-                if (Input.GetKeyDown("s")) // start a new set of experiement
+                switch (experimentStage)
                 {
-                    sFlag = true;
+                    case 1: // trial stage
+                        instructionPanel.SetActive(true);
+                        trialFlag = true;
 
-                    triggerTime = new List<DateTime>();
-
-                    reactionTime = new List<double>();
-                    distanceToTarget = new List<double>();
-                    distanceToKnob = new List<double>();
-                }
-
-                if (sFlag & rangeIndex > 0)
-                {
-                    float rangeSelected;
-                    switch (rangeIndex)
-                    {
-                        case 1:
-                            rangeSelected = rangeOne;
-                            break;
-                        case 2:
-                            rangeSelected = rangeTwo;
-                            break;
-                        case 3:
-                            rangeSelected = rangeThree;
-                            break;
-                        default:
-                            rangeSelected = rangeOne;
-                            break;
-                    }
-
-                    var inputDevices = new List<UnityEngine.XR.InputDevice>();
-                    UnityEngine.XR.InputDevices.GetDevices(inputDevices);
-                    UnityEngine.XR.InputDevice device = inputDevices[0];
-                    for (int i = 0; i < inputDevices.Count; i++)
-                    {
-                        if (inputDevices[i].name == "Spatial Controller - Left")
+                        if (triggerFlag && !prev_triggerFlag)
                         {
-                            device = inputDevices[i];
+                            generateRandomPoint(rangeOne);
                         }
-                    }
 
-                    bool triggerValue;
-                    triggerFlag = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
-                    if (triggerFlag && !prev_triggerFlag) // trigger random point
-                    {
-                        if (triggerTime.Count > 0)
+                        if (triggerFlag && sliderknob.transform.localPosition.y < -2.75f)
                         {
-                            distanceToTarget.Add(sliderknob.transform.localPosition.y - randomPoint.transform.localPosition.y);
-                            reactionTime.Add((System.DateTime.Now - triggerTime[triggerTime.Count - 1]).TotalMilliseconds);
-                            test_Num--;
+                            experimentStage += 1;
                         }
-                        generateRandomPoint(rangeSelected);
-                        triggerTime.Add(System.DateTime.Now);
-                    }
 
-                    if (test_Num == 0)
-                    {
-                        rangeIndex--;
-                    }
+                        break;
+                    case 2: // comfirmation stage
+                        instructionPanel.SetActive(false);
+                        confirmationPanel.SetActive(true);
+                        trialFlag = false;
 
-                    if (rangeIndex == 0)
-                    {
-                        sFlag = false;
-                        test_Num = iterations;
-                        rangeIndex = 3;
-                        randomPoint.SetActive(false);
-                        saveToLocal();
-                    }
+                        if (triggerFlag && sliderknob.transform.localPosition.y < 0.2f && sliderknob.transform.localPosition.y > -0.3f)
+                        {
+                            experimentStage += 1;
+                        }
 
-                    prev_triggerFlag = triggerFlag;
+                        break;
+                    case 3: // recording stage
+                        if (Input.GetKeyDown("s")) // start a new set of experiement
+                        {
+                            sFlag = true;
+
+                            triggerTime = new List<DateTime>();
+
+                            reactionTime = new List<double>();
+                            distanceToTarget = new List<double>();
+                            distanceToKnob = new List<double>();
+
+                            finishPanel.SetActive(false);
+                        }
+
+                        if (sFlag & rangeIndex > 0)
+                        {
+                            float rangeSelected;
+                            switch (rangeIndex)
+                            {
+                                case 1:
+                                    rangeSelected = rangeOne;
+                                    break;
+                                case 2:
+                                    rangeSelected = rangeTwo;
+                                    break;
+                                case 3:
+                                    rangeSelected = rangeThree;
+                                    break;
+                                default:
+                                    rangeSelected = rangeOne;
+                                    break;
+                            }
+
+                            if (triggerFlag && !prev_triggerFlag) // trigger random point
+                            {
+                                if (triggerTime.Count > 0)
+                                {
+                                    distanceToTarget.Add(sliderknob.transform.localPosition.y - randomPoint.transform.localPosition.y);
+                                    reactionTime.Add((System.DateTime.Now - triggerTime[triggerTime.Count - 1]).TotalMilliseconds);
+                                    test_Num--;
+                                }
+                                generateRandomPoint(rangeSelected);
+                                triggerTime.Add(System.DateTime.Now);
+                            }
+
+                            if (test_Num == 0)
+                            {
+                                rangeIndex--;
+                            }
+
+                            if (rangeIndex == 0)
+                            {
+                                sFlag = false;
+                                test_Num = iterations;
+                                rangeIndex = 3;
+                                randomPoint.SetActive(false);
+                                saveToLocal();
+
+                                finishPanel.SetActive(true);
+                            }
+                        }
+                        break;
+                    default:
+                        instructionPanel.SetActive(false);
+                        confirmationPanel.SetActive(false);
+                        break;
                 }
+            }
+
+            prev_triggerFlag = triggerFlag;
+        }
+        pre_startFlag = startFlag;
+        prev_sliderOne = axisReciever.sliderOne;
+    }
+
+    private bool checkControllerTrigger()
+    {
+        var inputDevices = new List<UnityEngine.XR.InputDevice>();
+        UnityEngine.XR.InputDevices.GetDevices(inputDevices);
+        UnityEngine.XR.InputDevice device = inputDevices[0];
+        for (int i = 0; i < inputDevices.Count; i++)
+        {
+            if (inputDevices[i].name == "Spatial Controller - Left")
+            {
+                device = inputDevices[i];
             }
         }
 
-        pre_startFlag = startFlag;
-        prev_sliderOne = axisReciever.sliderOne;
+        bool triggerValue;
+        return device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
     }
 
     private void saveToLocal()
@@ -281,6 +350,11 @@ public class UserStudyControl : MonoBehaviour
         float randomRangMax = randomPoint.transform.localPosition.y + rangeDifference;
         float randomRangMin = randomPoint.transform.localPosition.y - rangeDifference;
 
+        if (trialFlag && randomPointMin < -2.5f)
+        {
+            randomPointMin = -2.5f;
+        }
+
         float randomValue = UnityEngine.Random.value;
 
         if (randomRangMax > virtualKnobMax)
@@ -316,35 +390,34 @@ public class UserStudyControl : MonoBehaviour
         randomPoint.transform.localPosition = new Vector3(randomPoint.transform.localPosition.x, randomY, randomPoint.transform.localPosition.z);
 
         distanceToKnob.Add(sliderknob.transform.localPosition.y - randomPoint.transform.localPosition.y);
-
     }
 
-    private void virtualKnobUpdateFromControllerGrabbing()
-    {
-        var inputDevices = new List<UnityEngine.XR.InputDevice>();
-        UnityEngine.XR.InputDevices.GetDevices(inputDevices);
-        UnityEngine.XR.InputDevice device = inputDevices[0];
-        for (int i = 0; i < inputDevices.Count; i++)
-        {
-            if (inputDevices[i].name == "Spatial Controller - Left")
-            {
-                device = inputDevices[i];
-            }
-        }
+    //private void virtualKnobUpdateFromControllerGrabbing()
+    //{
+    //    var inputDevices = new List<UnityEngine.XR.InputDevice>();
+    //    UnityEngine.XR.InputDevices.GetDevices(inputDevices);
+    //    UnityEngine.XR.InputDevice device = inputDevices[0];
+    //    for (int i = 0; i < inputDevices.Count; i++)
+    //    {
+    //        if (inputDevices[i].name == "Spatial Controller - Left")
+    //        {
+    //            device = inputDevices[i];
+    //        }
+    //    }
 
-        bool triggerValue;
-        triggerFlag = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
-        if (triggerFlag && !prev_triggerFlag && colliderCheck.collisionCheck)
-        {
-            transSphere.GetComponent<MeshRenderer>().enabled = false;
+    //    bool triggerValue;
+    //    triggerFlag = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
+    //    if (triggerFlag && !prev_triggerFlag && colliderCheck.collisionCheck)
+    //    {
+    //        transSphere.GetComponent<MeshRenderer>().enabled = false;
 
-            sliderknob.transform.position = transSphere.transform.position;
-        }
-        else
-        {
-            transSphere.GetComponent<MeshRenderer>().enabled = true;
-        }
-    }
+    //        sliderknob.transform.position = transSphere.transform.position;
+    //    }
+    //    else
+    //    {
+    //        transSphere.GetComponent<MeshRenderer>().enabled = true;
+    //    }
+    //}
 
     private void virtualKnobUpdateFromControllerPointing()
     {
@@ -356,7 +429,23 @@ public class UserStudyControl : MonoBehaviour
 
     private void virtualKnobUpdateFromVrHandControl()
     {
-        unity_client.customMove(0f, 0.25f, 0.1f, -0.6f, 1.47f, 0.62f, movementType: 1);
+        //unity_client.customMove(0f, 0.25f, 0.1f, -0.6f, 1.47f, 0.62f, movementType: 1);
+    }
+
+    private void virtualKnobUpdateFromVrPhysicalSlider()
+    {
+        // update virtual model position
+        sliderModelReference1.transform.position = virtualSliderPos2;
+        sliderModelReference2.transform.rotation = virtualSliderRot2;
+
+        instructionPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
+        instructionPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
+
+        confirmationPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
+        confirmationPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
+
+        finishPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
+        finishPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
     }
 
     public void controllerRaySelect(bool select)
@@ -366,6 +455,20 @@ public class UserStudyControl : MonoBehaviour
 
     private void virtualKnobUpdateFromRobotAxis()
     {
+        // update virtual model position
+        sliderModelReference1.transform.position = virtualSliderPos1;
+        sliderModelReference2.transform.rotation = virtualSliderRot1;
+
+        instructionPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
+        instructionPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
+
+        confirmationPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
+        confirmationPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
+
+        finishPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
+        finishPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
+
+        // update slider
         sliderknob.transform.localPosition = new Vector3(sliderknob.transform.localPosition.x, sliderKnobReference.transform.localPosition.y + 1 * (float)(axisReciever.sliderOne - 127) / 255 * (1.89245f - 0.86574f), sliderknob.transform.localPosition.z);
     }
 

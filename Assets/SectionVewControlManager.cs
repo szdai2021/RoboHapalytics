@@ -46,7 +46,7 @@ public class SectionVewControlManager : MonoBehaviour
     private List<float> test2_mid = new List<float> { -0.22f, 0.182f, 0.44f, -1.06f, -1.31f, 1.665f };
     private List<float> test3_mid = new List<float> { -0.07f, 0.18f, 0.6f, -2.09f, 0.372f, 0.521f };
 
-    private List<float> midPoint = new List<float> { 0f, 0.25f, 0.1f, -0.63f, 1.47f, 0.62f };
+    //private List<float> midPoint = new List<float> { 0f, 0.25f, 0.1f, -0.63f, 1.47f, 0.62f };
 
     private bool rotoryFlag = false;
 
@@ -287,7 +287,7 @@ public class SectionVewControlManager : MonoBehaviour
                         unity_client.customMove(test1R[0], test1R[1], test1R[2], test1R[3], test1R[4], test1R[5], movementType: 3);
                     }
 
-                    midPoint = test1_mid;
+                    //midPoint = test1_mid;
 
                     xRotoryEncoder.GetComponent<RotationalEncoder>().isOnCheck();
                     xRotoryEncoder.GetComponent<RotationalEncoder>().isOn = true;
@@ -309,7 +309,7 @@ public class SectionVewControlManager : MonoBehaviour
                         unity_client.customMove(test2R[0], test2R[1], test2R[2], test2R[3], test2R[4], test2R[5], movementType: 3);
                     }
 
-                    midPoint = test2_mid;
+                    //midPoint = test2_mid;
 
                     yRotoryEncoder.GetComponent<RotationalEncoder>().isOnCheck();
                     yRotoryEncoder.GetComponent<RotationalEncoder>().isOn = true;
@@ -330,7 +330,7 @@ public class SectionVewControlManager : MonoBehaviour
                         unity_client.customMove(test3R[0], test3R[1], test3R[2], test3R[3], test3R[4], test3R[5], movementType: 3);
                     }
 
-                    midPoint = test3_mid;
+                    //midPoint = test3_mid;
 
                     zRotoryEncoder.GetComponent<RotationalEncoder>().isOnCheck();
                     zRotoryEncoder.GetComponent<RotationalEncoder>().isOn = true;
