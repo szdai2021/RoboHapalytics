@@ -60,7 +60,7 @@ public class UserStudyControl : MonoBehaviour
     public int iterations = 10;
 
     public int fileIndex = 0;
-    public string fileName = "test_result";
+    public string fileName = "test_result_";
 
     // PRIVATE
     private bool pre_startFlag = false;
@@ -350,9 +350,9 @@ public class UserStudyControl : MonoBehaviour
         float randomRangMax = randomPoint.transform.localPosition.y + rangeDifference;
         float randomRangMin = randomPoint.transform.localPosition.y - rangeDifference;
 
-        if (trialFlag && randomPointMin < -2.5f)
+        if (trialFlag && randomRangMin < -2.5f)
         {
-            randomPointMin = -2.5f;
+            randomRangMin = -2.5f;
         }
 
         float randomValue = UnityEngine.Random.value;
