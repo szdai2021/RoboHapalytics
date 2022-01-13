@@ -120,27 +120,30 @@ public class UserStudyControl : MonoBehaviour
                 HideRobot();
             }
 
-            if (sliderknob.transform.localPosition.y > virtualKnobMax)
-            {
-                sliderknob.transform.localPosition = new Vector3(0,virtualKnobMax,0);
-            }
+            //if (sliderknob.transform.localPosition.y > virtualKnobMax)
+            //{
+            //    sliderknob.transform.localPosition = new Vector3(0,virtualKnobMax,0);
+            //}
 
-            if (sliderknob.transform.localPosition.y < virtualKnobMin)
-            {
-                sliderknob.transform.localPosition = new Vector3(0, virtualKnobMin, 0);
-            }
+            //if (sliderknob.transform.localPosition.y < virtualKnobMin)
+            //{
+            //    sliderknob.transform.localPosition = new Vector3(0, virtualKnobMin, 0);
+            //}
 
-            sliderknob.transform.localPosition = new Vector3(0, sliderknob.transform.localPosition.y, 0);
+            ////sliderknob.transform.localPosition = new Vector3(0, sliderknob.transform.localPosition.y, 0);
 
-            if (randomPoint.transform.localPosition.x > randomPointMax)
-            {
-                randomPoint.transform.localPosition = new Vector3(randomPointMax, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
-            }
+            //if (randomPoint.transform.localPosition.y > randomPointMax)
+            //{
+                
+            //    //randomPoint.transform.localPosition = new Vector3(randomPointMax, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
+            //    randomPoint.transform.localPosition = new Vector3(0.7416667f, randomPointMax, 0.0333334f);
+            //}
 
-            if (randomPoint.transform.localPosition.x < randomPointMin)
-            {
-                randomPoint.transform.localPosition = new Vector3(randomPointMin, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
-            }
+            //if (randomPoint.transform.localPosition.y < randomPointMin)
+            //{
+            //    //randomPoint.transform.localPosition = new Vector3(randomPointMin, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
+            //    randomPoint.transform.localPosition = new Vector3(0.7416667f, randomPointMin, 0.0333334f);
+            //}
 
             sliderKnobReference.transform.position = realSliderReference.transform.position;
 
@@ -194,14 +197,14 @@ public class UserStudyControl : MonoBehaviour
                         instructionPanel.SetActive(true);
                         trialFlag = true;
 
-                        if (triggerFlag && !prev_triggerFlag)
-                        {
-                            generateRandomPoint(rangeOne);
-                        }
-
                         if (triggerFlag && sliderknob.transform.localPosition.y < -2.75f)
                         {
                             experimentStage += 1;
+                        }
+
+                        if (triggerFlag && !prev_triggerFlag)
+                        {
+                            generateRandomPoint(rangeOne);
                         }
 
                         break;
@@ -217,6 +220,8 @@ public class UserStudyControl : MonoBehaviour
 
                         break;
                     case 3: // recording stage
+                        confirmationPanel.SetActive(false);
+
                         if (Input.GetKeyDown("s")) // start a new set of experiement
                         {
                             sFlag = true;
@@ -387,7 +392,8 @@ public class UserStudyControl : MonoBehaviour
             randomY = virtualKnobMin;
         }
 
-        randomPoint.transform.localPosition = new Vector3(randomPoint.transform.localPosition.x, randomY, randomPoint.transform.localPosition.z);
+        //randomPoint.transform.localPosition = new Vector3(randomPoint.transform.localPosition.x, randomY, randomPoint.transform.localPosition.z);
+        randomPoint.transform.localPosition = new Vector3(0.7416667f, randomY, 0.0333334f);
 
         distanceToKnob.Add(sliderknob.transform.localPosition.y - randomPoint.transform.localPosition.y);
     }
