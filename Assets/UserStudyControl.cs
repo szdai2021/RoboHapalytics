@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System;
+using UnityEditor.Recorder;
+using UnityEditor;
 
 public class UserStudyControl : MonoBehaviour
 {
@@ -16,7 +18,8 @@ public class UserStudyControl : MonoBehaviour
     //public GameObject transSphere;
 
     //public WirelessAxes wireless;
-    public MadeAxisOscRecieve axisReciever;
+    public SerialInOut ShortSliderInOut;
+    public SerialInOut LongSliderInOut;
     public UnityClient unity_client;
     //public colliderCheck colliderCheck;
 
@@ -37,6 +40,8 @@ public class UserStudyControl : MonoBehaviour
     public GameObject sliderModelReference2;
 
     [Header("Parameters")]
+    public float longSliderMaxValue = 1764;
+    public float shortSliderMaxValue = 415;
     public int sliderBufferOne;
     public int sliderBufferTwo;
 
@@ -46,23 +51,29 @@ public class UserStudyControl : MonoBehaviour
 
     public float randomPointOffset;
 
-    [HideInInspector] public float virtualKnobMax = 2.928f; //2.4f; //2.928
-    [HideInInspector] public float virtualKnobMin = -2.918f; //-2.4f; //-2.918
+    //[HideInInspector] public float virtualKnobMax = 2.928f; //2.4f; //2.928
+    //[HideInInspector] public float virtualKnobMin = -2.918f; //-2.4f; //-2.918
 
-    [HideInInspector] public float randomPointMax = 0.878f;
-    [HideInInspector] public float randomPointMin = 0.302f;
+    //[HideInInspector] public float randomPointMax = 0.878f;
+    //[HideInInspector] public float randomPointMin = 0.302f;
+
+    private float virtualKnobMax = 2.928f; //2.4f; //2.928
+    private float virtualKnobMin = -2.918f; //-2.4f; //-2.918
+
+    private float randomPointMax = 2.928f;
+    private float randomPointMin = -2.918f;
 
     [Header("")]
     public int scenario = 0; // 0: default;  1: virtual slider with controller;  2: virtual slider with physical 1:1 slider;  3: the haptic slider system
+    public int participantID = 0; // =0 : testing // <0 : pilot testing // >0 : formal testing
     public bool startFlag = false;
-
-    public bool testFlag = false;
+    public bool experimentFlag = false;
+    public bool startRecording = false;
     public int iterations = 10;
 
-    public int fileIndex = 0;
-    public string fileName = "test_result_";
-
     // PRIVATE
+    private int duplicateFileIndex = 0;
+    private int prev_scenario = 0;
     private bool pre_startFlag = false;
     private int prev_sliderOne;
     private bool sFlag = false;
@@ -74,7 +85,6 @@ public class UserStudyControl : MonoBehaviour
     private bool triggerFlag = false;
     private bool prev_triggerFlag = false;
     private bool trialFlag = false;
-    private bool confirmFlag = false;
 
     private bool onControllerRaySelect = false;
 
@@ -82,6 +92,8 @@ public class UserStudyControl : MonoBehaviour
     private Quaternion virtualSliderRot1;
     private Vector3 virtualSliderPos2;
     private Quaternion virtualSliderRot2;
+
+    private RecorderWindow recorderWindow;
 
     // Saved data
     private List<DateTime> triggerTime = new List<DateTime>();
@@ -105,6 +117,8 @@ public class UserStudyControl : MonoBehaviour
         instructionPanel.SetActive(false);
         confirmationPanel.SetActive(false);
         finishPanel.SetActive(false);
+
+        recorderWindow = GetRecorderWindow();
     }
 
     // Update is called once per frame
@@ -120,30 +134,30 @@ public class UserStudyControl : MonoBehaviour
                 HideRobot();
             }
 
-            //if (sliderknob.transform.localPosition.y > virtualKnobMax)
-            //{
-            //    sliderknob.transform.localPosition = new Vector3(0,virtualKnobMax,0);
-            //}
+            if (sliderknob.transform.localPosition.y > virtualKnobMax)
+            {
+                sliderknob.transform.localPosition = new Vector3(0, virtualKnobMax, 0);
+            }
 
-            //if (sliderknob.transform.localPosition.y < virtualKnobMin)
-            //{
-            //    sliderknob.transform.localPosition = new Vector3(0, virtualKnobMin, 0);
-            //}
+            if (sliderknob.transform.localPosition.y < virtualKnobMin)
+            {
+                sliderknob.transform.localPosition = new Vector3(0, virtualKnobMin, 0);
+            }
 
-            ////sliderknob.transform.localPosition = new Vector3(0, sliderknob.transform.localPosition.y, 0);
+            //sliderknob.transform.localPosition = new Vector3(0, sliderknob.transform.localPosition.y, 0);
 
-            //if (randomPoint.transform.localPosition.y > randomPointMax)
-            //{
-                
-            //    //randomPoint.transform.localPosition = new Vector3(randomPointMax, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
-            //    randomPoint.transform.localPosition = new Vector3(0.7416667f, randomPointMax, 0.0333334f);
-            //}
+            if (randomPoint.transform.localPosition.y > randomPointMax)
+            {
 
-            //if (randomPoint.transform.localPosition.y < randomPointMin)
-            //{
-            //    //randomPoint.transform.localPosition = new Vector3(randomPointMin, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
-            //    randomPoint.transform.localPosition = new Vector3(0.7416667f, randomPointMin, 0.0333334f);
-            //}
+                //randomPoint.transform.localPosition = new Vector3(randomPointMax, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
+                randomPoint.transform.localPosition = new Vector3(0.7416667f, randomPointMax, 0.0333334f);
+            }
+
+            if (randomPoint.transform.localPosition.y < randomPointMin)
+            {
+                //randomPoint.transform.localPosition = new Vector3(randomPointMin, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
+                randomPoint.transform.localPosition = new Vector3(0.7416667f, randomPointMin, 0.0333334f);
+            }
 
             sliderKnobReference.transform.position = realSliderReference.transform.position;
 
@@ -161,7 +175,8 @@ public class UserStudyControl : MonoBehaviour
                     break;
                 case 3: // interacting with virutal slider where a short physical slider is mounted on a robotic arm to cover the whole range
                     vrHandInteraction.SetActive(false);
-                    moveRobot(200, 55, 100, 150);
+                    //moveRobot(200, 55, 100, 150);
+                    moveRobot(325, 89, 162, 244);
                     virtualKnobUpdateFromRobotAxis();
                     break;
                 case 4:
@@ -174,30 +189,41 @@ public class UserStudyControl : MonoBehaviour
                     break;
             }
 
-            if (Input.GetKeyDown("space")) // move robotic arm to position
+            if (prev_scenario != scenario)
             {
-                virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, 0, 90f);
-
-                virtualFingerTouchPoint.transform.position = new Vector3(sliderknob.transform.position.x, sliderknob.transform.position.y, sliderknob.transform.position.z);
-
-                Vector3 RobotCoord = convertUnityCoord2RobotCoord(virtualEndEffector.transform.position);
-
-                Vector3 RobotRot = new Vector3(-0.6f, 1.47f, 0.62f);
-
-                unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: 1);
+                experimentStage = 1;
             }
+
+            //if (Input.GetKeyDown("space")) // move robotic arm to position
+            //{
+            //    virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, 0, 90f);
+
+            //    virtualFingerTouchPoint.transform.position = new Vector3(sliderknob.transform.position.x, sliderknob.transform.position.y, sliderknob.transform.position.z);
+
+            //    Vector3 RobotCoord = convertUnityCoord2RobotCoord(virtualEndEffector.transform.position);
+
+            //    Vector3 RobotRot = new Vector3(-0.6f, 1.47f, 0.62f);
+
+            //    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: 1);
+            //}
 
             triggerFlag = checkControllerTrigger();
 
-            if (testFlag)
+            if (experimentFlag)
             {
                 switch (experimentStage)
                 {
                     case 1: // trial stage
+                        if (!recorderWindow.IsRecording() && startRecording)
+                        {
+                            //print("not recording");
+                            recorderWindow.StartRecording();
+                        }
+
                         instructionPanel.SetActive(true);
                         trialFlag = true;
 
-                        if (triggerFlag && sliderknob.transform.localPosition.y < -2.75f)
+                        if (triggerFlag && sliderknob.transform.localPosition.y < -2.4f)
                         {
                             experimentStage += 1;
                         }
@@ -213,7 +239,7 @@ public class UserStudyControl : MonoBehaviour
                         confirmationPanel.SetActive(true);
                         trialFlag = false;
 
-                        if (triggerFlag && sliderknob.transform.localPosition.y < 0.2f && sliderknob.transform.localPosition.y > -0.3f)
+                        if (triggerFlag && sliderknob.transform.localPosition.y < 0.17f && sliderknob.transform.localPosition.y > -0.37f)
                         {
                             experimentStage += 1;
                         }
@@ -222,12 +248,11 @@ public class UserStudyControl : MonoBehaviour
                     case 3: // recording stage
                         confirmationPanel.SetActive(false);
 
-                        if (Input.GetKeyDown("s")) // start a new set of experiement
+                        if (!sFlag)
                         {
                             sFlag = true;
 
                             triggerTime = new List<DateTime>();
-
                             reactionTime = new List<double>();
                             distanceToTarget = new List<double>();
                             distanceToKnob = new List<double>();
@@ -269,6 +294,7 @@ public class UserStudyControl : MonoBehaviour
                             if (test_Num == 0)
                             {
                                 rangeIndex--;
+                                test_Num = iterations;
                             }
 
                             if (rangeIndex == 0)
@@ -280,7 +306,17 @@ public class UserStudyControl : MonoBehaviour
                                 saveToLocal();
 
                                 finishPanel.SetActive(true);
+
+                                experimentStage++;
+
+                                if (recorderWindow.IsRecording() && startRecording)
+                                {
+                                    //print("recording");
+                                    recorderWindow.StopRecording();
+                                }
                             }
+
+                            //print(test_Num.ToString() + " - " + rangeIndex.ToString() + " - " + rangeSelected.ToString());
                         }
                         break;
                     default:
@@ -291,9 +327,33 @@ public class UserStudyControl : MonoBehaviour
             }
 
             prev_triggerFlag = triggerFlag;
+            prev_scenario = scenario;
         }
+
         pre_startFlag = startFlag;
-        prev_sliderOne = axisReciever.sliderOne;
+        prev_sliderOne = ShortSliderInOut.value;
+
+        //if (Input.GetKeyDown("space"))
+        //{
+        //    RecorderWindow recorderWindow = GetRecorderWindow();
+
+        //    if (!recorderWindow.IsRecording())
+        //    {
+        //        print("not recording");
+        //        recorderWindow.StartRecording();
+        //    }
+
+        //    if (recorderWindow.IsRecording())
+        //    {
+        //        print("recording");
+        //        recorderWindow.StopRecording();
+        //    }
+        //}
+    }
+
+    private RecorderWindow GetRecorderWindow()
+    {
+        return (RecorderWindow)EditorWindow.GetWindow(typeof(RecorderWindow));
     }
 
     private bool checkControllerTrigger()
@@ -315,15 +375,19 @@ public class UserStudyControl : MonoBehaviour
 
     private void saveToLocal()
     {
-        string saveFileName = "data/" + fileName + fileIndex.ToString() +".txt";
+        string fileName = "HapticSlider_P" + participantID.ToString() + "_S" + scenario.ToString();
+        string saveFileName = "data/" + fileName +".txt";
 
         while (File.Exists(saveFileName))
         {
-            fileIndex++;
-            saveFileName = "data/" + fileName + fileIndex.ToString() + ".txt";
+            duplicateFileIndex++;
+            saveFileName = "data/" + fileName + "_D" + duplicateFileIndex.ToString() + ".txt";
         }
 
         StreamWriter sw = new StreamWriter(saveFileName);
+
+        sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd\\THH:mm:ss\\Z"));
+        sw.WriteLine(" ");
 
         sw.WriteLine("Distance to Knob");
         foreach (var value in distanceToKnob)
@@ -355,19 +419,19 @@ public class UserStudyControl : MonoBehaviour
         float randomRangMax = randomPoint.transform.localPosition.y + rangeDifference;
         float randomRangMin = randomPoint.transform.localPosition.y - rangeDifference;
 
-        if (trialFlag && randomRangMin < -2.5f)
+        if (trialFlag && randomRangMin < -2.35f)
         {
-            randomRangMin = -2.5f;
+            randomRangMin = -2.2f;
         }
 
         float randomValue = UnityEngine.Random.value;
 
-        if (randomRangMax > virtualKnobMax)
+        if (randomRangMax > virtualKnobMax-0.1f)
         {
             randomValue = 0;
         }
 
-        if (randomRangMin < virtualKnobMin)
+        if (randomRangMin < virtualKnobMin+0.1f)
         {
             randomValue = 1;
         }
@@ -444,14 +508,16 @@ public class UserStudyControl : MonoBehaviour
         sliderModelReference1.transform.position = virtualSliderPos2;
         sliderModelReference2.transform.rotation = virtualSliderRot2;
 
-        instructionPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
         instructionPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
-
-        confirmationPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
         confirmationPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
-
-        finishPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
         finishPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
+
+        if (prev_scenario != scenario)
+        {
+            instructionPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
+            confirmationPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
+            finishPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
+        }
     }
 
     public void controllerRaySelect(bool select)
@@ -465,30 +531,34 @@ public class UserStudyControl : MonoBehaviour
         sliderModelReference1.transform.position = virtualSliderPos1;
         sliderModelReference2.transform.rotation = virtualSliderRot1;
 
-        instructionPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
         instructionPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
-
-        confirmationPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
         confirmationPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
-
-        finishPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
         finishPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
 
+        if (prev_scenario != scenario)
+        {
+            instructionPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
+            confirmationPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
+            finishPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
+        }
+        
         // update slider
-        sliderknob.transform.localPosition = new Vector3(sliderknob.transform.localPosition.x, sliderKnobReference.transform.localPosition.y + 1 * (float)(axisReciever.sliderOne - 127) / 255 * (1.89245f - 0.86574f), sliderknob.transform.localPosition.z);
+        sliderknob.transform.localPosition = new Vector3(sliderknob.transform.localPosition.x, sliderKnobReference.transform.localPosition.y + 1 * (float)(ShortSliderInOut.value - shortSliderMaxValue/2) / shortSliderMaxValue * (1.89245f - 0.86574f), sliderknob.transform.localPosition.z);
     }
 
     private void moveRobot(int bufferOne, int bufferTwo, int bufferThree, int bufferFour)
     {
-        if (axisReciever.sliderOne > bufferOne & prev_sliderOne < bufferOne)
+        if (ShortSliderInOut.value > bufferOne & prev_sliderOne < bufferOne)
         {
             unity_client.customMove(0.0485766, 0.4551, 0.08486, -0.6, 1.5, 0.62, movementType: 1);
+            //unity_client.customMove(0.4575, 0.0462, 0.088944, -0.6, 1.5, 0.62, movementType: 1);
         }
-        else if (axisReciever.sliderOne < bufferTwo & prev_sliderOne > bufferTwo)
+        else if (ShortSliderInOut.value < bufferTwo & prev_sliderOne > bufferTwo)
         {
             unity_client.customMove(0.4575, 0.0462, 0.088944, -0.6, 1.5, 0.62, movementType: 1);
+            //unity_client.customMove(0.0485766, 0.4551, 0.08486, -0.6, 1.5, 0.62, movementType: 1);
         }
-        else if ((axisReciever.sliderOne > bufferThree & axisReciever.sliderOne < bufferFour) & (prev_sliderOne < bufferThree | prev_sliderOne > bufferFour))
+        else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne < bufferThree | prev_sliderOne > bufferFour))
         {
             unity_client.stopRobot();
         }
