@@ -14,6 +14,9 @@ public class UserStudyControl : MonoBehaviour
     public GameObject sliderknob;
     public GameObject randomPoint;
 
+    public GameObject sliderknob1;
+    public GameObject randomPoint1;
+
     public GameObject sliderKnobReference;
     //public GameObject transSphere;
 
@@ -36,8 +39,10 @@ public class UserStudyControl : MonoBehaviour
     public GameObject confirmationPanel;
     public GameObject finishPanel;
 
-    public GameObject sliderModelReference1;
-    public GameObject sliderModelReference2;
+    public GameObject sliderRight;
+    public GameObject sliderLeft;
+
+    public GameObject panelReference;
 
     [Header("Parameters")]
     public float longSliderMaxValue = 1764;
@@ -88,10 +93,8 @@ public class UserStudyControl : MonoBehaviour
 
     private bool onControllerRaySelect = false;
 
-    private Vector3 virtualSliderPos1;
-    private Quaternion virtualSliderRot1;
-    private Vector3 virtualSliderPos2;
-    private Quaternion virtualSliderRot2;
+    private Vector3 panelReference1;
+    private Vector3 panelReference2;
 
     private RecorderWindow recorderWindow;
 
@@ -108,17 +111,14 @@ public class UserStudyControl : MonoBehaviour
 
         test_Num = iterations;
 
-        virtualSliderPos1 = sliderModelReference1.transform.position;
-        virtualSliderRot1 = sliderModelReference1.transform.rotation;
-
-        virtualSliderPos2 = sliderModelReference2.transform.position;
-        virtualSliderRot2 = sliderModelReference2.transform.rotation;
-
         instructionPanel.SetActive(false);
         confirmationPanel.SetActive(false);
         finishPanel.SetActive(false);
 
         recorderWindow = GetRecorderWindow();
+
+        panelReference1 = instructionPanel.transform.position;
+        panelReference2 = panelReference.transform.position;
     }
 
     // Update is called once per frame
@@ -131,7 +131,9 @@ public class UserStudyControl : MonoBehaviour
                 HideShowTagGameObject("Slider", false);
                 HideShowTagGameObject("Test", false);
 
-                HideRobot();
+                HideObject(robot, false);
+                HideObject(axis, false);
+                HideObject(axisReference, false);
             }
 
             if (sliderknob.transform.localPosition.y > virtualKnobMax)
@@ -230,7 +232,14 @@ public class UserStudyControl : MonoBehaviour
 
                         if (triggerFlag && !prev_triggerFlag)
                         {
-                            generateRandomPoint(rangeOne);
+                            if (scenario != 2)
+                            {
+                                generateRandomPoint(sliderknob, randomPoint, rangeOne);
+                            }
+                            else
+                            {
+                                generateRandomPoint(sliderknob1, randomPoint1, rangeOne);
+                            }
                         }
 
                         break;
@@ -248,76 +257,15 @@ public class UserStudyControl : MonoBehaviour
                     case 3: // recording stage
                         confirmationPanel.SetActive(false);
 
-                        if (!sFlag)
+                        if (scenario == 2)
                         {
-                            sFlag = true;
-
-                            triggerTime = new List<DateTime>();
-                            reactionTime = new List<double>();
-                            distanceToTarget = new List<double>();
-                            distanceToKnob = new List<double>();
-
-                            finishPanel.SetActive(false);
+                            recordingStage(sliderknob1, randomPoint1);
+                        }
+                        else
+                        {
+                            recordingStage(sliderknob, randomPoint);
                         }
 
-                        if (sFlag & rangeIndex > 0)
-                        {
-                            float rangeSelected;
-                            switch (rangeIndex)
-                            {
-                                case 1:
-                                    rangeSelected = rangeOne;
-                                    break;
-                                case 2:
-                                    rangeSelected = rangeTwo;
-                                    break;
-                                case 3:
-                                    rangeSelected = rangeThree;
-                                    break;
-                                default:
-                                    rangeSelected = rangeOne;
-                                    break;
-                            }
-
-                            if (triggerFlag && !prev_triggerFlag) // trigger random point
-                            {
-                                if (triggerTime.Count > 0)
-                                {
-                                    distanceToTarget.Add(sliderknob.transform.localPosition.y - randomPoint.transform.localPosition.y);
-                                    reactionTime.Add((System.DateTime.Now - triggerTime[triggerTime.Count - 1]).TotalMilliseconds);
-                                    test_Num--;
-                                }
-                                generateRandomPoint(rangeSelected);
-                                triggerTime.Add(System.DateTime.Now);
-                            }
-
-                            if (test_Num == 0)
-                            {
-                                rangeIndex--;
-                                test_Num = iterations;
-                            }
-
-                            if (rangeIndex == 0)
-                            {
-                                sFlag = false;
-                                test_Num = iterations;
-                                rangeIndex = 3;
-                                randomPoint.SetActive(false);
-                                saveToLocal();
-
-                                finishPanel.SetActive(true);
-
-                                experimentStage++;
-
-                                if (recorderWindow.IsRecording() && startRecording)
-                                {
-                                    //print("recording");
-                                    recorderWindow.StopRecording();
-                                }
-                            }
-
-                            //print(test_Num.ToString() + " - " + rangeIndex.ToString() + " - " + rangeSelected.ToString());
-                        }
                         break;
                     default:
                         instructionPanel.SetActive(false);
@@ -349,6 +297,79 @@ public class UserStudyControl : MonoBehaviour
         //        recorderWindow.StopRecording();
         //    }
         //}
+    }
+
+    private void recordingStage(GameObject konb, GameObject Rpoint)
+    {
+        if (!sFlag)
+        {
+            sFlag = true;
+
+            triggerTime = new List<DateTime>();
+            reactionTime = new List<double>();
+            distanceToTarget = new List<double>();
+            distanceToKnob = new List<double>();
+
+            finishPanel.SetActive(false);
+        }
+
+        if (sFlag & rangeIndex > 0)
+        {
+            float rangeSelected;
+            switch (rangeIndex)
+            {
+                case 1:
+                    rangeSelected = rangeOne;
+                    break;
+                case 2:
+                    rangeSelected = rangeTwo;
+                    break;
+                case 3:
+                    rangeSelected = rangeThree;
+                    break;
+                default:
+                    rangeSelected = rangeOne;
+                    break;
+            }
+
+            if (triggerFlag && !prev_triggerFlag) // trigger random point
+            {
+                if (triggerTime.Count > 0)
+                {
+                    distanceToTarget.Add(konb.transform.localPosition.y - Rpoint.transform.localPosition.y);
+                    reactionTime.Add((System.DateTime.Now - triggerTime[triggerTime.Count - 1]).TotalMilliseconds);
+                    test_Num--;
+                }
+                generateRandomPoint(konb, Rpoint, rangeSelected);
+                triggerTime.Add(System.DateTime.Now);
+            }
+
+            if (test_Num == 0)
+            {
+                rangeIndex--;
+                test_Num = iterations;
+            }
+
+            if (rangeIndex == 0)
+            {
+                sFlag = false;
+                test_Num = iterations;
+                rangeIndex = 3;
+                randomPoint.SetActive(false);
+                saveToLocal();
+
+                finishPanel.SetActive(true);
+
+                experimentStage++;
+
+                if (recorderWindow.IsRecording() && startRecording)
+                {
+                    //print("recording");
+                    recorderWindow.StopRecording();
+                }
+            }
+
+        }
     }
 
     private RecorderWindow GetRecorderWindow()
@@ -412,12 +433,12 @@ public class UserStudyControl : MonoBehaviour
         sw.Close();
     }
 
-    private void generateRandomPoint(float rangeDifference)
+    private void generateRandomPoint(GameObject knob, GameObject Rpoint, float rangeDifference)
     {
-        randomPoint.SetActive(true);
+        Rpoint.SetActive(true);
 
-        float randomRangMax = randomPoint.transform.localPosition.y + rangeDifference;
-        float randomRangMin = randomPoint.transform.localPosition.y - rangeDifference;
+        float randomRangMax = Rpoint.transform.localPosition.y + rangeDifference;
+        float randomRangMin = Rpoint.transform.localPosition.y - rangeDifference;
 
         if (trialFlag && randomRangMin < -2.35f)
         {
@@ -457,9 +478,9 @@ public class UserStudyControl : MonoBehaviour
         }
 
         //randomPoint.transform.localPosition = new Vector3(randomPoint.transform.localPosition.x, randomY, randomPoint.transform.localPosition.z);
-        randomPoint.transform.localPosition = new Vector3(0.7416667f, randomY, 0.0333334f);
+        Rpoint.transform.localPosition = new Vector3(0.7416667f, randomY, 0.0333334f);
 
-        distanceToKnob.Add(sliderknob.transform.localPosition.y - randomPoint.transform.localPosition.y);
+        distanceToKnob.Add(knob.transform.localPosition.y - Rpoint.transform.localPosition.y);
     }
 
     //private void virtualKnobUpdateFromControllerGrabbing()
@@ -505,19 +526,14 @@ public class UserStudyControl : MonoBehaviour
     private void virtualKnobUpdateFromVrPhysicalSlider()
     {
         // update virtual model position
-        sliderModelReference1.transform.position = virtualSliderPos2;
-        sliderModelReference2.transform.rotation = virtualSliderRot2;
+        sliderRight.SetActive(false);
+        sliderLeft.SetActive(true);
 
-        instructionPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
-        confirmationPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
-        finishPanel.transform.rotation = virtualSliderRot2 * Quaternion.Inverse(virtualSliderRot1) * virtualSliderRot1;
+        instructionPanel.transform.position = panelReference2;
+        confirmationPanel.transform.position = panelReference2;
+        finishPanel.transform.position = panelReference2;
 
-        if (prev_scenario != scenario)
-        {
-            instructionPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
-            confirmationPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
-            finishPanel.transform.position += virtualSliderPos2 - virtualSliderPos1;
-        }
+        sliderknob1.transform.localPosition = new Vector3(sliderknob1.transform.localPosition.x, (float)(virtualKnobMax - ((float)LongSliderInOut.value / 1764.0) * (virtualKnobMax - virtualKnobMin)), sliderknob1.transform.localPosition.z);
     }
 
     public void controllerRaySelect(bool select)
@@ -528,20 +544,13 @@ public class UserStudyControl : MonoBehaviour
     private void virtualKnobUpdateFromRobotAxis()
     {
         // update virtual model position
-        sliderModelReference1.transform.position = virtualSliderPos1;
-        sliderModelReference2.transform.rotation = virtualSliderRot1;
+        sliderRight.SetActive(true);
+        sliderLeft.SetActive(false);
 
-        instructionPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
-        confirmationPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
-        finishPanel.transform.rotation = virtualSliderRot1 * Quaternion.Inverse(virtualSliderRot2) * virtualSliderRot2;
+        instructionPanel.transform.position = panelReference2;
+        confirmationPanel.transform.position = panelReference2;
+        finishPanel.transform.position = panelReference2;
 
-        if (prev_scenario != scenario)
-        {
-            instructionPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
-            confirmationPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
-            finishPanel.transform.position += virtualSliderPos1 - virtualSliderPos2;
-        }
-        
         // update slider
         sliderknob.transform.localPosition = new Vector3(sliderknob.transform.localPosition.x, sliderKnobReference.transform.localPosition.y + 1 * (float)(ShortSliderInOut.value - shortSliderMaxValue/2) / shortSliderMaxValue * (1.89245f - 0.86574f), sliderknob.transform.localPosition.z);
     }
@@ -589,31 +598,14 @@ public class UserStudyControl : MonoBehaviour
         }
     }
 
-    public void HideRobot(bool hideFlag = false)
+    public void HideObject(GameObject obj, bool hideFlag = false)
     {
-        bool robotRender = hideFlag;
-        bool axisRender = hideFlag;
+        Renderer[] objectR = obj.GetComponentsInChildren<Renderer>();
 
-        Renderer[] Robot_rs = robot.GetComponentsInChildren<Renderer>();
-
-        foreach (Renderer rr in Robot_rs)
+        foreach (Renderer rr in objectR)
         {
-            rr.enabled = robotRender;
+            rr.enabled = hideFlag;
         }
 
-        Renderer[] Axis_rs = axis.GetComponentsInChildren<Renderer>();
-
-        foreach (Renderer ar in Axis_rs)
-        {
-            ar.enabled = axisRender;
-        }
-
-        Renderer[] Axis_rsf = axisReference.GetComponentsInChildren<Renderer>();
-
-        foreach (Renderer arf in Axis_rsf)
-        {
-            arf.enabled = axisRender;
-        }
-        
     }
 }
