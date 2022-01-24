@@ -24,10 +24,12 @@ public class controlmanager : MonoBehaviour
     public float extra2 = 0;
     public float extra3 = 0;
 
+    public int sp1 = -250;
+    public int sp2 = 250;
+
     public UnityClient unity_client;
-    //public WirelessAxes wireless;
-    public MadeAxisOscRecieve axisReciever;
     public GameObject dropDownButton;
+    public SerialInOut shortSliderInOut;
 
     public GameObject sliderModel;
     public GameObject torusModel;
@@ -281,23 +283,27 @@ public class controlmanager : MonoBehaviour
             //unity_client.circularMove(midPoint[0], midPoint[1], midPoint[2], midPoint[3], midPoint[4], midPoint[5], 0);
             unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
         }
-
+        
         if (prototypeFlag)
         {
-            if (axisReciever.sliderOne > 200 & prev_sliderOne < 200)
+            if (shortSliderInOut.value > 325 & prev_sliderOne <= 325)
             {
-                unity_client.customMove(0.05, 0.4, 0.1, -0.6, 1.5, 0.62, movementType: 1);
+                unity_client.customMove(0.4575, 0.0462, 0.088944, -0.6, 1.5, 0.62, movementType: 1);
+                shortSliderInOut.SetSlider(sp1);
+                
             }
-            else if (axisReciever.sliderOne < 55 & prev_sliderOne > 55)
+            else if (shortSliderInOut.value < 89 & prev_sliderOne >= 89)
             {
-                unity_client.customMove(0.35, 0.1, 0.1, -0.6, 1.5, 0.62, movementType: 1);
+                unity_client.customMove(0.0485766, 0.4551, 0.08486, -0.6, 1.5, 0.62, movementType: 1);
+                shortSliderInOut.SetSlider(sp2);
             }
-            else if ((axisReciever.sliderOne > 100 & axisReciever.sliderOne < 150) & (prev_sliderOne < 100 | prev_sliderOne > 150))
+            else if ((shortSliderInOut.value > 162 & shortSliderInOut.value < 244) & (prev_sliderOne <= 162 | prev_sliderOne >= 244))
             {
                 unity_client.stopRobot();
+                shortSliderInOut.SetSlider(0);
             }
 
-            prev_sliderOne = axisReciever.sliderOne;
+            prev_sliderOne = shortSliderInOut.value;
         }
 
         if (!testFlag)
