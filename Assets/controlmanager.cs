@@ -288,13 +288,13 @@ public class controlmanager : MonoBehaviour
         {
             if (shortSliderInOut.value > 325 & prev_sliderOne <= 325)
             {
-                unity_client.customMove(0.4575, 0.0462, 0.088944, -0.6, 1.5, 0.62, movementType: 1);
+                unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 1);
                 shortSliderInOut.SetSlider(sp1);
                 
             }
             else if (shortSliderInOut.value < 89 & prev_sliderOne >= 89)
             {
-                unity_client.customMove(0.0485766, 0.4551, 0.08486, -0.6, 1.5, 0.62, movementType: 1);
+                unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, movementType: 1);
                 shortSliderInOut.SetSlider(sp2);
             }
             else if ((shortSliderInOut.value > 162 & shortSliderInOut.value < 244) & (prev_sliderOne <= 162 | prev_sliderOne >= 244))

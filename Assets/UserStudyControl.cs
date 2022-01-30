@@ -18,6 +18,7 @@ public class UserStudyControl : MonoBehaviour
     public GameObject randomPoint1;
 
     public GameObject sliderKnobReference;
+    public GameObject panelPosReference;
     //public GameObject transSphere;
 
     //public WirelessAxes wireless;
@@ -41,8 +42,6 @@ public class UserStudyControl : MonoBehaviour
 
     public GameObject sliderRight;
     public GameObject sliderLeft;
-
-    public GameObject panelReference;
 
     [Header("Parameters")]
     public float longSliderMaxValue = 1764;
@@ -94,7 +93,7 @@ public class UserStudyControl : MonoBehaviour
     private bool onControllerRaySelect = false;
 
     private Vector3 panelReference1;
-    private Vector3 panelReference2;
+    private Quaternion panelReference2;
 
     private RecorderWindow recorderWindow;
 
@@ -118,7 +117,7 @@ public class UserStudyControl : MonoBehaviour
         recorderWindow = GetRecorderWindow();
 
         panelReference1 = instructionPanel.transform.position;
-        panelReference2 = panelReference.transform.position;
+        panelReference2 = instructionPanel.transform.rotation;
     }
 
     // Update is called once per frame
@@ -198,7 +197,7 @@ public class UserStudyControl : MonoBehaviour
 
             //if (Input.GetKeyDown("space")) // move robotic arm to position
             //{
-            //    virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, 0, 90f);
+            //    //virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, 0, 90f);
 
             //    virtualFingerTouchPoint.transform.position = new Vector3(sliderknob.transform.position.x, sliderknob.transform.position.y, sliderknob.transform.position.z);
 
@@ -206,7 +205,7 @@ public class UserStudyControl : MonoBehaviour
 
             //    Vector3 RobotRot = new Vector3(-0.6f, 1.47f, 0.62f);
 
-            //    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: 1);
+            //    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: 0);
             //}
 
             triggerFlag = checkControllerTrigger();
@@ -529,9 +528,13 @@ public class UserStudyControl : MonoBehaviour
         sliderRight.SetActive(false);
         sliderLeft.SetActive(true);
 
-        instructionPanel.transform.position = panelReference2;
-        confirmationPanel.transform.position = panelReference2;
-        finishPanel.transform.position = panelReference2;
+        instructionPanel.transform.position = panelPosReference.transform.position;
+        confirmationPanel.transform.position = panelPosReference.transform.position;
+        finishPanel.transform.position = panelPosReference.transform.position;
+
+        instructionPanel.transform.rotation = panelPosReference.transform.rotation;
+        confirmationPanel.transform.rotation = panelPosReference.transform.rotation;
+        finishPanel.transform.rotation = panelPosReference.transform.rotation;
 
         sliderknob1.transform.localPosition = new Vector3(sliderknob1.transform.localPosition.x, (float)(virtualKnobMax - ((float)LongSliderInOut.value / 1764.0) * (virtualKnobMax - virtualKnobMin)), sliderknob1.transform.localPosition.z);
     }
@@ -547,9 +550,13 @@ public class UserStudyControl : MonoBehaviour
         sliderRight.SetActive(true);
         sliderLeft.SetActive(false);
 
-        instructionPanel.transform.position = panelReference2;
-        confirmationPanel.transform.position = panelReference2;
-        finishPanel.transform.position = panelReference2;
+        instructionPanel.transform.position = panelReference1;
+        confirmationPanel.transform.position = panelReference1;
+        finishPanel.transform.position = panelReference1;
+
+        instructionPanel.transform.rotation = panelReference2;
+        confirmationPanel.transform.rotation = panelReference2;
+        finishPanel.transform.rotation = panelReference2;
 
         // update slider
         sliderknob.transform.localPosition = new Vector3(sliderknob.transform.localPosition.x, sliderKnobReference.transform.localPosition.y + 1 * (float)(ShortSliderInOut.value - shortSliderMaxValue/2) / shortSliderMaxValue * (1.89245f - 0.86574f), sliderknob.transform.localPosition.z);
@@ -557,17 +564,15 @@ public class UserStudyControl : MonoBehaviour
 
     private void moveRobot(int bufferOne, int bufferTwo, int bufferThree, int bufferFour)
     {
-        if (ShortSliderInOut.value > bufferOne & prev_sliderOne < bufferOne)
+        if (ShortSliderInOut.value > bufferOne & prev_sliderOne <= bufferOne)
         {
-            unity_client.customMove(0.0485766, 0.4551, 0.08486, -0.6, 1.5, 0.62, movementType: 1);
-            //unity_client.customMove(0.4575, 0.0462, 0.088944, -0.6, 1.5, 0.62, movementType: 1);
+            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 1);
         }
-        else if (ShortSliderInOut.value < bufferTwo & prev_sliderOne > bufferTwo)
+        else if (ShortSliderInOut.value < bufferTwo & prev_sliderOne >= bufferTwo)
         {
-            unity_client.customMove(0.4575, 0.0462, 0.088944, -0.6, 1.5, 0.62, movementType: 1);
-            //unity_client.customMove(0.0485766, 0.4551, 0.08486, -0.6, 1.5, 0.62, movementType: 1);
+            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, movementType: 1);
         }
-        else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne < bufferThree | prev_sliderOne > bufferFour))
+        else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne <= bufferThree | prev_sliderOne >= bufferFour))
         {
             unity_client.stopRobot();
         }
