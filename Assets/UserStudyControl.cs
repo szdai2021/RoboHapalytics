@@ -91,6 +91,7 @@ public class UserStudyControl : MonoBehaviour
     private bool trialFlag = false;
 
     private bool onControllerRaySelect = false;
+    private bool robotHomePos = true;
 
     private Vector3 panelReference1;
     private Quaternion panelReference2;
@@ -165,26 +166,47 @@ public class UserStudyControl : MonoBehaviour
             switch (scenario) // five different setups
             {
                 case 1: // interacting with virtual slider with virtual hand only without hatpic feedback
-                    //virtualKnobUpdateFromControllerPointing();
+                    if (!robotHomePos)
+                    {
+                        unity_client.customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
+                        robotHomePos = true;
+                    }
                     vrHandInteraction.SetActive(true);
                     virtualKnobUpdateFromVrHandControl();
                     break;
                 case 2: // interacting with virtual slider which is aliged with a full size physical slider with haptic feedback
                     vrHandInteraction.SetActive(false);
-                    //virtualKnobUpdateFromControllerGrabbing();
                     virtualKnobUpdateFromVrPhysicalSlider();
                     break;
                 case 3: // interacting with virutal slider where a short physical slider is mounted on a robotic arm to cover the whole range
+                    if (robotHomePos)
+                    {
+                        unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 0);
+                        robotHomePos = false;
+                    }
                     vrHandInteraction.SetActive(false);
-                    //moveRobot(200, 55, 100, 150);
                     moveRobot(325, 89, 162, 244);
                     virtualKnobUpdateFromRobotAxis();
                     break;
                 case 4:
+                    if (robotHomePos)
+                    {
+                        unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 0);
+                        robotHomePos = false;
+                    }
                     vrHandInteraction.SetActive(false);
+                    moveRobot(413, 2, 100, 300);
+                    virtualKnobUpdateFromRobotAxis();
                     break;
                 case 5:
+                    if (robotHomePos)
+                    {
+                        unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 0);
+                        robotHomePos = false;
+                    }
                     vrHandInteraction.SetActive(false);
+                    moveRobotDynamic(325, 89, 162, 244,355,385,59,29);
+                    virtualKnobUpdateFromRobotAxis();
                     break;
                 default:
                     break;
@@ -559,7 +581,7 @@ public class UserStudyControl : MonoBehaviour
         finishPanel.transform.rotation = panelReference2;
 
         // update slider
-        sliderknob.transform.localPosition = new Vector3(sliderknob.transform.localPosition.x, sliderKnobReference.transform.localPosition.y + 1 * (float)(ShortSliderInOut.value - shortSliderMaxValue/2) / shortSliderMaxValue * (1.89245f - 0.86574f), sliderknob.transform.localPosition.z);
+        sliderknob.transform.localPosition = new Vector3(sliderknob.transform.localPosition.x, sliderKnobReference.transform.localPosition.y + -1 * (float)(ShortSliderInOut.value - shortSliderMaxValue) / shortSliderMaxValue * 1.37f, sliderknob.transform.localPosition.z);
     }
 
     private void moveRobot(int bufferOne, int bufferTwo, int bufferThree, int bufferFour)
@@ -577,6 +599,38 @@ public class UserStudyControl : MonoBehaviour
             unity_client.stopRobot();
         }
     }
+    private void moveRobotDynamic(int bufferOne, int bufferTwo, int bufferThree, int bufferFour, int a1, int a2, int b1, int b2)
+    {
+        if ((ShortSliderInOut.value > bufferOne & ShortSliderInOut.value < a1) & (prev_sliderOne <= bufferOne | prev_sliderOne >= a1))
+        {
+            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
+        }
+        else if ((ShortSliderInOut.value > a1 & ShortSliderInOut.value < a2) & (prev_sliderOne <= a1 | prev_sliderOne >= a2))
+        {
+            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
+        }
+        else if (ShortSliderInOut.value > a2 & prev_sliderOne <= a2)
+        {
+            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
+        }
+        else if ((ShortSliderInOut.value > bufferTwo & ShortSliderInOut.value < b1) & (prev_sliderOne <= bufferTwo | prev_sliderOne >= b1))
+        {
+            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
+        }
+        else if ((ShortSliderInOut.value > b1 & ShortSliderInOut.value < b2) & (prev_sliderOne <= b1 | prev_sliderOne >= b2))
+        {
+            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
+        }
+        else if (ShortSliderInOut.value < b2 & prev_sliderOne >= b2)
+        {
+            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
+        }
+        else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne <= bufferThree | prev_sliderOne >= bufferFour))
+        {
+            unity_client.stopRobot();
+        }
+    }
+
 
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
     {
