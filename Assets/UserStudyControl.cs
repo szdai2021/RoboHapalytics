@@ -43,6 +43,14 @@ public class UserStudyControl : MonoBehaviour
     public GameObject sliderRight;
     public GameObject sliderLeft;
 
+    public GameObject debug1;
+    public GameObject debug2;
+
+    public GameObject buttonRed;
+    public GameObject redButton;
+
+    public GameObject shortSliderTracker;
+
     [Header("Parameters")]
     public float longSliderMaxValue = 1764;
     public float shortSliderMaxValue = 415;
@@ -55,6 +63,9 @@ public class UserStudyControl : MonoBehaviour
 
     public float randomPointOffset;
 
+    public int sp1 = -250;
+    public int sp2 = 250;
+
     //[HideInInspector] public float virtualKnobMax = 2.928f; //2.4f; //2.928
     //[HideInInspector] public float virtualKnobMin = -2.918f; //-2.4f; //-2.918
 
@@ -66,6 +77,9 @@ public class UserStudyControl : MonoBehaviour
 
     private float randomPointMax = 2.928f;
     private float randomPointMin = -2.918f;
+
+    private DateTime time_temp;
+    private bool lastPress = false;
 
     [Header("")]
     public int scenario = 0; // 0: default;  1: virtual slider with controller;  2: virtual slider with physical 1:1 slider;  3: the haptic slider system
@@ -97,6 +111,13 @@ public class UserStudyControl : MonoBehaviour
     private Quaternion panelReference2;
 
     private RecorderWindow recorderWindow;
+    List<float> distanceOrder = new List<float>();
+
+    private Vector3 buttonPos1 = new Vector3(1.7336f, -0.1341f, -0.0806f);
+    private Vector3 buttonPos2 = new Vector3(0.5903f, -0.131f, -0.0709f);
+
+    private Vector3 sliderLeftReference = new Vector3(-0.1942463f, 0.1035762f, 0.3072551f);
+    private Vector3 sliderRightReference = new Vector3(-0.7358298f, 0.09867605f, 0.3014497f);
 
     // Saved data
     private List<DateTime> triggerTime = new List<DateTime>();
@@ -119,6 +140,8 @@ public class UserStudyControl : MonoBehaviour
 
         panelReference1 = instructionPanel.transform.position;
         panelReference2 = instructionPanel.transform.rotation;
+        
+        readOrder();
     }
 
     // Update is called once per frame
@@ -134,6 +157,10 @@ public class UserStudyControl : MonoBehaviour
                 HideObject(robot, false);
                 HideObject(axis, false);
                 HideObject(axisReference, false);
+                HideObject(virtualFingerTouchPoint, false);
+
+                ShortSliderInOut.SetSlider(0);
+                LongSliderInOut.SetSlider(0);
             }
 
             if (sliderknob.transform.localPosition.y > virtualKnobMax)
@@ -150,7 +177,6 @@ public class UserStudyControl : MonoBehaviour
 
             if (randomPoint.transform.localPosition.y > randomPointMax)
             {
-
                 //randomPoint.transform.localPosition = new Vector3(randomPointMax, randomPoint.transform.localPosition.y, randomPoint.transform.localPosition.z);
                 randomPoint.transform.localPosition = new Vector3(0.7416667f, randomPointMax, 0.0333334f);
             }
@@ -172,39 +198,44 @@ public class UserStudyControl : MonoBehaviour
                         robotHomePos = true;
                     }
                     vrHandInteraction.SetActive(true);
+                    redButton.transform.localPosition = buttonPos2;
                     virtualKnobUpdateFromVrHandControl();
                     break;
                 case 2: // interacting with virtual slider which is aliged with a full size physical slider with haptic feedback
                     vrHandInteraction.SetActive(false);
+                    redButton.transform.localPosition = buttonPos1;
                     virtualKnobUpdateFromVrPhysicalSlider();
                     break;
                 case 3: // interacting with virutal slider where a short physical slider is mounted on a robotic arm to cover the whole range
                     if (robotHomePos)
                     {
-                        unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 0);
+                        unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 0);
                         robotHomePos = false;
                     }
                     vrHandInteraction.SetActive(false);
+                    redButton.transform.localPosition = buttonPos2;
                     moveRobot(325, 89, 162, 244);
                     virtualKnobUpdateFromRobotAxis();
                     break;
                 case 4:
                     if (robotHomePos)
                     {
-                        unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 0);
+                        unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 0);
                         robotHomePos = false;
                     }
                     vrHandInteraction.SetActive(false);
+                    redButton.transform.localPosition = buttonPos2;
                     moveRobot(413, 2, 100, 300);
                     virtualKnobUpdateFromRobotAxis();
                     break;
                 case 5:
                     if (robotHomePos)
                     {
-                        unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 0);
+                        unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 0);
                         robotHomePos = false;
                     }
                     vrHandInteraction.SetActive(false);
+                    redButton.transform.localPosition = buttonPos2;
                     moveRobotDynamic(325, 89, 162, 244,355,385,59,29);
                     virtualKnobUpdateFromRobotAxis();
                     break;
@@ -212,9 +243,10 @@ public class UserStudyControl : MonoBehaviour
                     break;
             }
 
-            if (prev_scenario != scenario)
+            if (prev_scenario != scenario & scenario != 0)
             {
                 experimentStage = 1;
+                randomPoint.SetActive(true);
             }
 
             //if (Input.GetKeyDown("space")) // move robotic arm to position
@@ -232,6 +264,7 @@ public class UserStudyControl : MonoBehaviour
 
             triggerFlag = checkControllerTrigger();
 
+            /*
             if (experimentFlag)
             {
                 switch (experimentStage)
@@ -269,9 +302,19 @@ public class UserStudyControl : MonoBehaviour
                         confirmationPanel.SetActive(true);
                         trialFlag = false;
 
+                        if (scenario != 2)
+                        {
+                            randomPoint.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
+                        }
+                        else
+                        {
+                            randomPoint1.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
+                        }
+
                         if (triggerFlag && sliderknob.transform.localPosition.y < 0.17f && sliderknob.transform.localPosition.y > -0.37f)
                         {
                             experimentStage += 1;
+                            time_temp = System.DateTime.Now;
                         }
 
                         break;
@@ -291,8 +334,28 @@ public class UserStudyControl : MonoBehaviour
                     default:
                         instructionPanel.SetActive(false);
                         confirmationPanel.SetActive(false);
+
+                        if (Input.GetKeyDown("r"))
+                        {
+                            finishPanel.SetActive(false);
+                            if (scenario != 1 & scenario != 2)
+                            {
+                                unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 1);
+                            }
+                            scenario = 0;
+                        }
+
                         break;
                 }
+            }
+            */
+            if (scenario == 2)
+            {
+                experiment(sliderknob1);
+            }
+            else
+            {
+                experiment(sliderknob);
             }
 
             prev_triggerFlag = triggerFlag;
@@ -301,6 +364,17 @@ public class UserStudyControl : MonoBehaviour
 
         pre_startFlag = startFlag;
         prev_sliderOne = ShortSliderInOut.value;
+
+        if (triggerFlag)
+        {
+            //buttonRed.transform.localPosition = new Vector3(0, -0.3f, 0);
+            buttonRed.transform.localPosition = Vector3.MoveTowards(buttonRed.transform.localPosition, new Vector3(0, -0.3f, 0), 1f);
+        }
+        else
+        {
+            //buttonRed.transform.localPosition = new Vector3(0, -0.2f, 0);
+            buttonRed.transform.localPosition = Vector3.MoveTowards(buttonRed.transform.localPosition, new Vector3(0, -0.2f, 0), 1f);
+        }
 
         //if (Input.GetKeyDown("space"))
         //{
@@ -318,6 +392,99 @@ public class UserStudyControl : MonoBehaviour
         //        recorderWindow.StopRecording();
         //    }
         //}
+
+        if (Input.GetKeyDown("space"))
+        {
+            print(distanceOrder.Count);
+        }
+    }
+
+    private void experiment(GameObject konb)
+    {
+        if (experimentFlag)
+        {
+            switch (experimentStage)
+            {
+                case 1: // trial stage
+                    if (!recorderWindow.IsRecording() && startRecording)
+                    {
+                        //print("not recording");
+                        recorderWindow.StartRecording();
+                    }
+
+                    instructionPanel.SetActive(true);
+                    trialFlag = true;
+
+                    if (triggerFlag && konb.transform.localPosition.y < -2.4f)
+                    {
+                        experimentStage += 1;
+                    }
+
+                    if (triggerFlag && !prev_triggerFlag)
+                    {
+                        if (scenario != 2)
+                        {
+                            generateRandomPoint(konb, randomPoint, rangeOne);
+                        }
+                        else
+                        {
+                            generateRandomPoint(konb, randomPoint1, rangeOne);
+                        }
+                    }
+
+                    break;
+                case 2: // comfirmation stage
+                    instructionPanel.SetActive(false);
+                    confirmationPanel.SetActive(true);
+                    trialFlag = false;
+
+                    if (scenario != 2)
+                    {
+                        randomPoint.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
+                    }
+                    else
+                    {
+                        randomPoint1.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
+                    }
+
+                    if (triggerFlag && konb.transform.localPosition.y < 0.17f && konb.transform.localPosition.y > -0.37f)
+                    {
+                        experimentStage += 1;
+                        time_temp = System.DateTime.Now;
+                    }
+
+                    break;
+                case 3: // recording stage
+                    confirmationPanel.SetActive(false);
+
+                    if (scenario == 2)
+                    {
+                        recordingStage(konb, randomPoint1);
+                    }
+                    else
+                    {
+                        recordingStage(konb, randomPoint);
+                    }
+
+                    break;
+                default:
+                    instructionPanel.SetActive(false);
+                    confirmationPanel.SetActive(false);
+
+                    if (Input.GetKeyDown("r"))
+                    {
+                        finishPanel.SetActive(false);
+                        if (scenario != 1 & scenario != 2)
+                        {
+                            unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 1);
+                        }
+                        scenario = 0;
+                    }
+
+                    break;
+            }
+        }
+
     }
 
     private void recordingStage(GameObject konb, GameObject Rpoint)
@@ -327,14 +494,16 @@ public class UserStudyControl : MonoBehaviour
             sFlag = true;
 
             triggerTime = new List<DateTime>();
+            triggerTime.Add(time_temp);
             reactionTime = new List<double>();
             distanceToTarget = new List<double>();
             distanceToKnob = new List<double>();
 
             finishPanel.SetActive(false);
+            prev_triggerFlag = true;
         }
 
-        if (sFlag & rangeIndex > 0)
+        if (sFlag)
         {
             float rangeSelected;
             switch (rangeIndex)
@@ -355,14 +524,28 @@ public class UserStudyControl : MonoBehaviour
 
             if (triggerFlag && !prev_triggerFlag) // trigger random point
             {
-                if (triggerTime.Count > 0)
+                if (test_Num != iterations)
                 {
                     distanceToTarget.Add(konb.transform.localPosition.y - Rpoint.transform.localPosition.y);
                     reactionTime.Add((System.DateTime.Now - triggerTime[triggerTime.Count - 1]).TotalMilliseconds);
-                    test_Num--;
                 }
-                generateRandomPoint(konb, Rpoint, rangeSelected);
-                triggerTime.Add(System.DateTime.Now);
+
+                test_Num--;
+
+                if (rangeIndex != 0)
+                {
+                    int index = (scenario - 1) * 30 + (iterations - test_Num - 1 + (3 - rangeIndex) * iterations);
+                    generateRandomPoint(konb, Rpoint, rangeSelected, orderIndex: index);
+                    debug1.GetComponent<TextMesh>().text = index.ToString();
+                    debug2.GetComponent<TextMesh>().text = index.ToString();
+                    triggerTime.Add(System.DateTime.Now);
+                }
+                else
+                {
+                    lastPress = true;
+                }
+
+                print(lastPress.ToString() + " " + rangeIndex.ToString());
             }
 
             if (test_Num == 0)
@@ -371,9 +554,15 @@ public class UserStudyControl : MonoBehaviour
                 test_Num = iterations;
             }
 
-            if (rangeIndex == 0)
+            if (rangeIndex <0)
+            {
+                rangeIndex = 0;
+            }
+
+            if (rangeIndex == 0 & lastPress)
             {
                 sFlag = false;
+                lastPress = false;
                 test_Num = iterations;
                 rangeIndex = 3;
                 randomPoint.SetActive(false);
@@ -400,24 +589,26 @@ public class UserStudyControl : MonoBehaviour
 
     private bool checkControllerTrigger()
     {
-        var inputDevices = new List<UnityEngine.XR.InputDevice>();
-        UnityEngine.XR.InputDevices.GetDevices(inputDevices);
-        UnityEngine.XR.InputDevice device = inputDevices[0];
-        for (int i = 0; i < inputDevices.Count; i++)
-        {
-            if (inputDevices[i].name == "Spatial Controller - Left")
-            {
-                device = inputDevices[i];
-            }
-        }
+        //var inputDevices = new List<UnityEngine.XR.InputDevice>();
+        //UnityEngine.XR.InputDevices.GetDevices(inputDevices);
+        //UnityEngine.XR.InputDevice device = inputDevices[0];
+        //for (int i = 0; i < inputDevices.Count; i++)
+        //{
+        //    if (inputDevices[i].name == "Spatial Controller - Left")
+        //    {
+        //        device = inputDevices[i];
+        //    }
+        //}
 
-        bool triggerValue;
-        return device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
+        //bool triggerValue;
+        //return device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
+
+        return ShortSliderInOut.Button == 1;
     }
 
     private void saveToLocal()
     {
-        string fileName = "HapticSlider_P" + participantID.ToString() + "_S" + scenario.ToString();
+        string fileName = "HapticSlider" + DateTime.Now.ToString("yyyy-MM-dd") + "_P" + participantID.ToString() + "_S" + scenario.ToString();
         string saveFileName = "data/" + fileName +".txt";
 
         while (File.Exists(saveFileName))
@@ -454,7 +645,7 @@ public class UserStudyControl : MonoBehaviour
         sw.Close();
     }
 
-    private void generateRandomPoint(GameObject knob, GameObject Rpoint, float rangeDifference)
+    private void generateRandomPoint(GameObject knob, GameObject Rpoint, float rangeDifference, int orderIndex = -1)
     {
         Rpoint.SetActive(true);
 
@@ -499,48 +690,25 @@ public class UserStudyControl : MonoBehaviour
         }
 
         //randomPoint.transform.localPosition = new Vector3(randomPoint.transform.localPosition.x, randomY, randomPoint.transform.localPosition.z);
-        Rpoint.transform.localPosition = new Vector3(0.7416667f, randomY, 0.0333334f);
+        if (orderIndex < 0)
+        {
+            randomY = UnityEngine.Random.Range(-2.2f, 2.8f);
+            Rpoint.transform.localPosition = new Vector3(0.7416667f, randomY, 0.0333334f);
+        }
+        else
+        {
+            Rpoint.transform.localPosition = new Vector3(0.7416667f, distanceOrder[orderIndex], 0.0333334f);
+        }
 
         distanceToKnob.Add(knob.transform.localPosition.y - Rpoint.transform.localPosition.y);
     }
 
-    //private void virtualKnobUpdateFromControllerGrabbing()
-    //{
-    //    var inputDevices = new List<UnityEngine.XR.InputDevice>();
-    //    UnityEngine.XR.InputDevices.GetDevices(inputDevices);
-    //    UnityEngine.XR.InputDevice device = inputDevices[0];
-    //    for (int i = 0; i < inputDevices.Count; i++)
-    //    {
-    //        if (inputDevices[i].name == "Spatial Controller - Left")
-    //        {
-    //            device = inputDevices[i];
-    //        }
-    //    }
-
-    //    bool triggerValue;
-    //    triggerFlag = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
-    //    if (triggerFlag && !prev_triggerFlag && colliderCheck.collisionCheck)
-    //    {
-    //        transSphere.GetComponent<MeshRenderer>().enabled = false;
-
-    //        sliderknob.transform.position = transSphere.transform.position;
-    //    }
-    //    else
-    //    {
-    //        transSphere.GetComponent<MeshRenderer>().enabled = true;
-    //    }
-    //}
-
-    private void virtualKnobUpdateFromControllerPointing()
-    {
-        if (onControllerRaySelect)
-        {
-
-        }
-    }
-
     private void virtualKnobUpdateFromVrHandControl()
     {
+        // update virtual model position
+        sliderRight.SetActive(true);
+        sliderLeft.SetActive(false);
+
         //unity_client.customMove(0f, 0.25f, 0.1f, -0.6f, 1.47f, 0.62f, movementType: 1);
     }
 
@@ -588,15 +756,24 @@ public class UserStudyControl : MonoBehaviour
     {
         if (ShortSliderInOut.value > bufferOne & prev_sliderOne <= bufferOne)
         {
-            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, movementType: 1);
+            unity_client.customMove(0.41173, -0.00627, 0.0476, -0.6, 1.5, 0.62, movementType: 1);
+            if (Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) > 0.001)
+            {
+                ShortSliderInOut.SetSlider(sp1);
+            }
         }
         else if (ShortSliderInOut.value < bufferTwo & prev_sliderOne >= bufferTwo)
         {
-            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, movementType: 1);
+            unity_client.customMove(0.028987, 0.37663, 0.0430782, -0.6, 1.5, 0.62, movementType: 1);
+            if (Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference) > 0.001)
+            {
+                ShortSliderInOut.SetSlider(sp2);
+            }
         }
         else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne <= bufferThree | prev_sliderOne >= bufferFour))
         {
             unity_client.stopRobot();
+            ShortSliderInOut.SetSlider(0);
         }
     }
     private void moveRobotDynamic(int bufferOne, int bufferTwo, int bufferThree, int bufferFour, int a1, int a2, int b1, int b2)
@@ -631,7 +808,6 @@ public class UserStudyControl : MonoBehaviour
         }
     }
 
-
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
     {
         /*
@@ -639,6 +815,9 @@ public class UserStudyControl : MonoBehaviour
         float new_y = -0.7023f * p1.x + -0.005f * p1.y + 0.6843f * p1.z - 0.4695f;
         float new_z = 0.09f * p1.x + 0.803f * p1.y + 0.4482f * p1.z - 0.047f;
         */
+        p1.x -= -0.5606855f - -0.5606583f;
+        p1.y -= -0.001490745f - -0.0005011343f;
+        p1.z -= 0.3161324f - 0.3580751f;
 
         float new_x = 0.7098f * p1.x + -0.00617f * p1.y + 0.707f * p1.z + 0.345378f;
         float new_y = -0.7098f * p1.x + 0.00617f * p1.y + 0.7014f * p1.z - 0.338f;
@@ -666,5 +845,19 @@ public class UserStudyControl : MonoBehaviour
             rr.enabled = hideFlag;
         }
 
+    }
+
+    private void readOrder()
+    {
+        string file = "ExperimentOrder.csv";
+
+        StreamReader reader = new StreamReader(file);
+
+        while (!reader.EndOfStream)
+        {
+            distanceOrder.Add(float.Parse(reader.ReadLine()));
+        }
+
+        reader.Close();
     }
 }

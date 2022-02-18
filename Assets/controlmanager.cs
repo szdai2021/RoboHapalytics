@@ -27,8 +27,10 @@ public class controlmanager : MonoBehaviour
     public int sp1 = -250;
     public int sp2 = 250;
 
+    public float testSpeed = 0.0261f;
+    public float testAcce = 1.0f;
+
     public UnityClient unity_client;
-    public GameObject dropDownButton;
     public SerialInOut shortSliderInOut;
 
     public GameObject sliderModel;
@@ -43,16 +45,15 @@ public class controlmanager : MonoBehaviour
 
     public GameObject TCPController;
 
-    public Text debug;
     public GameObject endEffector;
     public GameObject target;
     public GameObject virtualConnection;
     public Collider rangeCollider;
-    public Text receivedText;
-    public Text t2;
-    public Text t3;
 
     public GameObject virtualEndEffector;
+
+    public bool testStartCheck;
+    public float speedScale = 5.0f;
 
     private int force_flag = 0;
     private int counter = 0;
@@ -100,6 +101,11 @@ public class controlmanager : MonoBehaviour
 
     private bool prototypeFlag = false;
     private int prev_sliderOne = 0;
+
+    private bool prototypeFlag2 = false;
+    private float speedRatio = 0.0261f;
+    private int prototypeFlag2_counter = 0;
+    private bool tempTest = false;
 
     public void startScenario()
     {
@@ -223,7 +229,6 @@ public class controlmanager : MonoBehaviour
             t3.text = (Mathf.Deg2Rad * angle * xyz).ToString("f5");
             */
 
-            t2.text = sliderKnob.transform.position.ToString("f5");
 
             /*
             debug.text = sliderKnob.transform.rotation.eulerAngles.ToString("f5");
@@ -283,7 +288,56 @@ public class controlmanager : MonoBehaviour
             //unity_client.circularMove(midPoint[0], midPoint[1], midPoint[2], midPoint[3], midPoint[4], midPoint[5], 0);
             unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
         }
-        
+        else if (Input.GetKeyDown("u"))
+        {
+            unity_client.customMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, speed: testSpeed, acc: testAcce ,movementType: 4);
+        }
+        else if (Input.GetKeyDown("d"))
+        {
+            unity_client.customMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, speed: -testSpeed, acc: testAcce, movementType: 4);
+        }
+        else if (Input.GetKeyDown("s"))
+        {
+            unity_client.stopRobot();
+        }
+        else if (Input.GetKeyDown("m"))
+        {
+            unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 0);
+            prototypeFlag2 = true;
+        }
+
+        if (prototypeFlag2 & testStartCheck)
+        {
+            if (prototypeFlag2_counter > 9)
+            {
+                if (shortSliderInOut.value < 150 | shortSliderInOut.value > 250)
+                {
+                    tempTest = true;
+                    float sp = (shortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * speedRatio * speedScale;
+
+                    float ax = 0.41173f - 0.028987f;
+                    float ay = -0.00627f - 0.37663f;
+                    float az = 0.0476f - 0.0430782f;
+
+                    float norm = Mathf.Sqrt(ax * ax + ay * ay + az * az);
+
+                    unity_client.customMove(ax / norm * sp, ay / norm * sp, az / norm * sp, -0.6, 1.47, 0.62, speed: sp, acc: 1.5f, movementType: 4);
+
+                    prototypeFlag2_counter = 0;
+                }
+                else
+                {
+                    if (tempTest)
+                    {
+                        unity_client.stopRobot();
+                        tempTest = false;
+                    }
+                }
+            }
+
+            prototypeFlag2_counter++;
+        }
+
         if (prototypeFlag)
         {
             if (shortSliderInOut.value > 325 & prev_sliderOne <= 325)
@@ -368,30 +422,4 @@ public class controlmanager : MonoBehaviour
         }
     }
 
-    public void dropDownOnChange()
-    {
-        switch (dropDownButton.GetComponentInChildren<Dropdown>().value)
-        {
-            case 0:
-                sliderModel.SetActive(true);
-                torusModel.SetActive(false);
-                plot.SetActive(false);
-                break;
-            case 1:
-                sliderModel.SetActive(false);
-                torusModel.SetActive(true);
-                plot.SetActive(false);
-                break;
-            case 2:
-                sliderModel.SetActive(false);
-                torusModel.SetActive(false);
-                plot.SetActive(true);
-                break;
-            default:
-                sliderModel.SetActive(true);
-                torusModel.SetActive(false);
-                plot.SetActive(false);
-                break;
-        }
-    }
 }

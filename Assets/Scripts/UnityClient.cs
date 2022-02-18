@@ -136,20 +136,11 @@ public class UnityClient : MonoBehaviour
         };
         //y, x, y, x, y, z
 
-        Debug.Log("Wait for host to response");
-
         client = new TcpClient(host_ip, host_port);
         Debug.Log("Connected to relay server");
         stream = client.GetStream();
         inChannel = new StreamReader(client.GetStream());
         outChannel = new StreamWriter(client.GetStream());
-
-        new Thread(new ThreadStart(recvJointStateLoop)).Start();
-        StartCoroutine(executeJointTrajectory());
-
-        //circularMove(0.085512,0.397466,0.316909,0.701469,1.82303,1.77534,0);
-
-        //sliderTest_OnChange(0, 0);
 
         initialPos();
     }
@@ -382,23 +373,15 @@ public class UnityClient : MonoBehaviour
 
             if (temp.StartsWith("p"))
             {
-                //print("recv pos info: " + temp);
                 posQueue.Add(res);
-                //print("pos result: " + res[0] + "," + res[1] + "," + res[2] + "," + res[3] + "," + res[4] + "," + res[5]);
             }
-          /*  res[2] += 263.208458;
-            res[3] += 83.968;*/
-            //Debug.Log("JOINT STATE RECV");
            
             else
             {
                 jointAngles = res;
-                //print("joint result in rad: " + res[0] + "," + res[1] + "," + res[2] + "," + res[3] + "," + res[4] + "," + res[5]);
                 Parallel.For(0, 6, i => {
                     res[i] = rad2deg(res[i]);
                 }); 
-                //print("recv joint state info: " + temp);
-                //print("joint result in deg: " + res[0] + "," + res[1] + "," + res[2] + "," + res[3] + "," + res[4] + "," + res[5]);
                 Action executeOneJointState = () =>
                 {
                     for (int i = 0; i < res.Length; i++)
@@ -408,15 +391,6 @@ public class UnityClient : MonoBehaviour
                 };
 
                 trajectoryQueue.Add(executeOneJointState);
-                receiveFlag = true;
-
-                //Action executeOneAngleMove = () =>
-                //{
-                //    outChannel.Write(angleCMD);
-                //    outChannel.Flush();
-                //    receiveFlag = false;
-                //};
-                //angularQueue.Add(executeOneAngleMove);
 
             }
 
@@ -436,14 +410,9 @@ public class UnityClient : MonoBehaviour
     private string Recv6Tuple(StreamReader inChannel, out float[] result)
     {
         string res = inChannel.ReadLine();
-        //res = HttpUtility.UrlDecode(res, Encoding.UTF8);
-        //print("Res was " + res);
-       // Debug.Log(res);
         string temp = res.Trim(new char[] { '[', ']', 'p' });
-        //Debug.Log(res);
         if (temp.Contains("p"))
         {
-            //print("invalid data");
             int charLocation = temp.IndexOf("]", StringComparison.Ordinal);
 
             if (charLocation > 0)
@@ -456,13 +425,7 @@ public class UnityClient : MonoBehaviour
         int i = 0;
         foreach (var each in each_double)
         {
-            /*print("Parsing");*/
-            //print("each was  "  + each);
             result[i] = float.Parse(each);
-            //print("pose result was " +pose_result[i]);
-           // no need if return 6 tuple has p[]
-           // print("Pose result is " + pose_result[i]);
-            //Debug.Log(pose_result[i]);
             i++;
         }
         return res;
@@ -519,27 +482,9 @@ public class UnityClient : MonoBehaviour
         return (float)movement * -3.5f + 0.225f;
     }
 
-   /* private string packCommand(Vector3 desired_pos, Vector3 desired_orientation)
-    {
-
-        double x = desired_pos.z;
-        double y = -desired_pos.x;
-        double z = desired_pos.y;
-
-        Vector3 axisAngle = Eular2axisAngle(desired_orientation.x
-            , desired_orientation.y
-            , desired_orientation.z);
-
-        string pose_6_tuple = "(" + x + "," + y + "," + z + ","
-            + axisAngle.x + "," + axisAngle.y + "," + axisAngle.z + ")"; //]n
-        return pose_6_tuple;
-    }*/
     private float rad2deg(double rad)
     {
-    /*    Debug.Log("was: " + rad);
-        Debug.Log("is " + (float)(180 * rad / Math.PI));*/
         return (float)(180 * rad / Math.PI);
-
     }
 
 }

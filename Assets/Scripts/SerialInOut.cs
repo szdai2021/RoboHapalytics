@@ -10,7 +10,8 @@ public class SerialInOut : MonoBehaviour
 {
     public string COM = "COM5";
     public int value;
-    public int SendVal; // ForTesting
+    public int SendVal = -200; // ForTesting
+    public int Button;
 
     SerialPort sp;
     Thread ReadThread;
@@ -56,8 +57,10 @@ public class SerialInOut : MonoBehaviour
                 {
 
                     string indata = sp.ReadLine();
-                    value = int.Parse(indata);
-                  
+                    string[] splits = indata.Split(' ');
+                    value = int.Parse(splits[0]);
+
+                    Button = int.Parse(splits[1]);
                 }
             }
             catch (SystemException f)
