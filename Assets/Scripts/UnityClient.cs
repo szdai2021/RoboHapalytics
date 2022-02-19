@@ -61,8 +61,8 @@ public class UnityClient : MonoBehaviour
 
     private double UR_x = 0.166533;
 
-    // Start is called before the first frame update
-
+    public Vector3 currentRobotPos;
+    public Vector3 currentRobotRot;
     
     private const double xLimitRight = 0.099;
     private const double yLimitRight = 0.37;
@@ -138,9 +138,13 @@ public class UnityClient : MonoBehaviour
 
         client = new TcpClient(host_ip, host_port);
         Debug.Log("Connected to relay server");
+
         stream = client.GetStream();
         inChannel = new StreamReader(client.GetStream());
         outChannel = new StreamWriter(client.GetStream());
+
+        new Thread(new ThreadStart(recvJointStateLoop)).Start();
+        StartCoroutine(executeJointTrajectory());
 
         initialPos();
     }
@@ -362,7 +366,6 @@ public class UnityClient : MonoBehaviour
 
     }
 
-
     // Update is called once per frame
     private void recvJointStateLoop()
     {
@@ -374,8 +377,11 @@ public class UnityClient : MonoBehaviour
             if (temp.StartsWith("p"))
             {
                 posQueue.Add(res);
+                currentRobotPos.x = res[0];
+                currentRobotPos.y = res[1];
+                currentRobotPos.z = res[2];
             }
-           
+
             else
             {
                 jointAngles = res;
@@ -391,7 +397,6 @@ public class UnityClient : MonoBehaviour
                 };
 
                 trajectoryQueue.Add(executeOneJointState);
-
             }
 
         }

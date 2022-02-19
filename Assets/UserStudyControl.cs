@@ -119,6 +119,18 @@ public class UserStudyControl : MonoBehaviour
     private Vector3 sliderLeftReference = new Vector3(-0.1942463f, 0.1035762f, 0.3072551f);
     private Vector3 sliderRightReference = new Vector3(-0.7358298f, 0.09867605f, 0.3014497f);
 
+    private int dynamicCounter = 0;
+    private bool dynamicLeftEnd = false;
+    private bool dynamicRightEnd = false;
+    private bool dynamicMoving = false;
+    private float speedScale = 5.0f;
+
+    private int socketRestCounter = 0;
+    private int socketRestThreshold = 600;
+
+    private Vector3 sliderEndRobotPos1 = new Vector3(0.41173f, -0.00627f, 0.0476f); // left
+    private Vector3 sliderEndRobotPos2 = new Vector3(0.028987f, 0.37663f, 0.0430782f); // right
+
     // Saved data
     private List<DateTime> triggerTime = new List<DateTime>();
     private List<double> reactionTime = new List<double>();
@@ -236,7 +248,7 @@ public class UserStudyControl : MonoBehaviour
                     }
                     vrHandInteraction.SetActive(false);
                     redButton.transform.localPosition = buttonPos2;
-                    moveRobotDynamic(325, 89, 162, 244,355,385,59,29);
+                    moveRobotDynamic(150, 250);
                     virtualKnobUpdateFromRobotAxis();
                     break;
                 default:
@@ -264,91 +276,6 @@ public class UserStudyControl : MonoBehaviour
 
             triggerFlag = checkControllerTrigger();
 
-            /*
-            if (experimentFlag)
-            {
-                switch (experimentStage)
-                {
-                    case 1: // trial stage
-                        if (!recorderWindow.IsRecording() && startRecording)
-                        {
-                            //print("not recording");
-                            recorderWindow.StartRecording();
-                        }
-
-                        instructionPanel.SetActive(true);
-                        trialFlag = true;
-
-                        if (triggerFlag && sliderknob.transform.localPosition.y < -2.4f)
-                        {
-                            experimentStage += 1;
-                        }
-
-                        if (triggerFlag && !prev_triggerFlag)
-                        {
-                            if (scenario != 2)
-                            {
-                                generateRandomPoint(sliderknob, randomPoint, rangeOne);
-                            }
-                            else
-                            {
-                                generateRandomPoint(sliderknob1, randomPoint1, rangeOne);
-                            }
-                        }
-
-                        break;
-                    case 2: // comfirmation stage
-                        instructionPanel.SetActive(false);
-                        confirmationPanel.SetActive(true);
-                        trialFlag = false;
-
-                        if (scenario != 2)
-                        {
-                            randomPoint.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
-                        }
-                        else
-                        {
-                            randomPoint1.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
-                        }
-
-                        if (triggerFlag && sliderknob.transform.localPosition.y < 0.17f && sliderknob.transform.localPosition.y > -0.37f)
-                        {
-                            experimentStage += 1;
-                            time_temp = System.DateTime.Now;
-                        }
-
-                        break;
-                    case 3: // recording stage
-                        confirmationPanel.SetActive(false);
-
-                        if (scenario == 2)
-                        {
-                            recordingStage(sliderknob1, randomPoint1);
-                        }
-                        else
-                        {
-                            recordingStage(sliderknob, randomPoint);
-                        }
-
-                        break;
-                    default:
-                        instructionPanel.SetActive(false);
-                        confirmationPanel.SetActive(false);
-
-                        if (Input.GetKeyDown("r"))
-                        {
-                            finishPanel.SetActive(false);
-                            if (scenario != 1 & scenario != 2)
-                            {
-                                unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 1);
-                            }
-                            scenario = 0;
-                        }
-
-                        break;
-                }
-            }
-            */
             if (scenario == 2)
             {
                 experiment(sliderknob1);
@@ -775,37 +702,110 @@ public class UserStudyControl : MonoBehaviour
             unity_client.stopRobot();
             ShortSliderInOut.SetSlider(0);
         }
+
+        if ((Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) < 0.001) & ShortSliderInOut.SendVal == sp1)
+        {
+            ShortSliderInOut.SetSlider(0);
+        }
+
+        if ((Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference) < 0.001) & ShortSliderInOut.SendVal == sp2)
+        {
+            ShortSliderInOut.SetSlider(0);
+        }
     }
-    private void moveRobotDynamic(int bufferOne, int bufferTwo, int bufferThree, int bufferFour, int a1, int a2, int b1, int b2)
+    private void moveRobotDynamic(int bufferOne, int bufferTwo)
     {
-        if ((ShortSliderInOut.value > bufferOne & ShortSliderInOut.value < a1) & (prev_sliderOne <= bufferOne | prev_sliderOne >= a1))
+        //if ((ShortSliderInOut.value > bufferOne & ShortSliderInOut.value < a1) & (prev_sliderOne <= bufferOne | prev_sliderOne >= a1))
+        //{
+        //    unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
+        //}
+        //else if ((ShortSliderInOut.value > a1 & ShortSliderInOut.value < a2) & (prev_sliderOne <= a1 | prev_sliderOne >= a2))
+        //{
+        //    unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
+        //}
+        //else if (ShortSliderInOut.value > a2 & prev_sliderOne <= a2)
+        //{
+        //    unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
+        //}
+        //else if ((ShortSliderInOut.value > bufferTwo & ShortSliderInOut.value < b1) & (prev_sliderOne <= bufferTwo | prev_sliderOne >= b1))
+        //{
+        //    unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
+        //}
+        //else if ((ShortSliderInOut.value > b1 & ShortSliderInOut.value < b2) & (prev_sliderOne <= b1 | prev_sliderOne >= b2))
+        //{
+        //    unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
+        //}
+        //else if (ShortSliderInOut.value < b2 & prev_sliderOne >= b2)
+        //{
+        //    unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
+        //}
+        //else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne <= bufferThree | prev_sliderOne >= bufferFour))
+        //{
+        //    unity_client.stopRobot();
+        //}
+
+        if (Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) < 0.001)
         {
-            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
-        }
-        else if ((ShortSliderInOut.value > a1 & ShortSliderInOut.value < a2) & (prev_sliderOne <= a1 | prev_sliderOne >= a2))
-        {
-            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
-        }
-        else if (ShortSliderInOut.value > a2 & prev_sliderOne <= a2)
-        {
-            unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
-        }
-        else if ((ShortSliderInOut.value > bufferTwo & ShortSliderInOut.value < b1) & (prev_sliderOne <= bufferTwo | prev_sliderOne >= b1))
-        {
-            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
-        }
-        else if ((ShortSliderInOut.value > b1 & ShortSliderInOut.value < b2) & (prev_sliderOne <= b1 | prev_sliderOne >= b2))
-        {
-            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
-        }
-        else if (ShortSliderInOut.value < b2 & prev_sliderOne >= b2)
-        {
-            unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
-        }
-        else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne <= bufferThree | prev_sliderOne >= bufferFour))
-        {
+            dynamicLeftEnd = true;
             unity_client.stopRobot();
+            dynamicMoving = false;
         }
+        else
+        {
+            dynamicLeftEnd = false;
+        }
+
+        if(Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference) < 0.001)
+        {
+            dynamicRightEnd = true;
+            unity_client.stopRobot();
+            dynamicMoving = false;
+        }
+        else
+        {
+            dynamicRightEnd = false;
+        }
+
+        debug1.GetComponent<TextMesh>().text = Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference).ToString() + " " + Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference).ToString();
+
+        if (dynamicCounter > 9)
+        {
+            if (ShortSliderInOut.value < bufferOne | ShortSliderInOut.value > bufferTwo)
+            {
+                dynamicMoving = true;
+                float sp = (ShortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * 0.0261f * speedScale;
+
+                float ax = 0.41173f - 0.028987f;
+                float ay = -0.00627f - 0.37663f;
+                float az = 0.0476f - 0.0430782f;
+
+                float norm = Mathf.Sqrt(ax * ax + ay * ay + az * az);
+
+                if ((ShortSliderInOut.value < bufferOne & !dynamicRightEnd) | (ShortSliderInOut.value > bufferTwo & !dynamicLeftEnd))
+                {
+                    unity_client.customMove(ax / norm * sp, ay / norm * sp, az / norm * sp, -0.6, 1.47, 0.62, speed: sp, acc: 1.5f, movementType: 4);
+                }
+
+                dynamicCounter = 0;
+            }
+            else
+            {
+                if (dynamicMoving)
+                {
+                    unity_client.stopRobot();
+                    dynamicMoving = false;
+                }
+            }
+        }
+
+        if (socketRestCounter > socketRestThreshold)
+        {
+            unity_client.customMove(0, 0, 0, 0, 0, 0, movementType: 4, scenario: 3);
+
+            socketRestCounter = 0;
+        }
+        dynamicCounter++;
+        socketRestCounter++;
     }
 
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)

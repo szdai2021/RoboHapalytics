@@ -105,6 +105,7 @@ public class controlmanager : MonoBehaviour
     private bool prototypeFlag2 = false;
     private float speedRatio = 0.0261f;
     private int prototypeFlag2_counter = 0;
+    private int prototypeFlag2_counter2 = 0;
     private bool tempTest = false;
 
     public void startScenario()
@@ -335,7 +336,16 @@ public class controlmanager : MonoBehaviour
                 }
             }
 
+            if (prototypeFlag2_counter2 > 600)
+            {
+                unity_client.customMove(0, 0, 0, 0, 0, 0, movementType: 4, scenario: 3);
+
+                prototypeFlag2_counter2 = 0;
+            }
+            prototypeFlag2_counter2++;
+
             prototypeFlag2_counter++;
+            
         }
 
         if (prototypeFlag)
