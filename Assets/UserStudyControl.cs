@@ -6,6 +6,7 @@ using System.IO;
 using System;
 using UnityEditor.Recorder;
 using UnityEditor;
+using TMPro;
 
 public class UserStudyControl : MonoBehaviour
 {
@@ -19,13 +20,11 @@ public class UserStudyControl : MonoBehaviour
 
     public GameObject sliderKnobReference;
     public GameObject panelPosReference;
-    //public GameObject transSphere;
 
-    //public WirelessAxes wireless;
     public SerialInOut ShortSliderInOut;
     public SerialInOut LongSliderInOut;
     public UnityClient unity_client;
-    //public colliderCheck colliderCheck;
+    public PosRecorder posRecorder;
 
     public GameObject robot;
     public GameObject axis;
@@ -38,6 +37,7 @@ public class UserStudyControl : MonoBehaviour
 
     public GameObject instructionPanel;
     public GameObject confirmationPanel;
+    public GameObject experimentPanel;
     public GameObject finishPanel;
 
     public GameObject sliderRight;
@@ -50,6 +50,12 @@ public class UserStudyControl : MonoBehaviour
     public GameObject redButton;
 
     public GameObject shortSliderTracker;
+
+    public Collider leftChecker;
+    public Collider rightChecker;
+
+    public TMP_Text trainingCounter;
+    public TMP_Text experimentCounter;
 
     [Header("Parameters")]
     public float longSliderMaxValue = 1764;
@@ -123,13 +129,18 @@ public class UserStudyControl : MonoBehaviour
     private bool dynamicLeftEnd = false;
     private bool dynamicRightEnd = false;
     private bool dynamicMoving = false;
-    private float speedScale = 5.0f;
-
-    private int socketRestCounter = 0;
-    private int socketRestThreshold = 600;
+    private float speedScale = 7.0f;
 
     private Vector3 sliderEndRobotPos1 = new Vector3(0.41173f, -0.00627f, 0.0476f); // left
     private Vector3 sliderEndRobotPos2 = new Vector3(0.028987f, 0.37663f, 0.0430782f); // right
+
+    private int trialNum = 10;
+
+    private float ax;
+    private float ay;
+    private float az;
+
+    private float norm;
 
     // Saved data
     private List<DateTime> triggerTime = new List<DateTime>();
@@ -146,6 +157,7 @@ public class UserStudyControl : MonoBehaviour
 
         instructionPanel.SetActive(false);
         confirmationPanel.SetActive(false);
+        experimentPanel.SetActive(false);
         finishPanel.SetActive(false);
 
         recorderWindow = GetRecorderWindow();
@@ -154,6 +166,12 @@ public class UserStudyControl : MonoBehaviour
         panelReference2 = instructionPanel.transform.rotation;
         
         readOrder();
+
+        ax = 0.41173f - 0.028987f;
+        ay = -0.00627f - 0.37663f;
+        az = 0.0476f - 0.0430782f;
+
+        norm = Mathf.Sqrt(ax * ax + ay * ay + az * az);
     }
 
     // Update is called once per frame
@@ -175,15 +193,15 @@ public class UserStudyControl : MonoBehaviour
                 LongSliderInOut.SetSlider(0);
             }
 
-            if (sliderknob.transform.localPosition.y > virtualKnobMax)
-            {
-                sliderknob.transform.localPosition = new Vector3(0, virtualKnobMax, 0);
-            }
+            //if (sliderknob.transform.localPosition.y > virtualKnobMax)
+            //{
+            //    sliderknob.transform.localPosition = new Vector3(0, virtualKnobMax, 0);
+            //}
 
-            if (sliderknob.transform.localPosition.y < virtualKnobMin)
-            {
-                sliderknob.transform.localPosition = new Vector3(0, virtualKnobMin, 0);
-            }
+            //if (sliderknob.transform.localPosition.y < virtualKnobMin)
+            //{
+            //    sliderknob.transform.localPosition = new Vector3(0, virtualKnobMin, 0);
+            //}
 
             //sliderknob.transform.localPosition = new Vector3(0, sliderknob.transform.localPosition.y, 0);
 
@@ -333,29 +351,45 @@ public class UserStudyControl : MonoBehaviour
             switch (experimentStage)
             {
                 case 1: // trial stage
-                    if (!recorderWindow.IsRecording() && startRecording)
+                    if (startRecording)
                     {
-                        //print("not recording");
-                        recorderWindow.StartRecording();
+                        posRecorder.startFlag = true;
+                        posRecorder.participantID = participantID;
+                        posRecorder.scenario = scenario;
                     }
 
                     instructionPanel.SetActive(true);
                     trialFlag = true;
 
-                    if (triggerFlag && konb.transform.localPosition.y < -2.4f)
-                    {
-                        experimentStage += 1;
-                    }
+                    trainingCounter.text = (10 - trialNum).ToString() + "/10";
 
-                    if (triggerFlag && !prev_triggerFlag)
+                    if (triggerFlag && !prev_triggerFlag && LongSliderInOut.speed == 0) //&& (!lockoutThisFunction) // and then start a coroutine - turn lockouthisfunction true for 0.5 second then flase
                     {
-                        if (scenario != 2)
+                        if (trialNum > 0)
                         {
-                            generateRandomPoint(konb, randomPoint, rangeOne);
+                            if (scenario != 2)
+                            {
+                                generateRandomPoint(konb, randomPoint, rangeOne);
+                            }
+                            else
+                            {
+                                generateRandomPoint(konb, randomPoint1, rangeOne);
+                            }
+
+                            trialNum--;
                         }
                         else
                         {
-                            generateRandomPoint(konb, randomPoint1, rangeOne);
+                            if (scenario != 2)
+                            {
+                                randomPoint.SetActive(false);
+                            }
+                            else
+                            {
+                                randomPoint1.SetActive(false);
+                            }
+
+                            experimentStage += 1;
                         }
                     }
 
@@ -367,22 +401,31 @@ public class UserStudyControl : MonoBehaviour
 
                     if (scenario != 2)
                     {
-                        randomPoint.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
+                        randomPoint.transform.localPosition = new Vector3(0.7416667f, distanceOrder[(scenario-1)*30+scenario-1], 0.0333334f);
                     }
                     else
                     {
-                        randomPoint1.transform.localPosition = new Vector3(0.7416667f, 0, 0.0333334f);
+                        randomPoint1.transform.localPosition = new Vector3(0.7416667f, distanceOrder[(scenario - 1) * 30 + scenario - 1], 0.0333334f);
                     }
 
                     if (triggerFlag && konb.transform.localPosition.y < 0.17f && konb.transform.localPosition.y > -0.37f)
                     {
                         experimentStage += 1;
+                        if (scenario != 2)
+                        {
+                            randomPoint.SetActive(true);
+                        }
+                        else
+                        {
+                            randomPoint1.SetActive(true);
+                        }
                         time_temp = System.DateTime.Now;
                     }
 
                     break;
                 case 3: // recording stage
                     confirmationPanel.SetActive(false);
+                    experimentPanel.SetActive(true);
 
                     if (scenario == 2)
                     {
@@ -397,6 +440,7 @@ public class UserStudyControl : MonoBehaviour
                 default:
                     instructionPanel.SetActive(false);
                     confirmationPanel.SetActive(false);
+                    experimentPanel.SetActive(false);
 
                     if (Input.GetKeyDown("r"))
                     {
@@ -406,6 +450,7 @@ public class UserStudyControl : MonoBehaviour
                             unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 1);
                         }
                         scenario = 0;
+                        trialNum = 10;
                     }
 
                     break;
@@ -449,19 +494,18 @@ public class UserStudyControl : MonoBehaviour
                     break;
             }
 
-            if (triggerFlag && !prev_triggerFlag) // trigger random point
+            experimentCounter.text = ((iterations - test_Num + (3 - rangeIndex) * iterations)).ToString() + "/30";
+
+            if (triggerFlag && !prev_triggerFlag && LongSliderInOut.speed == 0) // trigger random point
             {
-                if (test_Num != iterations)
-                {
-                    distanceToTarget.Add(konb.transform.localPosition.y - Rpoint.transform.localPosition.y);
-                    reactionTime.Add((System.DateTime.Now - triggerTime[triggerTime.Count - 1]).TotalMilliseconds);
-                }
+                distanceToTarget.Add(konb.transform.localPosition.y - Rpoint.transform.localPosition.y);
+                reactionTime.Add((System.DateTime.Now - triggerTime[triggerTime.Count - 1]).TotalMilliseconds);
 
                 test_Num--;
 
                 if (rangeIndex != 0)
                 {
-                    int index = (scenario - 1) * 30 + (iterations - test_Num - 1 + (3 - rangeIndex) * iterations);
+                    int index = (scenario - 1) * 30 + (iterations - test_Num - 1 + (3 - rangeIndex) * iterations) + scenario;
                     generateRandomPoint(konb, Rpoint, rangeSelected, orderIndex: index);
                     debug1.GetComponent<TextMesh>().text = index.ToString();
                     debug2.GetComponent<TextMesh>().text = index.ToString();
@@ -471,8 +515,6 @@ public class UserStudyControl : MonoBehaviour
                 {
                     lastPress = true;
                 }
-
-                print(lastPress.ToString() + " " + rangeIndex.ToString());
             }
 
             if (test_Num == 0)
@@ -499,10 +541,9 @@ public class UserStudyControl : MonoBehaviour
 
                 experimentStage++;
 
-                if (recorderWindow.IsRecording() && startRecording)
+                if (startRecording)
                 {
-                    //print("recording");
-                    recorderWindow.StopRecording();
+                    posRecorder.startFlag = false;
                 }
             }
 
@@ -529,8 +570,17 @@ public class UserStudyControl : MonoBehaviour
 
         //bool triggerValue;
         //return device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerValue) && triggerValue;
+        bool pressed;
+        if (scenario != 2) 
+        {
+            pressed = ShortSliderInOut.Button == 1;
+        } 
+        else 
+        {
+            pressed = LongSliderInOut.Button == 1;
+        }
 
-        return ShortSliderInOut.Button == 1;
+        return pressed;
     }
 
     private void saveToLocal()
@@ -624,7 +674,7 @@ public class UserStudyControl : MonoBehaviour
         }
         else
         {
-            Rpoint.transform.localPosition = new Vector3(0.7416667f, distanceOrder[orderIndex], 0.0333334f);
+            Rpoint.transform.localPosition = new Vector3(0.7416667f, Rpoint.transform.localPosition.y + distanceOrder[orderIndex], 0.0333334f);
         }
 
         distanceToKnob.Add(knob.transform.localPosition.y - Rpoint.transform.localPosition.y);
@@ -647,10 +697,12 @@ public class UserStudyControl : MonoBehaviour
 
         instructionPanel.transform.position = panelPosReference.transform.position;
         confirmationPanel.transform.position = panelPosReference.transform.position;
+        experimentPanel.transform.position = panelPosReference.transform.position;
         finishPanel.transform.position = panelPosReference.transform.position;
 
         instructionPanel.transform.rotation = panelPosReference.transform.rotation;
         confirmationPanel.transform.rotation = panelPosReference.transform.rotation;
+        experimentPanel.transform.rotation = panelPosReference.transform.rotation;
         finishPanel.transform.rotation = panelPosReference.transform.rotation;
 
         sliderknob1.transform.localPosition = new Vector3(sliderknob1.transform.localPosition.x, (float)(virtualKnobMax - ((float)LongSliderInOut.value / 1764.0) * (virtualKnobMax - virtualKnobMin)), sliderknob1.transform.localPosition.z);
@@ -669,10 +721,12 @@ public class UserStudyControl : MonoBehaviour
 
         instructionPanel.transform.position = panelReference1;
         confirmationPanel.transform.position = panelReference1;
+        experimentPanel.transform.position = panelReference1;
         finishPanel.transform.position = panelReference1;
 
         instructionPanel.transform.rotation = panelReference2;
         confirmationPanel.transform.rotation = panelReference2;
+        experimentPanel.transform.rotation = panelReference2;
         finishPanel.transform.rotation = panelReference2;
 
         // update slider
@@ -683,16 +737,16 @@ public class UserStudyControl : MonoBehaviour
     {
         if (ShortSliderInOut.value > bufferOne & prev_sliderOne <= bufferOne)
         {
-            unity_client.customMove(0.41173, -0.00627, 0.0476, -0.6, 1.5, 0.62, movementType: 1);
-            if (Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) > 0.001)
+            unity_client.customMove(0.41173, -0.00627, 0.0476, -0.6, 1.5, 0.62, speed:0.4, movementType: 1);
+            if (!leftChecker.bounds.Contains(shortSliderTracker.transform.position))
             {
                 ShortSliderInOut.SetSlider(sp1);
             }
         }
         else if (ShortSliderInOut.value < bufferTwo & prev_sliderOne >= bufferTwo)
         {
-            unity_client.customMove(0.028987, 0.37663, 0.0430782, -0.6, 1.5, 0.62, movementType: 1);
-            if (Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference) > 0.001)
+            unity_client.customMove(0.028987, 0.37663, 0.0430782, -0.6, 1.5, 0.62, speed: 0.4, movementType: 1);
+            if (!rightChecker.bounds.Contains(shortSliderTracker.transform.position))
             {
                 ShortSliderInOut.SetSlider(sp2);
             }
@@ -703,16 +757,32 @@ public class UserStudyControl : MonoBehaviour
             ShortSliderInOut.SetSlider(0);
         }
 
-        if ((Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) < 0.001) & ShortSliderInOut.SendVal == sp1)
+        if (leftChecker.bounds.Contains(shortSliderTracker.transform.position) & ShortSliderInOut.SendVal < 0)
         {
             ShortSliderInOut.SetSlider(0);
         }
 
-        if ((Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference) < 0.001) & ShortSliderInOut.SendVal == sp2)
+        if (rightChecker.bounds.Contains(shortSliderTracker.transform.position) & ShortSliderInOut.SendVal > 0)
         {
             ShortSliderInOut.SetSlider(0);
         }
+
+        if (ShortSliderInOut.SendVal != 0)
+        {
+            if (ShortSliderInOut.value > bufferOne)
+            {
+                ShortSliderInOut.SetSlider(sp1 + ShortSliderInOut.speed * 20);
+            }
+            else if(ShortSliderInOut.value < bufferTwo)
+            {
+                ShortSliderInOut.SetSlider(sp2 + ShortSliderInOut.speed * 20);
+            }
+            
+        }
+
+        //debug1.GetComponent<TextMesh>().text = Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference).ToString() + " " + Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference).ToString();
     }
+
     private void moveRobotDynamic(int bufferOne, int bufferTwo)
     {
         //if ((ShortSliderInOut.value > bufferOne & ShortSliderInOut.value < a1) & (prev_sliderOne <= bufferOne | prev_sliderOne >= a1))
@@ -744,10 +814,15 @@ public class UserStudyControl : MonoBehaviour
         //    unity_client.stopRobot();
         //}
 
-        if (Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) < 0.001)
+        //if (Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) < leftCheck)
+        if (leftChecker.bounds.Contains(shortSliderTracker.transform.position))
         {
+            if (!dynamicLeftEnd)
+            {
+                unity_client.stopRobot();
+                ShortSliderInOut.SetSlider(0);
+            }
             dynamicLeftEnd = true;
-            unity_client.stopRobot();
             dynamicMoving = false;
         }
         else
@@ -755,10 +830,15 @@ public class UserStudyControl : MonoBehaviour
             dynamicLeftEnd = false;
         }
 
-        if(Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference) < 0.001)
+        //if(Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference) < rightCheck)
+        if (rightChecker.bounds.Contains(shortSliderTracker.transform.position))
         {
+            if (!dynamicRightEnd)
+            {
+                unity_client.stopRobot();
+                ShortSliderInOut.SetSlider(0);
+            }
             dynamicRightEnd = true;
-            unity_client.stopRobot();
             dynamicMoving = false;
         }
         else
@@ -766,24 +846,28 @@ public class UserStudyControl : MonoBehaviour
             dynamicRightEnd = false;
         }
 
-        debug1.GetComponent<TextMesh>().text = Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference).ToString() + " " + Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference).ToString();
+        debug1.GetComponent<TextMesh>().text = Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference).ToString() + " " + dynamicLeftEnd.ToString() + " " + Vector3.Distance(shortSliderTracker.transform.position, sliderRightReference).ToString() + " " + dynamicRightEnd.ToString();
 
         if (dynamicCounter > 9)
         {
             if (ShortSliderInOut.value < bufferOne | ShortSliderInOut.value > bufferTwo)
             {
                 dynamicMoving = true;
-                float sp = (ShortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * 0.0261f * speedScale;
-
-                float ax = 0.41173f - 0.028987f;
-                float ay = -0.00627f - 0.37663f;
-                float az = 0.0476f - 0.0430782f;
-
-                float norm = Mathf.Sqrt(ax * ax + ay * ay + az * az);
+                float sp = (ShortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * 0.0261f * speedScale * ((ShortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (ShortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) + 1);
 
                 if ((ShortSliderInOut.value < bufferOne & !dynamicRightEnd) | (ShortSliderInOut.value > bufferTwo & !dynamicLeftEnd))
                 {
-                    unity_client.customMove(ax / norm * sp, ay / norm * sp, az / norm * sp, -0.6, 1.47, 0.62, speed: sp, acc: 1.5f, movementType: 4);
+                    unity_client.customMove(ax / (Mathf.Round(norm/sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az /(Mathf.Round(norm / sp * 100) / 100), -0.6, 1.47, 0.62, speed: sp, acc: 1.5f, movementType: 4);
+
+                    if (ShortSliderInOut.value < bufferOne & !dynamicRightEnd)
+                    {
+                        ShortSliderInOut.SetSlider((int)(Mathf.Abs(ShortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (120) + 190));
+                    }
+
+                    if (ShortSliderInOut.value > bufferTwo & !dynamicLeftEnd)
+                    {
+                        ShortSliderInOut.SetSlider((int)(Mathf.Abs(ShortSliderInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (-120) - 190));
+                    }
                 }
 
                 dynamicCounter = 0;
@@ -794,18 +878,12 @@ public class UserStudyControl : MonoBehaviour
                 {
                     unity_client.stopRobot();
                     dynamicMoving = false;
+                    ShortSliderInOut.SetSlider(0);
                 }
             }
         }
 
-        if (socketRestCounter > socketRestThreshold)
-        {
-            unity_client.customMove(0, 0, 0, 0, 0, 0, movementType: 4, scenario: 3);
-
-            socketRestCounter = 0;
-        }
         dynamicCounter++;
-        socketRestCounter++;
     }
 
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
@@ -849,7 +927,7 @@ public class UserStudyControl : MonoBehaviour
 
     private void readOrder()
     {
-        string file = "ExperimentOrder.csv";
+        string file = "ExperimentOrderNew.csv";
 
         StreamReader reader = new StreamReader(file);
 

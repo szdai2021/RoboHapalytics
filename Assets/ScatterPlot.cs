@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using TMPro;
 
 public class ScatterPlot : MonoBehaviour
 {
@@ -41,10 +42,10 @@ public class ScatterPlot : MonoBehaviour
     public float xScale = 200;
     public float yScale = 1;
 
-    public GameObject countryText;
-    public GameObject yearText;
-    public GameObject incomeText;
-    public GameObject lifeExpactText;
+    public TMP_Text countryText;
+    public TMP_Text yearText;
+    public TMP_Text incomeText;
+    public TMP_Text lifeExpactText;
 
     public GameObject emptyPoint1;
     public GameObject emptyPoint2;
@@ -61,9 +62,10 @@ public class ScatterPlot : MonoBehaviour
     private float localScale = 0.007f;
     private Vector3 newLocation = new Vector3(0.238f, -0.159f, 1.79f);
 
-    public GameObject finger;
+    public GameObject vrhand;
     public UnityClient unity_client;
-    public WirelessAxes wireless;
+    public SerialInOut ShortSliderInOut;
+    public int shortSliderMaxValue = 415;
 
     public Collider chartCollider;
     private bool pre_inCollider = false;
@@ -82,6 +84,8 @@ public class ScatterPlot : MonoBehaviour
     private string pre_country;
     public bool testFlag2 = false;
 
+    private bool resetKnobPosFlag;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -93,6 +97,8 @@ public class ScatterPlot : MonoBehaviour
 
         this.transform.parent.gameObject.SetActive(false);
         //showIndicationLine(emptyPoint1.transform);
+
+        StartCoroutine(resetKnobPos());
     }
 
     private void drewPlot()
@@ -248,10 +254,10 @@ public class ScatterPlot : MonoBehaviour
                     child.transform.localScale = new Vector3(4, 4, 4);
                     child.GetComponent<MeshRenderer>().material = newM;
 
-                    countryText.GetComponent<TextMesh>().text = child.GetComponent<pointDetail>().country;
-                    yearText.GetComponent<TextMesh>().text = (child.GetComponent<pointDetail>().year + 1800).ToString();
-                    incomeText.GetComponent<TextMesh>().text = child.GetComponent<pointDetail>().data[1].ToString();
-                    lifeExpactText.GetComponent<TextMesh>().text = child.GetComponent<pointDetail>().data[0].ToString();
+                    countryText.text = child.GetComponent<pointDetail>().country;
+                    yearText.text = (child.GetComponent<pointDetail>().year + 1800).ToString();
+                    incomeText.text = child.GetComponent<pointDetail>().data[1].ToString();
+                    lifeExpactText.text = child.GetComponent<pointDetail>().data[0].ToString();
 
                     if (indicatorLine.transform.childCount > 0)
                     {
@@ -305,11 +311,11 @@ public class ScatterPlot : MonoBehaviour
             //plotParent.transform.GetChild(2).GetComponent<MeshRenderer>().material = oldM;
         }
 
-        var p0 = finger.transform.GetChild(0).transform.position;
+        var p0 = vrhand.transform.position;
 
         if (chartCollider.bounds.Contains(p0) & !testFlag2)
         {
-            wireless.sendSlider(0, 127);
+            centerKnob();
 
             GameObject closest = plotParent.transform.GetChild(0).gameObject;
             float distance = 1000;
@@ -376,43 +382,12 @@ public class ScatterPlot : MonoBehaviour
             prePos = newPos;
         }
 
-        /*
-        if (Input.GetKeyDown("space"))
-        {
-            flag = !flag;
-
-            drewTimeVariance(flag);
-        }
-        */
-
-        /*
-        if (wireless.sliderOne < 50)
-        {
-            wireless.sendSlider(0, 127);
-
-            counter -= step;
-            checkCounterRange();
-
-            updateMainPlot();
-        }
-
-        if (wireless.sliderOne > 230)
-        {
-            wireless.sendSlider(0, 127);
-
-            counter += step;
-            checkCounterRange();
-
-            updateMainPlot();
-        }
-        */
-
-        sphere.transform.localPosition = new Vector3((float)(wireless.sliderOne - 127) / 255 * (0.4f + 0.4f), 0 , 0);
+        sphere.transform.localPosition = new Vector3((float)(ShortSliderInOut.value - shortSliderMaxValue) / shortSliderMaxValue * 1.37f, 0 , 0);
 
         
         if (Input.GetKeyDown("a")) // move to the previous one
         {
-            wireless.sendSlider(0, 127);
+            centerKnob();
 
             counter -= step;
             checkCounterRange();
@@ -424,7 +399,7 @@ public class ScatterPlot : MonoBehaviour
         {
             testFlag = false;
 
-            wireless.sendSlider(0, 127);
+            centerKnob();
 
             counter += step;
             checkCounterRange();
@@ -459,6 +434,21 @@ public class ScatterPlot : MonoBehaviour
         pre_country = selectedCountry;
     }
 
+    //private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
+    //{
+    //    /*
+    //    float new_x = 0.702f * p1.x + 0.00522f * p1.y + 0.707f * p1.z + 0.476f;
+    //    float new_y = -0.7023f * p1.x + -0.005f * p1.y + 0.6843f * p1.z - 0.4695f;
+    //    float new_z = 0.09f * p1.x + 0.803f * p1.y + 0.4482f * p1.z - 0.047f;
+    //    */
+
+    //    float new_x = 0.7098f * p1.x + -0.00617f * p1.y + 0.707f * p1.z + 0.345378f;
+    //    float new_y = -0.7098f * p1.x + 0.00617f * p1.y + 0.7014f * p1.z - 0.338f;
+    //    float new_z = 0.0071f * p1.x + 1f * p1.y + 0.000028f * p1.z + 0.0064f;
+
+    //    return new Vector3(new_x, new_y, new_z);
+    //}
+
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
     {
         /*
@@ -466,6 +456,9 @@ public class ScatterPlot : MonoBehaviour
         float new_y = -0.7023f * p1.x + -0.005f * p1.y + 0.6843f * p1.z - 0.4695f;
         float new_z = 0.09f * p1.x + 0.803f * p1.y + 0.4482f * p1.z - 0.047f;
         */
+        p1.x -= -0.5606855f - -0.5606583f;
+        p1.y -= -0.001490745f - -0.0005011343f;
+        p1.z -= 0.3161324f - 0.3580751f;
 
         float new_x = 0.7098f * p1.x + -0.00617f * p1.y + 0.707f * p1.z + 0.345378f;
         float new_y = -0.7098f * p1.x + 0.00617f * p1.y + 0.7014f * p1.z - 0.338f;
@@ -473,6 +466,7 @@ public class ScatterPlot : MonoBehaviour
 
         return new Vector3(new_x, new_y, new_z);
     }
+
 
     private void checkCounterRange()
     {
@@ -572,5 +566,28 @@ public class ScatterPlot : MonoBehaviour
         GameObject newPoint2 = Instantiate(pointPrefb, new Vector3(0, 0, 0), Quaternion.identity);
         newPoint2.transform.SetParent(line.transform);
         newPoint2.transform.position = emptyPoint1.transform.position;
+    }
+
+    private void centerKnob()
+    {
+        resetKnobPosFlag = true;
+    }
+
+    IEnumerator resetKnobPos()
+    {
+        while (resetKnobPosFlag)
+        {
+            if ((ShortSliderInOut.value - 415 / 2) > 20)
+            {
+                ShortSliderInOut.SetSlider(-250);
+            }
+            else if ((ShortSliderInOut.value - 415 / 2) < -20)
+            {
+                ShortSliderInOut.SetSlider(250);
+            }
+            yield return new WaitUntil(() => Mathf.Abs(ShortSliderInOut.value - 415 / 2) < 20);
+
+            resetKnobPosFlag = false;
+        }
     }
 }

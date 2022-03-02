@@ -12,6 +12,9 @@ public class SerialInOut : MonoBehaviour
     public int value;
     public int SendVal = -200; // ForTesting
     public int Button;
+    public int speed = 0;
+
+    private List<int> speedList = new List<int>();
 
     SerialPort sp;
     Thread ReadThread;
@@ -76,6 +79,7 @@ public class SerialInOut : MonoBehaviour
     {
         try
         {
+            SendVal = val;
             sp.WriteLine(val.ToString());
         }
         catch (SystemException f)
@@ -84,6 +88,18 @@ public class SerialInOut : MonoBehaviour
         }
     }
 
+    public void SetSliderRalative(int val)
+    {
+        try
+        {
+            SendVal += val;
+            sp.WriteLine(val.ToString());
+        }
+        catch (SystemException f)
+        {
+            print("ERROR::A message failed to send");
+        }
+    }
 
     void Update()
     {
@@ -94,6 +110,26 @@ public class SerialInOut : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.S))
         {
             SetSlider(SendVal);
+        }
+
+        if (speedList.Count < 3)
+        {
+            speed = 0;
+            speedList.Add(value);
+        }
+        else
+        {
+            speedList.RemoveAt(0);
+            speedList.Add(value);
+
+            if ((speedList[1] > speedList[0] & speedList[1] < speedList[2]) | (speedList[1] < speedList[0] & speedList[1] > speedList[2]))
+            {
+                speed = ((speedList[2] - speedList[1]) + (speedList[1] - speedList[0])) / 2;
+            }
+            else
+            {
+                speed = 0;
+            }
         }
     }
         void OnApplicationQuit()
