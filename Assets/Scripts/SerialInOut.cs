@@ -124,7 +124,7 @@ public class SerialInOut : MonoBehaviour
 
             if ((speedList[1] > speedList[0] & speedList[1] < speedList[2]) | (speedList[1] < speedList[0] & speedList[1] > speedList[2]))
             {
-                speed = ((speedList[2] - speedList[1]) + (speedList[1] - speedList[0])) / 2;
+                speed = (int)Mathf.Round(((speedList[2] - speedList[1]) + (speedList[1] - speedList[0])) / 2.0f);
             }
             else
             {
