@@ -20,6 +20,7 @@ public class PosRecorder : MonoBehaviour
     [HideInInspector]
     private string fileName;
     private StreamWriter sw;
+    private int duplicateFileIndex = 0;
 
     private bool prev_startFlag;
 
@@ -32,6 +33,12 @@ public class PosRecorder : MonoBehaviour
             {
                 fileName = "HapticSlider_ObjectPosLog_" + DateTime.Now.ToString("yyyy-MM-dd") + "_P" + participantID.ToString() + "_S" + scenario.ToString();
                 string saveFileName = "Assets/Recordings/" + fileName + ".txt";
+
+                while (File.Exists(saveFileName))
+                {
+                    duplicateFileIndex++;
+                    saveFileName = "Assets/Recordings/" + fileName + "_D" + duplicateFileIndex.ToString() + ".txt";
+                }
 
                 sw = new StreamWriter(saveFileName);
 
