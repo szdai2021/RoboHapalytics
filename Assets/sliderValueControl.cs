@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class sliderValueControl : MonoBehaviour
 {
@@ -22,13 +23,14 @@ public class sliderValueControl : MonoBehaviour
     public bool isOn = false;
     private bool prev_isOn = false;
     public List<GameObject> anti_isOn;
-    public WirelessAxes wirelessAxes;
+    public SerialInOut shortInOut;
     public UnityClient unity_client;
 
     public GameObject slidingPlaneVisualizer;
     //public GameObject slidingPlane;
 
     public GameObject finger;
+    public Collider t;
 
     public int index = 0;
 
@@ -60,13 +62,33 @@ public class sliderValueControl : MonoBehaviour
     private int AxisValue;
     private int pre_AxisValue;
 
-    private int movementSign = 1;
+    public int movementSign = 1;
 
     public bool sliderMoveFlag = true;
     public bool localCentreFlag = false;
 
     private float onSliderTCPMax = 1.95f;
     private float onSliderTCPMin = -1.6f;
+
+    private float ax;
+    private float ay;
+    private float az;
+
+    private float norm;
+
+    private float sp = 1;
+
+    public Vector3 p1;
+    public Vector3 p2;
+
+    public Vector3 rot;
+
+    private int counter = 0;
+    private int pre_sliderValue = 0;
+
+    public GameObject refernce;
+
+    private DateTime t1;
 
     //public Text text;
 
@@ -80,11 +102,19 @@ public class sliderValueControl : MonoBehaviour
         //xl = slidingPlane.transform.localPosition.x;
         //yl = slidingPlane.transform.localPosition.y;
         //zl = slidingPlane.transform.localPosition.z;
+
+        ax = p1.x - p2.x;
+        ay = p1.y - p2.y;
+        az = p1.z - p2.z;
+
+        norm = Mathf.Sqrt(ax * ax + ay * ay + az * az);
     }
 
     // Update is called once per frame
     void Update()
     {
+        knobCentre.transform.position = refernce.transform.position;
+
         onSliderValue = sliderNobe.transform.localPosition.y;
         currentValue = sliderNobe.transform.position;
         rangeValue = Vector3.Distance(sliderNobe.transform.position, zeroReference.transform.position)/4.1f*(rangeLimitMax-rangeLimitMin) + rangeLimitMin;
@@ -119,62 +149,131 @@ public class sliderValueControl : MonoBehaviour
         //slidingPlane.transform.localPosition = new Vector3(xl-xOffset, yl-yOffset, zl-zOffset);
         //slidingPlane.transform.localPosition = new Vector3(x, y, z);
 
+        //if (isOn)
+        //{
+        //    //text.text = sliderMoveFlag.ToString() + ", " + unity_client.receiveFlag.ToString() + ", " + Vector3.Distance(knobCentreReference.transform.position, finger.transform.GetChild(0).transform.position).ToString("f3");
+
+        //    if ((shortInOut.value > 360 | shortInOut.value < 50) | (sliderNobe.transform.localPosition.y < onSliderTCPMin | sliderNobe.transform.localPosition.y > onSliderTCPMax))
+        //    {
+        //        if (sliderNobe.transform.localPosition.y < onSliderTCPMin)
+        //        {
+        //            sliderNobe.transform.localPosition = new Vector3(0, onSliderTCPMin, 0);
+        //        }
+
+        //        if(sliderNobe.transform.localPosition.y > onSliderTCPMax)
+        //        {
+        //            sliderNobe.transform.localPosition = new Vector3(0, onSliderTCPMax, 0);
+        //        }
+
+        //        //center
+        //        sliderMoveFlag = true;
+        //    }
+
+        //    if (!sliderMoveFlag & unity_client.receiveFlag & Vector3.Distance(knobCentreReference.transform.position, finger.transform.position) < 0.1)
+        //    {
+        //        localCentreFlag = true;
+        //    }
+        //    else
+        //    {
+        //        localCentreFlag = false;
+        //    }
+
+        //    if (localCentreFlag)
+        //    {
+        //        knobCentre.transform.position = knobCentreReference.transform.position;
+        //        knobCentre.transform.localPosition = new Vector3(0, knobCentre.transform.localPosition.y, 0);
+        //    }
+
+        //    if (!prev_isOn)
+        //    {
+        //        //center 
+
+        //        /*
+        //        if (Mathf.Abs(Mathf.Abs(rangeValue) - Mathf.Abs(rangeLimitMax)) < 0.001)
+        //        {
+        //            wirelessAxes.sendSlider(0, 255);
+        //        }
+
+        //        if (Mathf.Abs(Mathf.Abs(rangeValue) - Mathf.Abs(rangeLimitMin)) < 0.001)
+        //        {
+        //            wirelessAxes.sendSlider(0, 0);
+        //        }*/
+        //        //sliderMoveFlag = true;
+        //    }
+
+        //    if (localCentreFlag)
+        //    {
+        //        updateVirtualSlider();
+        //    }
+
+        //}
+
         if (isOn)
         {
-            //text.text = sliderMoveFlag.ToString() + ", " + unity_client.receiveFlag.ToString() + ", " + Vector3.Distance(knobCentreReference.transform.position, finger.transform.GetChild(0).transform.position).ToString("f3");
-
-            if ((wirelessAxes.sliderOne > 220 | wirelessAxes.sliderOne < 30) | (sliderNobe.transform.localPosition.y < onSliderTCPMin | sliderNobe.transform.localPosition.y > onSliderTCPMax))
-            {
-                if (sliderNobe.transform.localPosition.y < onSliderTCPMin)
-                {
-                    sliderNobe.transform.localPosition = new Vector3(0, onSliderTCPMin, 0);
-                }
-
-                if(sliderNobe.transform.localPosition.y > onSliderTCPMax)
-                {
-                    sliderNobe.transform.localPosition = new Vector3(0, onSliderTCPMax, 0);
-                }
-
-                wirelessAxes.sendSlider(0, 127);
-                sliderMoveFlag = true;
-            }
-
-            if (!sliderMoveFlag & unity_client.receiveFlag & Vector3.Distance(knobCentreReference.transform.position, finger.transform.GetChild(0).transform.position) < 0.1)
-            {
-                localCentreFlag = true;
-            }
-            else
-            {
-                localCentreFlag = false;
-            }
-
-            if (localCentreFlag)
-            {
-                knobCentre.transform.position = knobCentreReference.transform.position;
-                knobCentre.transform.localPosition = new Vector3(0, knobCentre.transform.localPosition.y, 0);
-            }
-
             if (!prev_isOn)
             {
-                wirelessAxes.sendSlider(0, 127);
-                /*
-                if (Mathf.Abs(Mathf.Abs(rangeValue) - Mathf.Abs(rangeLimitMax)) < 0.001)
+                while (shortInOut.value > 240 | shortInOut.value < 170)
                 {
-                    wirelessAxes.sendSlider(0, 255);
+                    if (shortInOut.value > 240)
+                    {
+                        shortInOut.SetSlider(-350);
+                    }
+                    else if (shortInOut.value < 170)
+                    {
+                        shortInOut.SetSlider(350);
+                    }
                 }
 
-                if (Mathf.Abs(Mathf.Abs(rangeValue) - Mathf.Abs(rangeLimitMin)) < 0.001)
+                if (shortInOut.value < 240 & shortInOut.value > 170)
                 {
-                    wirelessAxes.sendSlider(0, 0);
-                }*/
-                //sliderMoveFlag = true;
+                    if (index == 2)
+                    {
+                        shortInOut.SetSlider(-250);
+                    }
+                    else
+                    {
+                        shortInOut.SetSlider(0);
+                    }
+                }
+
+                t1 = DateTime.Now;
             }
 
-            if (localCentreFlag)
+            if (counter >=10 & pre_sliderValue!=shortInOut.value & DateTime.Now > t1.AddSeconds(2.5))
             {
-                updateVirtualSlider();
+                if (shortInOut.value < 80 | shortInOut.value > 320)
+                {
+                    if (shortInOut.value < 80)
+                    {
+                        //shortInOut.SetSlider(320);
+                        sp = 0.1f * movementSign;
+                    }
+
+                    if (shortInOut.value > 320)
+                    {
+                        sp = -0.1f * movementSign;
+                        //shortInOut.SetSlider(-320);
+                    }
+
+                    if (index == 3)
+                    {
+                        sp = sp * -1;
+                    }
+
+                    unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), rot.x, rot.y, rot.z, speed: sp, acc: 1.5f, movementType: 4);
+                }
+                else
+                {
+                    unity_client.stopRobot();
+                    //shortInOut.SetSlider(0);
+                }
+
+                counter = 0;
             }
-            
+            counter++;
+
+            //updateVirtualSlider();
+
         }
 
         prev_isOn = isOn;
@@ -182,6 +281,8 @@ public class sliderValueControl : MonoBehaviour
         currentValue = sliderNobe.transform.localPosition;
 
         pre_onSliderValue = onSliderValue;
+
+        pre_sliderValue = shortInOut.value;
     }
 
     private void moveSlider()
@@ -206,7 +307,7 @@ public class sliderValueControl : MonoBehaviour
 
         //sliderNobe.transform.localPosition = new Vector3(sliderNobe.transform.localPosition.x, newY, sliderNobe.transform.localPosition.z);
 
-        sliderNobe.transform.localPosition = new Vector3(sliderNobe.transform.localPosition.x, knobCentre.transform.localPosition.y + movementSign*(float)(wirelessAxes.sliderOne - 127) / 255 * (1.89245f - 0.86574f), sliderNobe.transform.localPosition.z);
+        sliderNobe.transform.localPosition = new Vector3(sliderNobe.transform.localPosition.x, knobCentre.transform.localPosition.y + 0.3f- movementSign*(float)(shortInOut.value - 415/2) / 415 * (1.89245f - 0.86574f), sliderNobe.transform.localPosition.z);
     }
 
     public void isOnCheck()

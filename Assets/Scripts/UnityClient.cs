@@ -280,7 +280,7 @@ public class UnityClient : MonoBehaviour
 
     public void customMove(double xi, double yi, double zi, double rxi, double ryi, double rzi,
         double acc = 0.3, double speed = 0.3, double blend_r = 0, double btn_press = 0, double scenario = 0, bool speedAdopt = false, double angle_bias = 0, int joint_index = 5,
-        int movementType = 0, double extra1 = 0, double extra2 = 0, double extra3 = 0, double radius = 0) // movementType 0: jointspace linear; Type 1: toolspace linear; Type 2: circular; Type 3: jointspace linear by joint pos
+        int movementType = 0, double extra1 = 0, double extra2 = 0, double extra3 = 0, double radius = 0) // movementType 0: jointspace linear; Type 1: toolspace linear; Type 2: circular; Type 3: jointspace linear by joint pos; Type 4: speedl
     {
         string cmd = packCMD(xi, yi, zi, rxi, ryi, rzi, acc, speed, blend_r, btn_press, scenario, speedAdopt, angle_bias, joint_index, movementType, extra1, extra2, extra3, radius);
         outChannel.Write(cmd);

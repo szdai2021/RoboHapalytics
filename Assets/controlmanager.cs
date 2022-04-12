@@ -108,6 +108,19 @@ public class controlmanager : MonoBehaviour
     private int prototypeFlag2_counter2 = 0;
     private bool tempTest = false;
 
+    public int threshold = 60;
+
+    private Vector3 prev_pos;
+    private Vector3 new_pos;
+
+    private float ax;
+    private float ay;
+    private float az;
+
+    private float norm;
+
+    public float sp = 0.01f;
+
     public void startScenario()
     {
         HideShowTagGameObject("Slider", false);
@@ -216,11 +229,11 @@ public class controlmanager : MonoBehaviour
 
             unity_client.customMove(x,y,z,rx,ry,rz, angle_bias: angleBias, joint_index: jointIndex, movementType: moveType, extra1: extra1, extra2: extra2, extra3: extra3);
 
-            Origin.transform.position = sliderKnob.transform.position;
-            Origin.transform.eulerAngles = new Vector3(0, 0, 0);
+            //Origin.transform.position = sliderKnob.transform.position;
+            //Origin.transform.eulerAngles = new Vector3(0, 0, 0);
 
-            OriginChild.transform.position = sliderKnob.transform.position;
-            OriginChild.transform.rotation = sliderKnob.transform.rotation;
+            //OriginChild.transform.position = sliderKnob.transform.position;
+            //OriginChild.transform.rotation = sliderKnob.transform.rotation;
 
             /*
             debug.text = OriginChild.transform.localRotation.eulerAngles.ToString("f5");
@@ -375,7 +388,7 @@ public class controlmanager : MonoBehaviour
             virtualConnection.transform.position = sliderKnob.transform.position;
         }
 
-        if (counter > 0 & testFlag)
+        if (counter > threshold)
         {
             followUpTest();
             counter = 0;
@@ -391,18 +404,22 @@ public class controlmanager : MonoBehaviour
         var p0 = TCPController.transform.position;
 
         //print(rangeCollider.bounds.Contains(p0));
-        if (rangeCollider.bounds.Contains(p0) & unity_client.receiveFlag)
+        if (rangeCollider.bounds.Contains(p0))
         //if (rangeCollider.bounds.Contains(p0))
         {
             virtualConnection.transform.position = new Vector3(p0.x, p0.y, p0.z - 0.1655f);
 
             var p1 = virtualConnection.transform.GetChild(0).transform.position;
 
-            float new_x = 0.702f * p1.x + 0.00522f * p1.y + 0.707f * p1.z + 0.476f;
-            float new_y = -0.7023f * p1.x + -0.005f * p1.y + 0.6843f * p1.z - 0.4695f;
-            float new_z = 0.09f * p1.x + 0.803f * p1.y + 0.4482f * p1.z - 0.047f;
+            p1.x -= -0.5606855f - -0.5606583f;
+            p1.y -= -0.001490745f - -0.0005011343f;
+            p1.z -= 0.3161324f - 0.3580751f;
 
-            // robot origin in unity (-0.674,0.137,-0.005)
+            float new_x = 0.7098f * p1.x + -0.00617f * p1.y + 0.707f * p1.z + 0.345378f;
+            float new_y = -0.7098f * p1.x + 0.00617f * p1.y + 0.7014f * p1.z - 0.338f;
+            float new_z = 0.0071f * p1.x + 1f * p1.y + 0.000028f * p1.z + 0.0064f;
+
+            new_pos = new Vector3(new_x, new_y, new_z);
 
             double a_bias = 0;
             var a = TCPController.transform.rotation.eulerAngles.z;
@@ -421,7 +438,22 @@ public class controlmanager : MonoBehaviour
 
             if (Vector3.Distance(new Vector3(prev_x,prev_y,prev_z), new Vector3(p1.x, p1.y, p1.z)) > 0.001)
             {
-                unity_client.circularMove(new_x, new_y, new_z, rx, ry, rz, 0, true, a_bias);
+                //unity_client.circularMove(new_x, new_y, new_z, rx, ry, rz, 0, true, a_bias);
+
+                //unity_client.customMove(new_x, new_y, new_z, rx, ry, rz, angle_bias: -a_bias, movementType: 1);
+
+                ax = new_pos.x - prev_pos.x;
+                ay = new_pos.y - prev_pos.y;
+                az = new_pos.z - prev_pos.z;
+
+                norm = Mathf.Sqrt(ax * ax + ay * ay + az * az);
+
+                // DANGEROUS !!!
+                //unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), 0, 0, 0, speed: sp, acc: 1.5f, movementType: 4);
+            }
+            else
+            {
+                unity_client.stopRobot();
             }
 
             //var a = TCPController.transform.rotation.eulerAngles.z-angleReference.transform.rotation.eulerAngles.z+65;
@@ -429,6 +461,8 @@ public class controlmanager : MonoBehaviour
             prev_x = p1.x;
             prev_y = p1.y;
             prev_z = p1.z;
+
+            prev_pos = new_pos;
         }
     }
 

@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class SectionVewControlManager : MonoBehaviour
 {
     public GameObject SlidingPlane;
-    //public GameObject ViewObject;
 
     public GameObject xPosSlider;
     public GameObject xRotSlider;
@@ -105,9 +104,18 @@ public class SectionVewControlManager : MonoBehaviour
 
     private int moveType = 3;
 
+    public GameObject[] objectsToHide;
+
+    public SerialInOut shortInOut;
+
     // Start is called before the first frame update
     void Start()
     {
+        foreach (GameObject g in objectsToHide)
+        {
+            HideObject(g);
+        }
+
         this.gameObject.SetActive(false);
 
         Vector3 RobotCoord = new Vector3(-1.8765f, -1.22337f, 2.4f);
@@ -117,11 +125,11 @@ public class SectionVewControlManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (start & finger.transform.childCount == 1)
+        if (start)
         {
-            var p0 = finger.transform.GetChild(0).transform.position;
+            var p0 = finger.transform.position;
 
-            if (unity_client.receiveFlag)
+            if (true)
             {
                 if (xCollider.bounds.Contains(p0))
                 {
@@ -166,7 +174,7 @@ public class SectionVewControlManager : MonoBehaviour
                     {
                         virtualFingerTouchPoint.transform.position = xRotEncoderPos;
                         xRotoryEncoder.GetComponent<RotationalEncoder>().isOnCheck();
-                        xRotoryEncoder.GetComponent<RotationalEncoder>().isOn = true;
+                        //xRotoryEncoder.GetComponent<RotationalEncoder>().isOn = true;
                     }
 
                     RobotCoord = convertUnityCoord2RobotCoord(virtualEndEffector.transform.position - xSliderNodeOffset);
@@ -283,8 +291,9 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(test1_mid[0], test1_mid[1], test1_mid[2], test1[0], test1[1], test1[2], movementType: 2);
                         //unity_client.customMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], movementType: 0);
 
-                        unity_client.customMove(-4.52, 0.13, -2.016, -1.1745, 0.62645, -4.7525, movementType: 3, radius: 0.1); // middle point to reduce the risk
-                        unity_client.customMove(test1R[0], test1R[1], test1R[2], test1R[3], test1R[4], test1R[5], movementType: 3);
+                        //unity_client.customMove(-4.52, 0.13, -2.016, -1.1745, 0.62645, -4.7525, movementType: 3, radius: 0.1); // middle point to reduce the risk
+                        //unity_client.customMove(test1R[0], test1R[1], test1R[2], test1R[3], test1R[4], test1R[5], movementType: 3);
+                        unity_client.customMove(-4.16445f, -1.18897f, 1.90225f, -2.1865f, 1.56376f, -9.35597f, movementType: 3);
                     }
 
                     //midPoint = test1_mid;
@@ -306,7 +315,8 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(test2_mid[0], test2_mid[1], test2_mid[2], test2[0], test2[1], test2[2], movementType: 2);
                         //unity_client.customMove(test2[0], test2[1], test2[2], test2[3], test2[4], test2[5], movementType: 0);
 
-                        unity_client.customMove(test2R[0], test2R[1], test2R[2], test2R[3], test2R[4], test2R[5], movementType: 3);
+                        //unity_client.customMove(test2R[0], test2R[1], test2R[2], test2R[3], test2R[4], test2R[5], movementType: 3);
+                        unity_client.customMove(0.281548f, -0.827192f, 1.47676f, -2.17393f, 1.69551f, -8.9832f, movementType: 3);
                     }
 
                     //midPoint = test2_mid;
@@ -327,7 +337,8 @@ public class SectionVewControlManager : MonoBehaviour
                         //unity_client.customMove(test3_mid[0], test3_mid[1], test3_mid[2], test3[0], test3[1], test3[2], movementType: 2);
                         //unity_client.customMove(test3[0], test3[1], test3[2], test3[3], test3[4], test3[5], movementType: 0);
 
-                        unity_client.customMove(test3R[0], test3R[1], test3R[2], test3R[3], test3R[4], test3R[5], movementType: 3);
+                        //unity_client.customMove(test3R[0], test3R[1], test3R[2], test3R[3], test3R[4], test3R[5], movementType: 3);
+                        unity_client.customMove(-2.74635f, -2.30404f, 0.623497f, -1.38846f, -1.35079f, -3.09798f, movementType: 3);
                     }
 
                     //midPoint = test3_mid;
@@ -370,6 +381,13 @@ public class SectionVewControlManager : MonoBehaviour
                     yRotoryEncoder.GetComponent<RotationalEncoder>().isOn = false;
                     zRotoryEncoder.GetComponent<RotationalEncoder>().isOn = false;
 
+                    xPosSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
+                    xRotSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
+                    yPosSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
+                    yRotSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
+                    zPosSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
+                    zRotSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
+
                     /*
                     if (!rotoryFlag)
                     {
@@ -393,9 +411,14 @@ public class SectionVewControlManager : MonoBehaviour
                     }*/
                 }
 
+                //if (shortInOut.value < 240 & shortInOut.value > 170)
+                //{
+                //    shortInOut.SetSlider(0);
+                //}
+
                 if (((pre_pos != RobotCoord) | (pre_rot != RobotRot)) & sliderMoveFlag)
                 {
-
+                    
                     if (Pre_colliderArea == 0 & Current_colliderArea != 0)
                     {
                         moveType = 0;
@@ -560,16 +583,25 @@ public class SectionVewControlManager : MonoBehaviour
 
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
     {
-        /*
-        float new_x = 0.702f * p1.x + 0.00522f * p1.y + 0.707f * p1.z + 0.476f;
-        float new_y = -0.7023f * p1.x + -0.005f * p1.y + 0.6843f * p1.z - 0.4695f;
-        float new_z = 0.09f * p1.x + 0.803f * p1.y + 0.4482f * p1.z - 0.047f;
-        */
+        p1.x -= -0.5606855f - -0.5606583f;
+        p1.y -= -0.001490745f - -0.0005011343f;
+        p1.z -= 0.3161324f - 0.3580751f;
 
         float new_x = 0.7098f * p1.x + -0.00617f * p1.y + 0.707f * p1.z + 0.345378f;
         float new_y = -0.7098f * p1.x + 0.00617f * p1.y + 0.7014f * p1.z - 0.338f;
         float new_z = 0.0071f * p1.x + 1f * p1.y + 0.000028f * p1.z + 0.0064f;
 
         return new Vector3(new_x, new_y, new_z);
+    }
+
+    public void HideObject(GameObject obj, bool hideFlag = false)
+    {
+        Renderer[] objectR = obj.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer rr in objectR)
+        {
+            rr.enabled = hideFlag;
+        }
+
     }
 }

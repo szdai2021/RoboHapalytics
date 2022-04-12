@@ -10,6 +10,8 @@ TagManager:
   - SectionView
   - ScatterPlot
   - BarChart
+  - MoveWhenIntersecting
+  - DataPoint
   layers:
   - Default
   - TransparentFX
