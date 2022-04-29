@@ -2,14 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
-using System.Net;
-using System.Text;
 using System.IO;
-using System.Web;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine.UI;
+using TMPro;
 
 public class UnityClient : MonoBehaviour
 {
@@ -41,6 +38,8 @@ public class UnityClient : MonoBehaviour
 
     public GameObject endEffector;
 
+    public TMP_Text debugger_text; 
+
     //display zone;
     public float trackerPos_x = 0f;
     public float trackerPos_y = 0f;
@@ -70,15 +69,6 @@ public class UnityClient : MonoBehaviour
     private const double xLimitLeft = 0.45;
     private const double yLimitLeft = 0.0136;
 
-    /*
-    private double x = (xLimitLeft + xLimitRight)/2;
-    private double y = (yLimitLeft + yLimitRight)/2;
-    public double z = 0.07;
-    public double rx = -0.6;
-    public double ry = 1.47;
-    public double rz = 0.62;
-    */
-
     private double x = 0.2;
     private double y = 0.2;
     private double z = 0.15;
@@ -95,6 +85,8 @@ public class UnityClient : MonoBehaviour
 
     public bool receiveFlag = false;
     public float scale = 3f;
+
+    public string fromRobot;
 
     private string angleCMD;
 
@@ -143,8 +135,8 @@ public class UnityClient : MonoBehaviour
         inChannel = new StreamReader(client.GetStream());
         outChannel = new StreamWriter(client.GetStream());
 
-        new Thread(new ThreadStart(recvJointStateLoop)).Start();
-        StartCoroutine(executeJointTrajectory());
+        //new Thread(new ThreadStart(recvJointStateLoop)).Start();
+        //StartCoroutine(executeJointTrajectory());
 
         initialPos();
     }
@@ -371,36 +363,16 @@ public class UnityClient : MonoBehaviour
     {
         while (true)
         {
-            float[] res;
-            string temp = Recv6Tuple(inChannel, out res);
-
-            if (temp.StartsWith("p"))
-            {
-                posQueue.Add(res);
-                currentRobotPos.x = res[0];
-                currentRobotPos.y = res[1];
-                currentRobotPos.z = res[2];
-            }
-
-            else
-            {
-                jointAngles = res;
-                Parallel.For(0, 6, i => {
-                    res[i] = rad2deg(res[i]);
-                }); 
-                Action executeOneJointState = () =>
-                {
-                    for (int i = 0; i < res.Length; i++)
-                    {
-                        move(joint_links[i], i, res[i]);
-                    }
-                };
-
-                trajectoryQueue.Add(executeOneJointState);
-            }
-
+            string res = inChannel.ReadLine();
+            debugger_text.text = res;
         }
 
+    }
+
+    private void Update()
+    {
+        fromRobot = inChannel.ReadLine();
+        debugger_text.text = fromRobot;
     }
 
     void OnDestroy()
@@ -415,6 +387,7 @@ public class UnityClient : MonoBehaviour
     private string Recv6Tuple(StreamReader inChannel, out float[] result)
     {
         string res = inChannel.ReadLine();
+        debugger_text.text = res;
         string temp = res.Trim(new char[] { '[', ']', 'p' });
         if (temp.Contains("p"))
         {
@@ -475,21 +448,6 @@ public class UnityClient : MonoBehaviour
         {
             Debug.LogError("cannot find the joint to move !!!");
         }
-    }
-
-    private float timeBasedOnMove(float movement)
-    {
-        return (float)movement * 6f+0.07f;
-    }
-
-    private float lkatBasedOnMove(float movement)
-    {
-        return (float)movement * -3.5f + 0.225f;
-    }
-
-    private float rad2deg(double rad)
-    {
-        return (float)(180 * rad / Math.PI);
     }
 
 }
