@@ -1,7 +1,11 @@
 Using pre-set license
 Built from '2020.3/staging' branch; Version is '2020.3.21f1 (a38c86f6690f) revision 10718342'; Using compiler version '192528614'; Build Type 'Release'
 <<<<<<< HEAD
+<<<<<<< HEAD
 OS: 'Windows 10 Pro; OS build 19044.1586; Version 2009; 64bit' Language: 'en' Physical Memory: 16208 MB
+=======
+OS: 'Windows 10 Enterprise; OS build 19042.1586; Version 2009; 64bit' Language: 'en' Physical Memory: 32487 MB
+>>>>>>> sectionView
 =======
 OS: 'Windows 10 Enterprise; OS build 19042.1586; Version 2009; 64bit' Language: 'en' Physical Memory: 32487 MB
 >>>>>>> sectionView
@@ -15,6 +19,7 @@ C:\Program Files\Unity\Hub\Editor\2020.3.21f1\Editor\Unity.exe
 -name
 AssetImportWorker0
 -projectPath
+<<<<<<< HEAD
 <<<<<<< HEAD
 C:/Users/ImmersiveAnalytics/OneDrive/Desktop/Shaozhang/Universal Robot
 -logFile
@@ -37,6 +42,8 @@ Direct3D:
     VRAM:     8010 MB
     Driver:   30.0.14.7141
 =======
+=======
+>>>>>>> sectionView
 C:/Users/daish/Desktop/Shaozhang/Universal-Robot
 -logFile
 Logs/AssetImportWorker0.log
@@ -57,11 +64,15 @@ Direct3D:
     Vendor:   
     VRAM:     8079 MB
     Driver:   27.21.14.5671
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 Initialize mono
 Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/2020.3.21f1/Editor/Data/Managed'
 Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/2020.3.21f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
 Mono config path = 'C:/Program Files/Unity/Hub/Editor/2020.3.21f1/Editor/Data/MonoBleedingEdge/etc'
+<<<<<<< HEAD
 <<<<<<< HEAD
 Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56388
 Begin MonoManager ReloadAssembly
@@ -77,6 +88,8 @@ Domain Reload Profiling:
 	ReloadAssembly (838ms)
 		BeginReloadAssembly (41ms)
 =======
+=======
+>>>>>>> sectionView
 Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56560
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
@@ -90,12 +103,16 @@ Mono: successfully reloaded assembly
 Domain Reload Profiling:
 	ReloadAssembly (984ms)
 		BeginReloadAssembly (46ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 			ExecutionOrderSort (0ms)
 			DisableScriptedObjects (0ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
 			CreateAndSetChildDomain (1ms)
+<<<<<<< HEAD
 <<<<<<< HEAD
 		EndReloadAssembly (391ms)
 			LoadAssemblies (39ms)
@@ -112,6 +129,8 @@ Domain Reload Profiling:
 				ProcessInitializeOnLoadAttributes (62ms)
 				ProcessInitializeOnLoadMethodAttributes (22ms)
 =======
+=======
+>>>>>>> sectionView
 		EndReloadAssembly (424ms)
 			LoadAssemblies (44ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
@@ -126,6 +145,9 @@ Domain Reload Profiling:
 				BeforeProcessingInitializeOnLoad (7ms)
 				ProcessInitializeOnLoadAttributes (67ms)
 				ProcessInitializeOnLoadMethodAttributes (25ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 				AfterProcessingInitializeOnLoad (0ms)
 				EditorAssembliesLoaded (0ms)
@@ -133,6 +155,7 @@ Domain Reload Profiling:
 			AwakeInstancesAfterBackupRestoration (0ms)
 Platform modules already initialized, skipping
 Registering precompiled user dll's ...
+<<<<<<< HEAD
 <<<<<<< HEAD
 Registered in 0.014229 seconds.
 Begin MonoManager ReloadAssembly
@@ -145,6 +168,8 @@ Domain Reload Profiling:
 	ReloadAssembly (1128ms)
 		BeginReloadAssembly (112ms)
 =======
+=======
+>>>>>>> sectionView
 Registered in 0.020279 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for WindowsStandalone target not found
@@ -155,11 +180,15 @@ Mono: successfully reloaded assembly
 Domain Reload Profiling:
 	ReloadAssembly (1292ms)
 		BeginReloadAssembly (131ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 			ExecutionOrderSort (0ms)
 			DisableScriptedObjects (4ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
+<<<<<<< HEAD
 <<<<<<< HEAD
 			CreateAndSetChildDomain (15ms)
 		EndReloadAssembly (965ms)
@@ -178,6 +207,8 @@ Domain Reload Profiling:
 				ProcessInitializeOnLoadMethodAttributes (6ms)
 				AfterProcessingInitializeOnLoad (4ms)
 =======
+=======
+>>>>>>> sectionView
 			CreateAndSetChildDomain (21ms)
 		EndReloadAssembly (1101ms)
 			LoadAssemblies (98ms)
@@ -194,6 +225,9 @@ Domain Reload Profiling:
 				ProcessInitializeOnLoadAttributes (217ms)
 				ProcessInitializeOnLoadMethodAttributes (8ms)
 				AfterProcessingInitializeOnLoad (6ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
@@ -201,6 +235,7 @@ Domain Reload Profiling:
 Platform modules already initialized, skipping
 ========================================================================
 Worker process is ready to serve import requests
+<<<<<<< HEAD
 <<<<<<< HEAD
 Launched and connected shader compiler UnityShaderCompiler.exe after 0.06 seconds
 Refreshing native plugins compatible for Editor in 0.92 ms, found 22 plugins.
@@ -212,6 +247,8 @@ System memory in use after: 154.8 MB.
 Unloading 66 unused Assets to reduce memory usage. Loaded Objects now: 3742.
 Total: 3.119400 ms (FindLiveObjects: 0.261800 ms CreateObjectMapping: 0.135900 ms MarkObjects: 2.646900 ms  DeleteObjects: 0.073900 ms)
 =======
+=======
+>>>>>>> sectionView
 Launched and connected shader compiler UnityShaderCompiler.exe after 0.07 seconds
 Refreshing native plugins compatible for Editor in 2.15 ms, found 22 plugins.
 Preloading 1 native plugins for Editor in 0.22 ms.
@@ -221,6 +258,9 @@ System memory in use after: 133.0 MB.
 
 Unloading 66 unused Assets to reduce memory usage. Loaded Objects now: 3704.
 Total: 4.222600 ms (FindLiveObjects: 0.477000 ms CreateObjectMapping: 0.196900 ms MarkObjects: 3.441500 ms  DeleteObjects: 0.106100 ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 
 AssetImportParameters requested are different than current active one (requested -> active):
@@ -231,7 +271,10 @@ AssetImportParameters requested are different than current active one (requested
   custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
   custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
 <<<<<<< HEAD
+<<<<<<< HEAD
   custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
+=======
+>>>>>>> sectionView
 =======
 >>>>>>> sectionView
   custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
@@ -239,6 +282,7 @@ AssetImportParameters requested are different than current active one (requested
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
 ========================================================================
 Received Import Request.
+<<<<<<< HEAD
 <<<<<<< HEAD
   path: Assets/arrow.blend
   artifactKey: Guid(3c417cbbb1e18624d825c37c705acfe9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
@@ -670,6 +714,8 @@ Domain Reload Profiling:
 			RebuildScriptCaches (37ms)
 			SetupLoadedEditorAssemblies (286ms)
 =======
+=======
+>>>>>>> sectionView
   path: Assets/347504-black-texture-dark-background.mat
   artifactKey: Guid(b9873bded589b480ca7325d20fbd8b91) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
 Start importing Assets/347504-black-texture-dark-background.mat using Guid(b9873bded589b480ca7325d20fbd8b91) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4a0c33612ca7b212e030c822308315a7') in 0.274015 seconds 
@@ -852,26 +898,36 @@ Domain Reload Profiling:
 			ReleaseScriptCaches (1ms)
 			RebuildScriptCaches (39ms)
 			SetupLoadedEditorAssemblies (288ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 				LogAssemblyErrors (0ms)
 				InitializePlatformSupportModulesInManaged (4ms)
 				SetLoadedEditorAssemblies (0ms)
 				RefreshPlugins (1ms)
 <<<<<<< HEAD
+<<<<<<< HEAD
 				BeforeProcessingInitializeOnLoad (69ms)
 				ProcessInitializeOnLoadAttributes (199ms)
 				ProcessInitializeOnLoadMethodAttributes (8ms)
 				AfterProcessingInitializeOnLoad (5ms)
 =======
+=======
+>>>>>>> sectionView
 				BeforeProcessingInitializeOnLoad (56ms)
 				ProcessInitializeOnLoadAttributes (213ms)
 				ProcessInitializeOnLoadMethodAttributes (7ms)
 				AfterProcessingInitializeOnLoad (6ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
 			AwakeInstancesAfterBackupRestoration (6ms)
 Platform modules already initialized, skipping
+<<<<<<< HEAD
 <<<<<<< HEAD
 Refreshing native plugins compatible for Editor in 0.98 ms, found 22 plugins.
 Preloading 1 native plugins for Editor in 0.07 ms.
@@ -882,6 +938,8 @@ System memory in use after: 154.1 MB.
 Unloading 59 unused Assets to reduce memory usage. Loaded Objects now: 3776.
 Total: 3.055400 ms (FindLiveObjects: 0.266700 ms CreateObjectMapping: 0.139800 ms MarkObjects: 2.624900 ms  DeleteObjects: 0.023000 ms)
 =======
+=======
+>>>>>>> sectionView
 Refreshing native plugins compatible for Editor in 1.28 ms, found 22 plugins.
 Preloading 1 native plugins for Editor in 0.11 ms.
 Unloading 3251 Unused Serialized files (Serialized files now loaded: 0)
@@ -890,6 +948,9 @@ System memory in use after: 146.0 MB.
 
 Unloading 59 unused Assets to reduce memory usage. Loaded Objects now: 3755.
 Total: 4.502100 ms (FindLiveObjects: 0.521700 ms CreateObjectMapping: 0.274300 ms MarkObjects: 3.664400 ms  DeleteObjects: 0.040300 ms)
+<<<<<<< HEAD
+>>>>>>> sectionView
+=======
 >>>>>>> sectionView
 
 AssetImportParameters requested are different than current active one (requested -> active):
@@ -900,7 +961,10 @@ AssetImportParameters requested are different than current active one (requested
   custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
   custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
 <<<<<<< HEAD
+<<<<<<< HEAD
   custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
+=======
+>>>>>>> sectionView
 =======
 >>>>>>> sectionView
   custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
