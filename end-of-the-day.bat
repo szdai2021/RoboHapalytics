@@ -9,3 +9,4 @@ echo.
 git status
 git add .
 git commit -m "generated files on date: %date:~7,2%-%date:~4,2%-%date:~10,4%"
+git push
