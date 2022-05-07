@@ -212,17 +212,17 @@ public class sliderValueControl : MonoBehaviour
         {
             if (!prev_isOn)
             {
-                while (shortInOut.value > 240 | shortInOut.value < 170)
-                {
-                    if (shortInOut.value > 240)
-                    {
-                        shortInOut.SetSlider(-350);
-                    }
-                    else if (shortInOut.value < 170)
-                    {
-                        shortInOut.SetSlider(350);
-                    }
-                }
+                //while (shortInOut.value > 240 | shortInOut.value < 170)
+                //{
+                //    if (shortInOut.value > 240)
+                //    {
+                //        shortInOut.SetSlider(-350);
+                //    }
+                //    else if (shortInOut.value < 170)
+                //    {
+                //        shortInOut.SetSlider(350);
+                //    }
+                //}
 
                 if (shortInOut.value < 240 & shortInOut.value > 170)
                 {
@@ -239,7 +239,7 @@ public class sliderValueControl : MonoBehaviour
                 t1 = DateTime.Now;
             }
 
-            if (counter >=10 & pre_sliderValue!=shortInOut.value & DateTime.Now > t1.AddSeconds(2.5))
+            if (counter >=10 & pre_sliderValue!=shortInOut.value & stateCheck())
             {
                 if (shortInOut.value < 80 | shortInOut.value > 320)
                 {
@@ -272,7 +272,7 @@ public class sliderValueControl : MonoBehaviour
             }
             counter++;
 
-            //updateVirtualSlider();
+            updateVirtualSlider();
 
         }
 
@@ -283,6 +283,15 @@ public class sliderValueControl : MonoBehaviour
         pre_onSliderValue = onSliderValue;
 
         pre_sliderValue = shortInOut.value;
+    }
+
+    private bool stateCheck()
+    {
+        var items = unity_client.fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
+
+        float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);
+
+        return (DateTime.Now > t1.AddSeconds(0.5) && sp<0.0001);
     }
 
     private void moveSlider()
