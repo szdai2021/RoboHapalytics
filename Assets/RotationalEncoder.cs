@@ -12,7 +12,7 @@ public class RotationalEncoder : MonoBehaviour
 
     public int index;
 
-    public WirelessAxes wirelessAxis;
+    public SerialInOut shortInOut;
 
     public Vector3 RotEncoderPos;// = new Vector3(-0.459f, 0.182f, 0.319f);
     // = new Vector3(-0.901f, 0.184f, 0.15f);
@@ -26,16 +26,6 @@ public class RotationalEncoder : MonoBehaviour
     private Vector3 rotStat;
 
     private bool pre_isOn;
-
-    private float xChangeTotal = 0;
-    private float yChangeTotal = 0;
-    private float zChangeTotal = 0;
-
-    private float xStep = 0;
-    private float yStep = 0;
-    private float zStep = 0;
-
-    private int stepNum = 60;
 
     public GameObject rotationIndicator;
 
@@ -51,6 +41,8 @@ public class RotationalEncoder : MonoBehaviour
         //testcube.transform.position = test;
 
         startUpQuat = Object.transform.rotation;
+
+        currentValue = shortInOut.rotaryValue;
     }
 
     // Update is called once per frame
@@ -65,52 +57,29 @@ public class RotationalEncoder : MonoBehaviour
                 rotStat = Object.transform.eulerAngles;
                 startUpQuat = Object.transform.rotation;
 
-                stepNum = 60;
-
-                currentValue = wirelessAxis.rotary;
+                currentValue = shortInOut.rotaryValue;
             }
 
-            if (wirelessAxis.rotary - currentValue != 0)
+            if (shortInOut.rotaryValue - currentValue != 0)
             {
-                stepNum = 60;
+                float v = (shortInOut.rotaryValue - currentValue) / 102.4f * 360f;
+
+                switch (index)
+                {
+                    case 1:
+                        Object.transform.rotation = Quaternion.Euler(v, 0, 0) * startUpQuat;
+                        break;
+                    case 2:
+                        Object.transform.rotation = Quaternion.Euler(0, v, 0) * startUpQuat;
+                        break;
+                    case 3:
+                        Object.transform.rotation = Quaternion.Euler(0, 0, v) * startUpQuat;
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            switch (index)
-            {
-                case 1:
-                    xChangeTotal += (wirelessAxis.rotary - currentValue) * 20;
-                    xStep = xChangeTotal / stepNum;
-                    rotStat.x += xStep;
-                    break;
-                case 2:
-                    yChangeTotal += (wirelessAxis.rotary - currentValue) * 20;
-                    yStep = yChangeTotal / stepNum;
-                    rotStat.y += yStep;
-                    break;
-                case 3:
-                    zChangeTotal += (wirelessAxis.rotary - currentValue) * 20;
-                    zStep = zChangeTotal / stepNum;
-                    rotStat.z += zStep;
-                    break;
-                default:
-                    break;
-            }
-
-            if (Mathf.Abs(xChangeTotal) > 0.01 | Mathf.Abs(yChangeTotal) > 0.01 | Mathf.Abs(zChangeTotal) > 0.01)
-            {
-                //Object.transform.eulerAngles = rotStat; //new Vector3(rotStat.x + xStep, rotStat.y + yStep, rotStat.z + zStep);
-
-                Object.transform.rotation = Quaternion.Euler(xStep, yStep, zStep) * startUpQuat;
-
-                xChangeTotal -= xStep;
-                yChangeTotal -= yStep;
-                zChangeTotal -= zStep;
-
-                startUpQuat = Object.transform.rotation;
-            }
-
-            stepNum--;
-            currentValue = wirelessAxis.rotary;
         }
         else
         {

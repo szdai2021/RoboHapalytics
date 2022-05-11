@@ -13,6 +13,7 @@ public class SerialInOut : MonoBehaviour
     public int SendVal = -200; // ForTesting
     public int Button;
     public int speed = 0;
+    public int rotaryValue = 0;
 
     private List<int> speedList = new List<int>();
 
@@ -64,6 +65,8 @@ public class SerialInOut : MonoBehaviour
                     value = int.Parse(splits[0]);
 
                     Button = int.Parse(splits[1]);
+
+                    rotaryValue = int.Parse(splits[2]);
                 }
             }
             catch (SystemException f)
