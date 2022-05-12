@@ -90,6 +90,8 @@ public class UnityClient : MonoBehaviour
 
     private string angleCMD;
 
+    private Thread getSpeedInfo;
+
     void Start()
     {
         trajectoryQueue = new List<Action>();
@@ -138,7 +140,13 @@ public class UnityClient : MonoBehaviour
         //new Thread(new ThreadStart(recvJointStateLoop)).Start();
         //StartCoroutine(executeJointTrajectory());
 
+        //getSpeedInfo = new Thread(getInfo);
+
+        //getSpeedInfo.Start();
+
         initialPos();
+
+        InvokeRepeating("getInfo", 0.5f, 0.5f);
     }
 
     private void initialPos()
@@ -334,45 +342,17 @@ public class UnityClient : MonoBehaviour
         */
     }
 
-    private IEnumerator executeJointTrajectory()
+    private void getInfo()
     {
-        while (true)
-        {
-            while (trajectoryQueue.Count > 0)
-            {
-                Action executeOneJointState = trajectoryQueue[trajectoryQueue.Count - 1];
-                //trajectoryQueue.RemoveAt(0);
-                trajectoryQueue.Clear();
+        fromRobot = inChannel.ReadLine();
+        debugger_text.text = fromRobot;
 
-                //Debug.Log("Trajectory Execute");
-                executeOneJointState();
-                //yield return null;
-
-                //Action executeOneAngleMove = angularQueue[angularQueue.Count - 1];
-                //angularQueue.Clear();
-
-                //executeOneAngleMove();
-            }
-            yield return null;
-        }
-
-    }
-
-    // Update is called once per frame
-    private void recvJointStateLoop()
-    {
-        while (true)
-        {
-            string res = inChannel.ReadLine();
-            debugger_text.text = res;
-        }
-
+        Debug.Log(fromRobot);
     }
 
     private void Update()
     {
-        fromRobot = inChannel.ReadLine();
-        debugger_text.text = fromRobot;
+
     }
 
     void OnDestroy()
