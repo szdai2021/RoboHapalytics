@@ -92,6 +92,10 @@ public class UnityClient : MonoBehaviour
 
     private Thread getSpeedInfo;
 
+    public bool robotStopped = false;
+
+    private DateTime robotMoveStartT;
+
     void Start()
     {
         trajectoryQueue = new List<Action>();
@@ -140,13 +144,15 @@ public class UnityClient : MonoBehaviour
         //new Thread(new ThreadStart(recvJointStateLoop)).Start();
         //StartCoroutine(executeJointTrajectory());
 
-        //getSpeedInfo = new Thread(getInfo);
+        getSpeedInfo = new Thread(getInfo);
 
-        //getSpeedInfo.Start();
+        getSpeedInfo.Start();
+
+        robotMoveStartT = DateTime.Now;
 
         initialPos();
 
-        InvokeRepeating("getInfo", 0.5f, 0.5f);
+        //InvokeRepeating("getInfo", 0.5f, 0.2f);
     }
 
     private void initialPos()
@@ -311,6 +317,9 @@ public class UnityClient : MonoBehaviour
         prev_ry = Rot_y;
         prev_rz = Rot_z;
 
+        robotStopped = false;
+        robotMoveStartT = DateTime.Now;
+
         return cmd;
     }
 
@@ -327,32 +336,28 @@ public class UnityClient : MonoBehaviour
         receiveFlag = false;
     }
 
-    public void UR_test()
-    {
-        print(endEffector.transform.position);
-        print(endEffector.transform.rotation.eulerAngles);
-        sliderTest_OnChange(0, 0, 1, 0.5, 0.5);
-        /*
-        string cmd = "(" + x + "," + y + "," + z + ","
-            + rx + "," + ry + "," + rz + ","
-            + a + "," + v + "," + 0 + ")";
-            //+ 0.2 + "," + 0.1 + "," + 0 + ")";
-        outChannel.Write(cmd);
-        outChannel.Flush();
-        */
-    }
-
     private void getInfo()
     {
-        fromRobot = inChannel.ReadLine();
-        debugger_text.text = fromRobot;
-
-        Debug.Log(fromRobot);
+        while (!robotStopped && !inChannel.EndOfStream)
+        {
+            if (inChannel.ReadLine() == "STOPPED" && DateTime.Now > robotMoveStartT.AddSeconds(0.1))
+            {
+                robotStopped = true;
+            }
+        }
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown("a"))
+        {
+            Debug.Log(getSpeedInfo.IsAlive);
 
+            var removePrev = inChannel.ReadToEnd();
+            getSpeedInfo = new Thread(getInfo);
+
+            getSpeedInfo.Start();
+        }
     }
 
     void OnDestroy()

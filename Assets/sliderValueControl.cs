@@ -90,6 +90,8 @@ public class sliderValueControl : MonoBehaviour
 
     private DateTime t1;
 
+    private bool sliderControlIsOn = false;
+
     //public Text text;
 
     // Start is called before the first frame update
@@ -239,41 +241,52 @@ public class sliderValueControl : MonoBehaviour
                 t1 = DateTime.Now;
             }
 
-            if (counter >=10 & pre_sliderValue!=shortInOut.value & stateCheck())
+            if (stateCheck())
             {
-                if (shortInOut.value < 80 | shortInOut.value > 320)
-                {
-                    if (shortInOut.value < 80)
-                    {
-                        //shortInOut.SetSlider(320);
-                        sp = 0.1f * movementSign;
-                    }
-
-                    if (shortInOut.value > 320)
-                    {
-                        sp = -0.1f * movementSign;
-                        //shortInOut.SetSlider(-320);
-                    }
-
-                    if (index == 3)
-                    {
-                        sp = sp * -1;
-                    }
-
-                    unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), rot.x, rot.y, rot.z, speed: sp, acc: 1.5f, movementType: 4);
-                }
-                else
-                {
-                    unity_client.stopRobot();
-                    //shortInOut.SetSlider(0);
-                }
-
-                counter = 0;
+                sliderControlIsOn = true;
             }
-            counter++;
+
+            if (sliderControlIsOn)
+            {
+                if (counter >= 10 & pre_sliderValue != shortInOut.value)
+                {
+                    if (shortInOut.value < 80 | shortInOut.value > 320)
+                    {
+                        if (shortInOut.value < 80)
+                        {
+                            //shortInOut.SetSlider(320);
+                            sp = 0.1f * movementSign;
+                        }
+
+                        if (shortInOut.value > 320)
+                        {
+                            sp = -0.1f * movementSign;
+                            //shortInOut.SetSlider(-320);
+                        }
+
+                        if (index == 3)
+                        {
+                            sp = sp * -1;
+                        }
+
+                        unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), rot.x, rot.y, rot.z, speed: sp, acc: 1.5f, movementType: 4);
+                    }
+                    else
+                    {
+                        unity_client.stopRobot();
+                        //shortInOut.SetSlider(0);
+                    }
+
+                    counter = 0;
+                }
+                counter++;
+            }
 
             updateVirtualSlider();
-
+        }
+        else
+        {
+            sliderControlIsOn = false;
         }
 
         prev_isOn = isOn;
@@ -287,11 +300,13 @@ public class sliderValueControl : MonoBehaviour
 
     private bool stateCheck()
     {
-        var items = unity_client.fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
+        //var items = unity_client.fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
 
-        float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);
+        //float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);
 
-        return (DateTime.Now > t1.AddSeconds(0.5) && sp<0.0001);
+        //return (DateTime.Now > t1.AddSeconds(0.5) && sp<0.0001);
+
+        return (DateTime.Now > t1.AddSeconds(0.3) && unity_client.robotStopped);
     }
 
     private void moveSlider()
