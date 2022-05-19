@@ -27,25 +27,17 @@ robot_client_handle.on('connection', (robot_client_socket) => {
     console.log("Connection: from robot: " + robot_client.remoteAddress + ' : ' + robot_client.remotePort);
 
     robot_client_socket.on('data', (data) => {
-        console.log("receive data from robot: " + data);
         if (unity_client != null) {
-            if (data.startsWith("p")){
-                console.log("relaying tcp pose to unity: " + data);
-            } else {
-                console.log("relaying joint state to unity: " + data);
-            }
+            //console.log(data);
             unity_client.write(data + '\n');
-            
         }
     });
 
     robot_client_socket.on('error', (err) => {
-        //console.log('error from robot: ' + err);
     })
 
     robot_client_socket.on('close', (data) => {
         robot_client = null;
-        //console.log("robot client disconnected: " + data);
     });
 });
 
@@ -56,14 +48,11 @@ unity_client_handle.on('connection', (unity_client_socket) => {
     unity_client_socket.on('data', (data) => {
         console.log("receive pos from unity: " + data);
         if (robot_client != null) {
-            //robot_cmd_sender.write("movel(" + data + ", 1.5, 0.5, 0, 0)\n")
             robot_client.write(data);
-            console.log("relaying pos to robot: " + data);
         }
     });
 
     unity_client_socket.on('close', (data) => {
         unity_client = null;
-        //console.log("unity client disconnected: " + data);
     });
 });

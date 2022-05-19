@@ -30,6 +30,7 @@ public class RotationalEncoder : MonoBehaviour
     public GameObject rotationIndicator;
 
     private Quaternion startUpQuat;
+    private Quaternion indicatorStartUpQuat;
 
     public Vector3 test;
 
@@ -41,6 +42,7 @@ public class RotationalEncoder : MonoBehaviour
         //testcube.transform.position = test;
 
         startUpQuat = Object.transform.rotation;
+        indicatorStartUpQuat = rotationIndicator.transform.rotation;
 
         currentValue = shortInOut.rotaryValue;
     }
@@ -56,6 +58,7 @@ public class RotationalEncoder : MonoBehaviour
             {
                 rotStat = Object.transform.eulerAngles;
                 startUpQuat = Object.transform.rotation;
+                indicatorStartUpQuat = rotationIndicator.transform.rotation;
 
                 currentValue = shortInOut.rotaryValue;
             }
@@ -68,12 +71,15 @@ public class RotationalEncoder : MonoBehaviour
                 {
                     case 1:
                         Object.transform.rotation = Quaternion.Euler(v, 0, 0) * startUpQuat;
+                        rotationIndicator.transform.rotation = Quaternion.Euler(v, 0, 0) * indicatorStartUpQuat;
                         break;
                     case 2:
                         Object.transform.rotation = Quaternion.Euler(0, v, 0) * startUpQuat;
+                        rotationIndicator.transform.rotation = Quaternion.Euler(0, v, 0) * indicatorStartUpQuat;
                         break;
                     case 3:
-                        Object.transform.rotation = Quaternion.Euler(0, 0, v) * startUpQuat;
+                        Object.transform.rotation = Quaternion.Euler(0, 0, -v) * startUpQuat;
+                        rotationIndicator.transform.rotation = Quaternion.Euler(0, 0, -v) * indicatorStartUpQuat;
                         break;
                     default:
                         break;

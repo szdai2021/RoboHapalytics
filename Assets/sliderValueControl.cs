@@ -214,18 +214,6 @@ public class sliderValueControl : MonoBehaviour
         {
             if (!prev_isOn)
             {
-                //while (shortInOut.value > 240 | shortInOut.value < 170)
-                //{
-                //    if (shortInOut.value > 240)
-                //    {
-                //        shortInOut.SetSlider(-350);
-                //    }
-                //    else if (shortInOut.value < 170)
-                //    {
-                //        shortInOut.SetSlider(350);
-                //    }
-                //}
-
                 if (shortInOut.value < 240 & shortInOut.value > 170)
                 {
                     if (index == 2)
@@ -239,6 +227,7 @@ public class sliderValueControl : MonoBehaviour
                 }
 
                 t1 = DateTime.Now;
+                sliderControlIsOn = false;
             }
 
             if (stateCheck())
@@ -280,9 +269,9 @@ public class sliderValueControl : MonoBehaviour
                     counter = 0;
                 }
                 counter++;
-            }
 
-            updateVirtualSlider();
+                updateVirtualSlider();
+            }
         }
         else
         {
@@ -300,13 +289,7 @@ public class sliderValueControl : MonoBehaviour
 
     private bool stateCheck()
     {
-        //var items = unity_client.fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
-
-        //float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);
-
-        //return (DateTime.Now > t1.AddSeconds(0.5) && sp<0.0001);
-
-        return (DateTime.Now > t1.AddSeconds(0.3) && unity_client.robotStopped);
+        return ((DateTime.Now > t1.AddSeconds(0.1)) & unity_client.robotStopped);
     }
 
     private void moveSlider()

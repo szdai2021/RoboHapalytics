@@ -101,8 +101,8 @@ public class SectionVewControlManager : MonoBehaviour
     private int onSliderIndex = 0;
 
     public bool fastMoveFlag = false;
-
     private int moveType = 3;
+    private int interruptible = 1;
 
     public GameObject[] objectsToHide;
 
@@ -131,6 +131,7 @@ public class SectionVewControlManager : MonoBehaviour
 
             if (true)
             {
+                interruptible = 1;
                 if (xCollider.bounds.Contains(p0))
                 {
                     //moveType = 0;
@@ -231,7 +232,6 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (zCollider.bounds.Contains(p0))
                 {
-                    //moveType = 0;
                     Current_colliderArea = 3;
                     virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, -90f, 0);
 
@@ -275,8 +275,10 @@ public class SectionVewControlManager : MonoBehaviour
 
                     RobotCoord = convertUnityCoord2RobotCoord(virtualEndEffector.transform.position - zSliderNodeOffset);
 
-                    //unity_client.circularMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, zRotPar.x, zRotPar.y, zRotPar.z, 0);
                     RobotRot = zRotPar;
+
+                    interruptible = 0;
+                    moveType = 1;
                 }
                 else if (xRotoryCollider.bounds.Contains(p0))
                 {
@@ -285,18 +287,8 @@ public class SectionVewControlManager : MonoBehaviour
 
                     if (!xRotoryEncoder.GetComponent<RotationalEncoder>().isOn)
                     {
-                        //unity_client.circularMove(test1_mid[0], test1_mid[1], test1_mid[2], test1_mid[3], test1_mid[4], test1_mid[5], 0);
-                        //unity_client.circularMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], 0);
-
-                        //unity_client.customMove(test1_mid[0], test1_mid[1], test1_mid[2], test1[0], test1[1], test1[2], movementType: 2);
-                        //unity_client.customMove(test1[0], test1[1], test1[2], test1[3], test1[4], test1[5], movementType: 0);
-
-                        //unity_client.customMove(-4.52, 0.13, -2.016, -1.1745, 0.62645, -4.7525, movementType: 3, radius: 0.1); // middle point to reduce the risk
-                        //unity_client.customMove(test1R[0], test1R[1], test1R[2], test1R[3], test1R[4], test1R[5], movementType: 3);
                         unity_client.customMove(-4.16445f, -1.18897f, 1.90225f, -2.1865f, 1.56376f, -9.35597f, movementType: 3);
                     }
-
-                    //midPoint = test1_mid;
 
                     xRotoryEncoder.GetComponent<RotationalEncoder>().isOnCheck();
                     xRotoryEncoder.GetComponent<RotationalEncoder>().isOn = true;
@@ -411,11 +403,6 @@ public class SectionVewControlManager : MonoBehaviour
                     }*/
                 }
 
-                //if (shortInOut.value < 240 & shortInOut.value > 170)
-                //{
-                //    shortInOut.SetSlider(0);
-                //}
-
                 if (((pre_pos != RobotCoord) | (pre_rot != RobotRot)) & sliderMoveFlag)
                 {
                     
@@ -424,10 +411,12 @@ public class SectionVewControlManager : MonoBehaviour
                         moveType = 0;
                     }
 
-                    //unity_client.circularMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, 0);
-                    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType);
+                    if (Current_colliderArea == 3)
+                    {
+                        unity_client.customMove(0.0088f, 0.373f, 0.3556f, 0.741, -1.748, -1.7855, movementType: 0, interruptible: 0);
+                    }
 
-                    //sliderMoveFlag = false;
+                    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType, interruptible: interruptible);
                 }
 
                 switch (onSliderIndex)
@@ -504,8 +493,6 @@ public class SectionVewControlManager : MonoBehaviour
             pre_pos = RobotCoord;
             pre_rot = RobotRot;
 
-            //t1.text = Current_colliderArea.ToString();
-            //t1.text = Vector3.Distance(test.transform.position, finger.transform.GetChild(0).transform.position).ToString("f5");
         }
 
         if (fastMoveFlag)

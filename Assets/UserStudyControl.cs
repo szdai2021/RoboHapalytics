@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System;
-using UnityEditor.Recorder;
 using UnityEditor;
 using TMPro;
 
@@ -116,7 +115,6 @@ public class UserStudyControl : MonoBehaviour
     private Vector3 panelReference1;
     private Quaternion panelReference2;
 
-    private RecorderWindow recorderWindow;
     List<float> distanceOrder = new List<float>();
 
     private Vector3 buttonPos1 = new Vector3(1.7336f, -0.1341f, -0.0806f);
@@ -159,8 +157,6 @@ public class UserStudyControl : MonoBehaviour
         confirmationPanel.SetActive(false);
         experimentPanel.SetActive(false);
         finishPanel.SetActive(false);
-
-        recorderWindow = GetRecorderWindow();
 
         panelReference1 = instructionPanel.transform.position;
         panelReference2 = instructionPanel.transform.rotation;
@@ -548,11 +544,6 @@ public class UserStudyControl : MonoBehaviour
             }
 
         }
-    }
-
-    private RecorderWindow GetRecorderWindow()
-    {
-        return (RecorderWindow)EditorWindow.GetWindow(typeof(RecorderWindow));
     }
 
     private bool checkControllerTrigger()
