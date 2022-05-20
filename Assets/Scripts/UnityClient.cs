@@ -141,13 +141,6 @@ public class UnityClient : MonoBehaviour
         inChannel = new StreamReader(client.GetStream());
         outChannel = new StreamWriter(client.GetStream());
 
-        //new Thread(new ThreadStart(recvJointStateLoop)).Start();
-        //StartCoroutine(executeJointTrajectory());
-
-        getSpeedInfo = new Thread(getInfo);
-
-        getSpeedInfo.Start();
-
         robotMoveStartT = DateTime.Now;
 
         initialPos();
@@ -336,14 +329,13 @@ public class UnityClient : MonoBehaviour
         receiveFlag = false;
     }
 
-    private  void getInfo()
+    private void getInfo()
     {
         fromRobot = inChannel.ReadLine();
     }
 
     private void Update()
     {
-        
         getInfo();
 
         var items = fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
@@ -351,7 +343,6 @@ public class UnityClient : MonoBehaviour
         float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);
 
         robotStopped = sp < 0.0001;
-        
     }
 
     void OnDestroy()

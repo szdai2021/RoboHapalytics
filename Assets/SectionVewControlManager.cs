@@ -14,6 +14,13 @@ public class SectionVewControlManager : MonoBehaviour
     public GameObject zPosSlider;
     public GameObject zRotSlider;
 
+    public GameObject xPosSliderCenter;
+    public GameObject xRotSliderCenter;
+    public GameObject yPosSliderCenter;
+    public GameObject yRotSliderCenter;
+    public GameObject zPosSliderCenter;
+    public GameObject zRotSliderCenter;
+
     public Collider xCollider;
     public Collider yCollider;
     public Collider zCollider;
@@ -37,39 +44,15 @@ public class SectionVewControlManager : MonoBehaviour
     private List<float> test2 = new List<float> { -0.183151f, -0.1211f, 0.372502f, -1.24571f, -2.85157f, 0.0393199f };
     private List<float> test3 = new List<float> { -0.00595115f, 0.0915175f, 0.686242f, -1.22094f, 1.14528f, -1.12578f };
 
-    private List<float> test1R = new List<float> { -4.51976f, 0.130553f, -1.32996f, -2.07984f, 0.573835f, -4.63f };
-    private List<float> test2R = new List<float> { -0.0578583f, 0.0322039f, -1.07046f, -2.12128f, 0.894812f, -4.7f };
-    private List<float> test3R = new List<float> { -2.7639f, -1.37618f, 0.006307f, -1.76509f, 1.94257f, -6.26f };
-
     private List<float> test1_mid = new List<float> { 0.315f, 0.067f, 0.169f, -0.62f, 1.51f, 0.594f };
     private List<float> test2_mid = new List<float> { -0.22f, 0.182f, 0.44f, -1.06f, -1.31f, 1.665f };
     private List<float> test3_mid = new List<float> { -0.07f, 0.18f, 0.6f, -2.09f, 0.372f, 0.521f };
 
-    //private List<float> midPoint = new List<float> { 0f, 0.25f, 0.1f, -0.63f, 1.47f, 0.62f };
-
     private bool rotoryFlag = false;
-
-    public GameObject xRotoryEncoderPosRef;
-    public GameObject yRotoryEncoderPosRef;
-    public GameObject zRotoryEncoderPosRef;
 
     private Vector3 xRotPar = new Vector3(-0.6f, 1.47f, 0.62f);
     private Vector3 yRotPar = new Vector3(-1.746f, 0.7065f, 1.754f);
     private Vector3 zRotPar = new Vector3(0.741f, -1.748f, -1.7855f);
-
-    private Vector3 resetPos = new Vector3(0f, 0.25f, 0.1f);
-
-    private Vector3 xRotEncoderPos = new Vector3(-0.459f, 0.182f, 0.319f);
-    private Vector3 yRotEncoderPos = new Vector3(-0.901f, 0.184f, 0.15f);
-    private Vector3 zRotEncoderPos = new Vector3(-0.901f, 0.265f, 0.352f);
-
-    private Vector3 xSliderOnePos = new Vector3();
-    private Vector3 ySliderOnePos = new Vector3();
-    private Vector3 zSliderOnePos = new Vector3();
-
-    private Vector3 xSliderTwoPos = new Vector3();
-    private Vector3 ySliderTwoPos = new Vector3();
-    private Vector3 zSliderTwoPos = new Vector3();
 
     private Vector3 xSliderNodeOffset = new Vector3(0,0,0);
     private Vector3 ySliderNodeOffset = new Vector3(0,0,0);
@@ -140,9 +123,7 @@ public class SectionVewControlManager : MonoBehaviour
 
                     var p1 = Vector3.Distance(p0, xPosSlider.transform.position);
                     var p2 = Vector3.Distance(p0, xRotSlider.transform.position);
-                    var p3 = Vector3.Distance(p0, xRotoryEncoderPosRef.transform.position);
 
-                    //var pmin = Mathf.Min(Mathf.Min(p1, p2), p3);
                     var pmin = Mathf.Min(p1, p2);
 
                     if (pmin == p2)
@@ -155,7 +136,7 @@ public class SectionVewControlManager : MonoBehaviour
 
                         if (sliderMoveFlag)
                         {
-                            virtualFingerTouchPoint.transform.position = new Vector3(xRotSlider.transform.position.x, xRotSlider.transform.position.y, xRotSlider.transform.position.z);
+                            virtualFingerTouchPoint.transform.position = new Vector3(xRotSliderCenter.transform.position.x, xRotSliderCenter.transform.position.y, xRotSliderCenter.transform.position.z);
                         }
                     }
                     else if (pmin == p1)
@@ -168,14 +149,8 @@ public class SectionVewControlManager : MonoBehaviour
 
                         if (sliderMoveFlag)
                         {
-                            virtualFingerTouchPoint.transform.position = new Vector3(xPosSlider.transform.position.x, xPosSlider.transform.position.y, xPosSlider.transform.position.z);
+                            virtualFingerTouchPoint.transform.position = new Vector3(xPosSliderCenter.transform.position.x, xPosSliderCenter.transform.position.y, xPosSliderCenter.transform.position.z);
                         }
-                    }
-                    else if (pmin == p3)
-                    {
-                        virtualFingerTouchPoint.transform.position = xRotEncoderPos;
-                        xRotoryEncoder.GetComponent<RotationalEncoder>().isOnCheck();
-                        //xRotoryEncoder.GetComponent<RotationalEncoder>().isOn = true;
                     }
 
                     RobotCoord = convertUnityCoord2RobotCoord(virtualEndEffector.transform.position - xSliderNodeOffset);
@@ -189,9 +164,7 @@ public class SectionVewControlManager : MonoBehaviour
 
                     var p1 = Vector3.Distance(p0, yPosSlider.transform.position);
                     var p2 = Vector3.Distance(p0, yRotSlider.transform.position);
-                    var p3 = Vector3.Distance(p0, yRotoryEncoderPosRef.transform.position);
 
-                    //var pmin = Mathf.Min(Mathf.Min(p1, p2), p3);
                     var pmin = Mathf.Min(p1, p2);
 
                     if (pmin == p2)
@@ -204,7 +177,7 @@ public class SectionVewControlManager : MonoBehaviour
 
                         if (sliderMoveFlag)
                         {
-                            virtualFingerTouchPoint.transform.position = new Vector3(yRotSlider.transform.position.x, yRotSlider.transform.position.y, yRotSlider.transform.position.z);
+                            virtualFingerTouchPoint.transform.position = new Vector3(yRotSliderCenter.transform.position.x, yRotSliderCenter.transform.position.y, yRotSliderCenter.transform.position.z);
                         }
                     }
                     else if (pmin == p1)
@@ -217,17 +190,12 @@ public class SectionVewControlManager : MonoBehaviour
 
                         if (sliderMoveFlag)
                         {
-                            virtualFingerTouchPoint.transform.position = new Vector3(yPosSlider.transform.position.x, yPosSlider.transform.position.y, yPosSlider.transform.position.z);
+                            virtualFingerTouchPoint.transform.position = new Vector3(yPosSliderCenter.transform.position.x, yPosSliderCenter.transform.position.y, yPosSliderCenter.transform.position.z);
                         }
-                    }
-                    else if (pmin == p3)
-                    {
-                        virtualFingerTouchPoint.transform.position = yRotEncoderPos;
                     }
 
                     RobotCoord = convertUnityCoord2RobotCoord(virtualEndEffector.transform.position - ySliderNodeOffset);
 
-                    //unity_client.circularMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, yRotPar.x, yRotPar.y, yRotPar.z, 0);
                     RobotRot = yRotPar;
                 }
                 else if (zCollider.bounds.Contains(p0))
@@ -237,9 +205,7 @@ public class SectionVewControlManager : MonoBehaviour
 
                     var p1 = Vector3.Distance(p0, zPosSlider.transform.position);
                     var p2 = Vector3.Distance(p0, zRotSlider.transform.position);
-                    var p3 = Vector3.Distance(p0, zRotoryEncoderPosRef.transform.position);
 
-                    //var pmin = Mathf.Min(Mathf.Min(p1, p2), p3);
                     var pmin = Mathf.Min(p1, p2);
 
                     if (pmin == p2)
@@ -252,7 +218,7 @@ public class SectionVewControlManager : MonoBehaviour
 
                         if (sliderMoveFlag)
                         {
-                            virtualFingerTouchPoint.transform.position = new Vector3(zRotSlider.transform.position.x, zRotSlider.transform.position.y, zRotSlider.transform.position.z);
+                            virtualFingerTouchPoint.transform.position = new Vector3(zRotSliderCenter.transform.position.x, zRotSliderCenter.transform.position.y, zRotSliderCenter.transform.position.z);
                         }
                     }
                     else if (pmin == p1)
@@ -265,12 +231,8 @@ public class SectionVewControlManager : MonoBehaviour
 
                         if (sliderMoveFlag)
                         {
-                            virtualFingerTouchPoint.transform.position = new Vector3(zPosSlider.transform.position.x, zPosSlider.transform.position.y, zPosSlider.transform.position.z);
+                            virtualFingerTouchPoint.transform.position = new Vector3(zPosSliderCenter.transform.position.x, zPosSliderCenter.transform.position.y, zPosSliderCenter.transform.position.z);
                         }
-                    }
-                    else if (pmin == p3)
-                    {
-                        virtualFingerTouchPoint.transform.position = zRotEncoderPos;
                     }
 
                     RobotCoord = convertUnityCoord2RobotCoord(virtualEndEffector.transform.position - zSliderNodeOffset);
