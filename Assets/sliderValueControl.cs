@@ -195,7 +195,8 @@ public class sliderValueControl : MonoBehaviour
 
     private void updateVirtualSlider()
     {
-        sliderKnobe.transform.localPosition = new Vector3(sliderKnobe.transform.localPosition.x, knobCentre.transform.localPosition.y - movementSign*(float)(shortInOut.value - 415/2) / 415 * (1.89245f - 0.86574f), sliderKnobe.transform.localPosition.z);
+        sliderKnobe.transform.localPosition = new Vector3(sliderKnobe.transform.localPosition.x, knobCentre.transform.localPosition.y + 0.8f - movementSign*(float)(shortInOut.value - 415/2) / 415 * (1.9f - 0.85f), sliderKnobe.transform.localPosition.z);
+        //sliderKnobe.transform.localPosition = new Vector3(sliderKnobe.transform.localPosition.x, sliderKnobe.transform.localPosition.y - movementSign * (float)(shortInOut.value - pre_sliderValue) / 415 * (1.89245f - 0.86574f), sliderKnobe.transform.localPosition.z);
     }
 
     public void isOnCheck()

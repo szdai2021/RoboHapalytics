@@ -145,7 +145,9 @@ public class UnityClient : MonoBehaviour
 
         initialPos();
 
-        //InvokeRepeating("getInfo", 0.5f, 0.2f);
+        getSpeedInfo = new Thread(getInfo);
+
+        getSpeedInfo.Start();
     }
 
     private void initialPos()
@@ -331,13 +333,15 @@ public class UnityClient : MonoBehaviour
 
     private void getInfo()
     {
-        fromRobot = inChannel.ReadLine();
+       fromRobot = inChannel.ReadLine();
     }
 
     private void Update()
     {
-        getInfo();
-
+        getSpeedInfo.Abort();
+        getSpeedInfo = new Thread(getInfo);
+        getSpeedInfo.Start();
+        
         var items = fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
 
         float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);

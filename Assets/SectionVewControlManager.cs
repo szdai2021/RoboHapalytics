@@ -239,8 +239,8 @@ public class SectionVewControlManager : MonoBehaviour
 
                     RobotRot = zRotPar;
 
-                    interruptible = 0;
-                    moveType = 1;
+                    //interruptible = 0;
+                    //moveType = 1;
                 }
                 else if (xRotoryCollider.bounds.Contains(p0))
                 {
@@ -367,16 +367,16 @@ public class SectionVewControlManager : MonoBehaviour
 
                 if (((pre_pos != RobotCoord) | (pre_rot != RobotRot)) & sliderMoveFlag)
                 {
-                    
+
                     if (Pre_colliderArea == 0 & Current_colliderArea != 0)
                     {
                         moveType = 0;
                     }
 
-                    if (Current_colliderArea == 3)
-                    {
-                        unity_client.customMove(0.0088f, 0.373f, 0.3556f, 0.741, -1.748, -1.7855, movementType: 0, interruptible: 0);
-                    }
+                    //if (Current_colliderArea == 3)
+                    //{
+                    //    unity_client.customMove(0.0088f, 0.373f, 0.3556f, 0.741, -1.748, -1.7855, movementType: 0, interruptible: 0);
+                    //}
 
                     unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType, interruptible: interruptible);
                 }
