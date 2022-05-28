@@ -776,35 +776,6 @@ public class UserStudyControl : MonoBehaviour
 
     private void moveRobotDynamic(int bufferOne, int bufferTwo)
     {
-        //if ((ShortSliderInOut.value > bufferOne & ShortSliderInOut.value < a1) & (prev_sliderOne <= bufferOne | prev_sliderOne >= a1))
-        //{
-        //    unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
-        //}
-        //else if ((ShortSliderInOut.value > a1 & ShortSliderInOut.value < a2) & (prev_sliderOne <= a1 | prev_sliderOne >= a2))
-        //{
-        //    unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
-        //}
-        //else if (ShortSliderInOut.value > a2 & prev_sliderOne <= a2)
-        //{
-        //    unity_client.customMove(0.4286, 0.015565, 0.059643, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
-        //}
-        //else if ((ShortSliderInOut.value > bufferTwo & ShortSliderInOut.value < b1) & (prev_sliderOne <= bufferTwo | prev_sliderOne >= b1))
-        //{
-        //    unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f, speed: 0.3f, movementType: 1);
-        //}
-        //else if ((ShortSliderInOut.value > b1 & ShortSliderInOut.value < b2) & (prev_sliderOne <= b1 | prev_sliderOne >= b2))
-        //{
-        //    unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*1.5, speed: 0.3f*1.5, movementType: 1);
-        //}
-        //else if (ShortSliderInOut.value < b2 & prev_sliderOne >= b2)
-        //{
-        //    unity_client.customMove(0.0485547, 0.395625, 0.0558569, -0.6, 1.5, 0.62, acc: 0.3f*2, speed: 0.3f*2, movementType: 1);
-        //}
-        //else if ((ShortSliderInOut.value > bufferThree & ShortSliderInOut.value < bufferFour) & (prev_sliderOne <= bufferThree | prev_sliderOne >= bufferFour))
-        //{
-        //    unity_client.stopRobot();
-        //}
-
         //if (Vector3.Distance(shortSliderTracker.transform.position, sliderLeftReference) < leftCheck)
         if (leftChecker.bounds.Contains(shortSliderTracker.transform.position))
         {

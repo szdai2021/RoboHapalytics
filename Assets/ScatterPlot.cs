@@ -95,6 +95,8 @@ public class ScatterPlot : MonoBehaviour
 
         reScalePlot();
 
+        chartCollider.enabled = true;
+
         this.transform.parent.gameObject.SetActive(false);
         //showIndicationLine(emptyPoint1.transform);
 
@@ -294,8 +296,6 @@ public class ScatterPlot : MonoBehaviour
             }
             //plotParent.transform.GetChild(2).transform.localScale = new Vector3(10, 10, 10);
             //plotParent.transform.GetChild(2).GetComponent<MeshRenderer>().material = newM;
-
-            
         }
         else
         {
@@ -375,7 +375,7 @@ public class ScatterPlot : MonoBehaviour
 
         if (prePos != newPos)
         {
-            unity_client.circularMove(newPos.x, newPos.y, newPos.z, -0.6, 1.47, 0.62, 0, angle: angle, jointIndex: 5);
+            unity_client.customMove(newPos.x, newPos.y, newPos.z, -0.6, 1.47, 0.62, movementType: 1, angle_bias: angle, joint_index: 5);
 
             //sliderMoveFlag = false;
 
@@ -407,7 +407,6 @@ public class ScatterPlot : MonoBehaviour
             updateMainPlot();
         }
         
-
         if (Input.GetKeyDown("r"))
         {
             this.transform.localScale = new Vector3(localScale, localScale, localScale);
@@ -466,7 +465,6 @@ public class ScatterPlot : MonoBehaviour
 
         return new Vector3(new_x, new_y, new_z);
     }
-
 
     private void checkCounterRange()
     {
