@@ -12,6 +12,10 @@ public class sliderValueControl : MonoBehaviour
     public GameObject knobCentreReference;
     public GameObject sliderCenter;
 
+    public Collider rightChecker;
+    public Collider leftChecker;
+    public GameObject shortSliderTracker;
+
     public Vector3 currentValue;
     public float rangeValue;
     private float onSliderValue;
@@ -63,6 +67,12 @@ public class sliderValueControl : MonoBehaviour
     private DateTime t1;
 
     private bool sliderControlIsOn = false;
+
+    private bool dynamicLeftEnd = false;
+    private bool dynamicRightEnd = false;
+    private bool dynamicMoving = false;
+    private int dynamicCounter = 0;
+    private float speedScale = 7.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -133,38 +143,40 @@ public class sliderValueControl : MonoBehaviour
 
             if (sliderControlIsOn)
             {
-                if (counter >= 10 & pre_sliderValue != shortInOut.value)
-                {
-                    if (shortInOut.value < 80 | shortInOut.value > 320)
-                    {
-                        if (shortInOut.value < 80)
-                        {
-                            //shortInOut.SetSlider(320);
-                            sp = 0.1f * movementSign;
-                        }
+                //if (counter >= 10 & pre_sliderValue != shortInOut.value)
+                //{
+                //    if (shortInOut.value < 80 | shortInOut.value > 320)
+                //    {
+                //        if (shortInOut.value < 80)
+                //        {
+                //            //shortInOut.SetSlider(320);
+                //            sp = 0.1f * movementSign;
+                //        }
 
-                        if (shortInOut.value > 320)
-                        {
-                            sp = -0.1f * movementSign;
-                            //shortInOut.SetSlider(-320);
-                        }
+                //        if (shortInOut.value > 320)
+                //        {
+                //            sp = -0.1f * movementSign;
+                //            //shortInOut.SetSlider(-320);
+                //        }
 
-                        if (index == 3)
-                        {
-                            sp = sp * -1;
-                        }
+                //        if (index == 3)
+                //        {
+                //            sp = sp * -1;
+                //        }
 
-                        unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), rot.x, rot.y, rot.z, speed: sp, acc: 1.5f, movementType: 4);
-                    }
-                    else
-                    {
-                        unity_client.stopRobot();
-                        //shortInOut.SetSlider(0);
-                    }
+                //        unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), rot.x, rot.y, rot.z, speed: sp, acc: 1.5f, movementType: 4);
+                //    }
+                //    else
+                //    {
+                //        unity_client.stopRobot();
+                //        //shortInOut.SetSlider(0);
+                //    }
 
-                    counter = 0;
-                }
-                counter++;
+                //    counter = 0;
+                //}
+                //counter++;
+
+                moveRobotDynamic(150, 250);
 
                 updateVirtualSlider();
             }
@@ -188,9 +200,80 @@ public class sliderValueControl : MonoBehaviour
         return ((DateTime.Now > t1.AddSeconds(0.1)) & unity_client.robotStopped);
     }
 
-    private void moveSlider()
+
+    private void moveRobotDynamic(int bufferOne, int bufferTwo)
     {
-        
+        if (leftChecker.bounds.Contains(shortSliderTracker.transform.position))
+        {
+            if (!dynamicLeftEnd)
+            {
+                unity_client.stopRobot();
+                shortInOut.SetSlider(0);
+            }
+            dynamicLeftEnd = true;
+            dynamicMoving = false;
+        }
+        else
+        {
+            dynamicLeftEnd = false;
+        }
+
+        if (rightChecker.bounds.Contains(shortSliderTracker.transform.position))
+        {
+            if (!dynamicRightEnd)
+            {
+                unity_client.stopRobot();
+                shortInOut.SetSlider(0);
+            }
+            dynamicRightEnd = true;
+            dynamicMoving = false;
+        }
+        else
+        {
+            dynamicRightEnd = false;
+        }
+
+        if (dynamicCounter > 9)
+        {
+            if (shortInOut.value < bufferOne | shortInOut.value > bufferTwo)
+            {
+                dynamicMoving = true;
+                float sp = (shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * 0.0261f * speedScale * ((shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) + 1);
+
+                if (index == 3)
+                {
+                    sp = sp * -1;
+                }
+
+                if ((shortInOut.value < bufferOne & !dynamicRightEnd) | (shortInOut.value > bufferTwo & !dynamicLeftEnd))
+                {
+                    unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), -0.6, 1.47, 0.62, speed: sp, acc: 1.5f, movementType: 4);
+
+                    if (shortInOut.value < bufferOne & !dynamicRightEnd)
+                    {
+                        shortInOut.SetSlider((int)(Mathf.Abs(shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (120) + 190));
+                    }
+
+                    if (shortInOut.value > bufferTwo & !dynamicLeftEnd)
+                    {
+                        shortInOut.SetSlider((int)(Mathf.Abs(shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (-120) - 190));
+                    }
+                }
+
+                dynamicCounter = 0;
+            }
+            else
+            {
+                if (dynamicMoving)
+                {
+                    unity_client.stopRobot();
+                    dynamicMoving = false;
+                    shortInOut.SetSlider(0);
+                }
+            }
+        }
+
+        dynamicCounter++;
     }
 
     private void updateVirtualSlider()

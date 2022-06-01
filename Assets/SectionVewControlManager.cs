@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class SectionVewControlManager : MonoBehaviour
 {
@@ -91,6 +92,12 @@ public class SectionVewControlManager : MonoBehaviour
 
     public SerialInOut shortInOut;
 
+    public Vector3 robotResetPos = new Vector3(-1.8765f, -1.22337f, 2.4f);
+    private Vector3 robotResetRot = new Vector3(-1.19516f, 2.06182f, -7.85783f);
+
+    private DateTime verticalAxisAddOnT1;
+    private bool verticalAxisAddOnReady = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -101,8 +108,8 @@ public class SectionVewControlManager : MonoBehaviour
 
         this.gameObject.SetActive(false);
 
-        Vector3 RobotCoord = new Vector3(-1.8765f, -1.22337f, 2.4f);
-        Vector3 RobotRot = new Vector3(-1.19516f, 2.06182f, -7.85783f);
+        Vector3 RobotCoord = robotResetPos;
+        Vector3 RobotRot = robotResetRot;
     }
 
     // Update is called once per frame
@@ -317,8 +324,8 @@ public class SectionVewControlManager : MonoBehaviour
                     sliderMoveFlag = true;
                     onSliderIndex = 0;
 
-                    RobotCoord = new Vector3(-1.8765f, -1.22337f, 2.4f);
-                    RobotRot = new Vector3(-1.19516f, 2.06182f, -7.85783f);
+                    RobotCoord = robotResetPos;
+                    RobotRot = robotResetRot;
 
                     Current_colliderArea = 0;
 
@@ -328,7 +335,7 @@ public class SectionVewControlManager : MonoBehaviour
                     {
                         rotoryFlag = false;
 
-                        unity_client.customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
+                        unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: 3);
                     }
 
                     xRotoryEncoder.GetComponent<RotationalEncoder>().isOn = false;
@@ -373,13 +380,45 @@ public class SectionVewControlManager : MonoBehaviour
                         moveType = 0;
                     }
 
-                    //if (Current_colliderArea == 3)
-                    //{
-                    //    unity_client.customMove(0.0088f, 0.373f, 0.3556f, 0.741, -1.748, -1.7855, movementType: 0, interruptible: 0);
-                    //}
+                    if (Current_colliderArea == 3)
+                    {
+                        if (!verticalAxisAddOnReady)
+                        {
+                            verticalAxisAddon();
 
-                    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType, interruptible: interruptible);
+                            verticalAxisAddOnT1 = DateTime.Now;
+
+                            verticalAxisAddOnReady = true;
+                        }
+                    }
+                    else
+                    {
+                        if (Pre_colliderArea == 3)
+                        {
+                            if (!verticalAxisAddOnReady)
+                            {
+                                verticalAxisAddon();
+
+                                verticalAxisAddOnT1 = DateTime.Now;
+
+                                verticalAxisAddOnReady = true;
+                            }
+                        }
+                        else
+                        {
+                            unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType, interruptible: interruptible);
+                        }
+                    }
                 }
+
+
+                if (stateCheck() & verticalAxisAddOnReady)
+                {
+                    unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType, interruptible: interruptible);
+
+                    verticalAxisAddOnReady = false;
+                }
+                
 
                 switch (onSliderIndex)
                 {
@@ -454,7 +493,6 @@ public class SectionVewControlManager : MonoBehaviour
             Pre_colliderArea = Current_colliderArea;
             pre_pos = RobotCoord;
             pre_rot = RobotRot;
-
         }
 
         if (fastMoveFlag)
@@ -528,6 +566,16 @@ public class SectionVewControlManager : MonoBehaviour
 
             fastMoveFlag = false;
         }
+    }
+
+    private void verticalAxisAddon()
+    {
+        unity_client.customMove(0,0.35,0.2,-0.6,1.47,0.6,angle5: -1.57,angle6: 1.57, movementType: 0);
+    }
+
+    private bool stateCheck()
+    {
+        return ((DateTime.Now > verticalAxisAddOnT1.AddSeconds(0.1)) & unity_client.robotStopped);
     }
 
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)

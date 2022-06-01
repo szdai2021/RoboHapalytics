@@ -13,10 +13,6 @@ const unity_client_handle = net.createServer().listen(unity_port, () => {
     console.log("Start listening from unity on port " + unity_port);
 });
 
-// const robot_cmd_sender = new net.Socket();
-// robot_cmd_sender.connect(30003, '192.168.0.143', () => {
-//     console.log("connect to port 30003");
-// })
 
 var robot_client = null;
 var unity_client = null;
@@ -27,8 +23,10 @@ robot_client_handle.on('connection', (robot_client_socket) => {
     console.log("Connection: from robot: " + robot_client.remoteAddress + ' : ' + robot_client.remotePort);
 
     robot_client_socket.on('data', (data) => {
+        if(!data.startsWith("i")){
+            console.log("receive pos from robot: " + data);
+        }
         if (unity_client != null) {
-            //console.log(data);
             unity_client.write(data + '\n');
         }
     });

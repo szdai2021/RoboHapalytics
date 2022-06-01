@@ -16,8 +16,12 @@ public class controlmanager : MonoBehaviour
     public float ry = 1.47f;
     public float rz = 0.62f;
 
-    public double angleBias = 0;
-    public int jointIndex = 0;
+    public double angleBias1 = 0;
+    public double angleBias2 = 0;
+    public double angleBias3 = 0;
+    public double angleBias4 = 0;
+    public double angleBias5 = 0;
+    public double angleBias6 = 0;
 
     public int moveType = 0;
     public float extra1 = 0;
@@ -57,9 +61,6 @@ public class controlmanager : MonoBehaviour
 
     private int force_flag = 0;
     private int counter = 0;
-
-    private bool robotRender = true;
-    private bool axisRender = true;
 
     public bool testFlag = false;
 
@@ -156,9 +157,6 @@ public class controlmanager : MonoBehaviour
 
     public void HideRobot(bool hideFlag)
     {
-        robotRender = hideFlag;
-        axisRender = hideFlag;
-
         Renderer[] Robot_rs = robot.GetComponentsInChildren<Renderer>();
 
         foreach (Renderer rr in Robot_rs)
@@ -227,7 +225,7 @@ public class controlmanager : MonoBehaviour
 
             //unity_client.circularMove(x,y,z,rx,ry,rz,0,angle: angleBias, jointIndex: jointIndex);
 
-            unity_client.customMove(x,y,z,rx,ry,rz, angle_bias: angleBias, joint_index: jointIndex, movementType: moveType, extra1: extra1, extra2: extra2, extra3: extra3);
+            unity_client.customMove(x,y,z,rx,ry,rz, angle1: angleBias1, angle2: angleBias2, angle3: angleBias3, angle4: angleBias4, angle5: angleBias5, angle6: angleBias6, movementType: moveType, extra1: extra1, extra2: extra2, extra3: extra3);
 
             //Origin.transform.position = sliderKnob.transform.position;
             //Origin.transform.eulerAngles = new Vector3(0, 0, 0);

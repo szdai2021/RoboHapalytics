@@ -375,7 +375,7 @@ public class ScatterPlot : MonoBehaviour
 
         if (prePos != newPos)
         {
-            unity_client.customMove(newPos.x, newPos.y, newPos.z, -0.6, 1.47, 0.62, movementType: 1, angle_bias: angle, joint_index: 5);
+            unity_client.customMove(newPos.x, newPos.y, newPos.z, -0.6, 1.47, 0.62, movementType: 1, angle6: angle);
 
             //sliderMoveFlag = false;
 

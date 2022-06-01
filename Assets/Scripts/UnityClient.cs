@@ -79,9 +79,8 @@ public class UnityClient : MonoBehaviour
     private double a = 2;
     private double v = 1.5;
 
-    private double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4;
 
-    private double prev_x, prev_y, prev_z, prev_rx, prev_ry, prev_rz;
+    private double prev_x, prev_y, prev_z;
 
     public bool receiveFlag = false;
     public float scale = 3f;
@@ -249,7 +248,7 @@ public class UnityClient : MonoBehaviour
     
     public void circularMove(double xi, double yi, double zi, double rxi, double ryi, double rzi, int btn, bool sA = false, double angle = 0, int jointIndex = 0)
     {
-        string cmd = packCMD(xi, yi, zi, rxi, ryi, rzi, btn_press: btn, scenario: 0, speedAdopt: sA, angle_bias: angle, joint_index: jointIndex);
+        string cmd = packCMD(xi, yi, zi, rxi, ryi, rzi, btn_press: btn, scenario: 0, speedAdopt: sA, angle5: angle);
         outChannel.Write(cmd);
         outChannel.Flush();
         receiveFlag = false;
@@ -280,17 +279,19 @@ public class UnityClient : MonoBehaviour
     }
 
     public void customMove(double xi, double yi, double zi, double rxi, double ryi, double rzi,
-        double acc = 0.3, double speed = 0.3, double blend_r = 0, double btn_press = 0, double scenario = 0, bool speedAdopt = false, double angle_bias = 0, int joint_index = 5,
+        double acc = 0.3, double speed = 0.3, double blend_r = 0, double btn_press = 0, double scenario = 0, bool speedAdopt = false,
+        double angle1 = 0, double angle2 = 0, double angle3 = 0, double angle4 = 0, double angle5 = 0, double angle6 = 0,
         int movementType = 0, double extra1 = 0, double extra2 = 0, double extra3 = 0, double radius = 0, int interruptible = 1) // movementType 0: jointspace linear; Type 1: toolspace linear; Type 2: circular; Type 3: jointspace linear by joint pos; Type 4: speedl
     {
-        string cmd = packCMD(xi, yi, zi, rxi, ryi, rzi, acc, speed, blend_r, btn_press, scenario, speedAdopt, angle_bias, joint_index, movementType, extra1, extra2, extra3, radius, interruptible);
+        string cmd = packCMD(xi, yi, zi, rxi, ryi, rzi, acc, speed, blend_r, btn_press, scenario, speedAdopt, angle1, angle2, angle3, angle4, angle5, angle6, movementType, extra1, extra2, extra3, radius, interruptible);
         outChannel.Write(cmd);
         outChannel.Flush();
         receiveFlag = false;
     }
 
     private string packCMD(double Pos_x = 0.2, double Pos_y = 0.2, double Pos_z = 0.07, double Rot_x = -0.6, double Rot_y = 1.47, double Rot_z = 0.62, 
-        double acc = 0.3, double speed = 0.3, double blend_r = 0, double btn_press = 0, double scenario = 0, bool speedAdopt = false, double angle_bias = 0, int joint_index = 5, 
+        double acc = 0.3, double speed = 0.3, double blend_r = 0, double btn_press = 0, double scenario = 0, bool speedAdopt = false,
+        double angle1 = 0, double angle2 = 0, double angle3 = 0, double angle4 = 0, double angle5 = 0, double angle6 = 0,
         int movementType = 0, double extra1 = 0, double extra2 = 0, double extra3 = 0, double radius = 0, int interruptible = 1) // movementType 0: jointspace linear; Type 1: toolspace linear; Type 2: circular; Type 3: jointspace linear by joint pos
     {
         if (speedAdopt)
@@ -303,14 +304,13 @@ public class UnityClient : MonoBehaviour
 
         string cmd = "(" + Pos_x + "," + Pos_y + "," + Pos_z + ","
                + Rot_x + "," + Rot_y + "," + Rot_z + ","
-               + acc + "," + speed + "," + btn_press + "," + scenario + "," + angle_bias + "," + joint_index + "," + movementType + "," + extra1 + "," + extra2 + "," + extra3 + "," + radius + "," + interruptible + ")";
+               + acc + "," + speed + "," + btn_press + "," + scenario + "," + 
+               angle1 + "," + angle2 + "," + angle3 + "," + angle4 + "," + angle5 + "," + angle6 + "," + 
+               movementType + "," + extra1 + "," + extra2 + "," + extra3 + "," + radius + "," + interruptible + ")";
 
         prev_x = Pos_x;
         prev_y = Pos_y;
         prev_z = Pos_z;
-        prev_rx = Rot_x;
-        prev_ry = Rot_y;
-        prev_rz = Rot_z;
 
         robotStopped = false;
         robotMoveStartT = DateTime.Now;
@@ -342,7 +342,7 @@ public class UnityClient : MonoBehaviour
         getSpeedInfo = new Thread(getInfo);
         getSpeedInfo.Start();
         
-        var items = fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
+        var items = fromRobot.Split(new string[] { "i","p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
 
         float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);
 
