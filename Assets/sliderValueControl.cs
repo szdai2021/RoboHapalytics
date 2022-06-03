@@ -143,39 +143,6 @@ public class sliderValueControl : MonoBehaviour
 
             if (sliderControlIsOn)
             {
-                //if (counter >= 10 & pre_sliderValue != shortInOut.value)
-                //{
-                //    if (shortInOut.value < 80 | shortInOut.value > 320)
-                //    {
-                //        if (shortInOut.value < 80)
-                //        {
-                //            //shortInOut.SetSlider(320);
-                //            sp = 0.1f * movementSign;
-                //        }
-
-                //        if (shortInOut.value > 320)
-                //        {
-                //            sp = -0.1f * movementSign;
-                //            //shortInOut.SetSlider(-320);
-                //        }
-
-                //        if (index == 3)
-                //        {
-                //            sp = sp * -1;
-                //        }
-
-                //        unity_client.customMove(ax / (Mathf.Round(norm / sp * 100) / 100), ay / (Mathf.Round(norm / sp * 100) / 100), az / (Mathf.Round(norm / sp * 100) / 100), rot.x, rot.y, rot.z, speed: sp, acc: 1.5f, movementType: 4);
-                //    }
-                //    else
-                //    {
-                //        unity_client.stopRobot();
-                //        //shortInOut.SetSlider(0);
-                //    }
-
-                //    counter = 0;
-                //}
-                //counter++;
-
                 moveRobotDynamic(150, 250);
 
                 updateVirtualSlider();
@@ -197,9 +164,16 @@ public class sliderValueControl : MonoBehaviour
 
     private bool stateCheck()
     {
-        return ((DateTime.Now > t1.AddSeconds(0.1)) & unity_client.robotStopped);
+        if (index == 2)
+        {
+            return ((DateTime.Now > SectionVewControlManager.verticalAxisAddOnT2.AddSeconds(0.2)) & unity_client.robotStopped & SectionVewControlManager.verticalAxisAddOnDone);
+        }
+        else
+        {
+            return ((DateTime.Now > t1.AddSeconds(0.2)) & unity_client.robotStopped);
+        }
+        
     }
-
 
     private void moveRobotDynamic(int bufferOne, int bufferTwo)
     {
@@ -240,7 +214,7 @@ public class sliderValueControl : MonoBehaviour
                 dynamicMoving = true;
                 float sp = (shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * 0.0261f * speedScale * ((shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) + 1);
 
-                if (index == 3)
+                if (index == 3 | index == 1)
                 {
                     sp = sp * -1;
                 }
@@ -278,7 +252,21 @@ public class sliderValueControl : MonoBehaviour
 
     private void updateVirtualSlider()
     {
-        sliderKnobe.transform.localPosition = new Vector3(sliderKnobe.transform.localPosition.x, knobCentre.transform.localPosition.y + 0.8f - movementSign*(float)(shortInOut.value - 415/2) / 415 * (1.9f - 0.85f), sliderKnobe.transform.localPosition.z);
+        float offset;
+
+        switch (index)
+        {
+            case 1: offset = 0.8f;
+                break;
+            case 2: offset = -1.4f;
+                break;
+            case 3: offset = -0.8f;
+                break;
+            default: offset = 0f;
+                break;
+        }
+
+        sliderKnobe.transform.localPosition = new Vector3(sliderKnobe.transform.localPosition.x, knobCentre.transform.localPosition.y + offset - movementSign*(float)(shortInOut.value - 415/2) / 415 * (1.9f - 0.85f), sliderKnobe.transform.localPosition.z);
         //sliderKnobe.transform.localPosition = new Vector3(sliderKnobe.transform.localPosition.x, sliderKnobe.transform.localPosition.y - movementSign * (float)(shortInOut.value - pre_sliderValue) / 415 * (1.89245f - 0.86574f), sliderKnobe.transform.localPosition.z);
     }
 

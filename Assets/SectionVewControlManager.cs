@@ -97,6 +97,8 @@ public class SectionVewControlManager : MonoBehaviour
 
     private DateTime verticalAxisAddOnT1;
     private bool verticalAxisAddOnReady = false;
+    public static bool verticalAxisAddOnDone = false;
+    public static DateTime verticalAxisAddOnT2;
 
     // Start is called before the first frame update
     void Start()
@@ -110,6 +112,8 @@ public class SectionVewControlManager : MonoBehaviour
 
         Vector3 RobotCoord = robotResetPos;
         Vector3 RobotRot = robotResetRot;
+
+        StartCoroutine(centerSliderKnob());
     }
 
     // Update is called once per frame
@@ -247,7 +251,7 @@ public class SectionVewControlManager : MonoBehaviour
                     RobotRot = zRotPar;
 
                     //interruptible = 0;
-                    //moveType = 1;
+                    moveType = 1;
                 }
                 else if (xRotoryCollider.bounds.Contains(p0))
                 {
@@ -310,17 +314,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else
                 {
-                    /*
-                    if (Pre_colliderArea == 2)
-                    {
-                        moveType = 1;
-                    }
-                    else
-                    {
-                        moveType = 0;
-                    }
-                    */
-
+                    verticalAxisAddOnDone = false;
                     sliderMoveFlag = true;
                     onSliderIndex = 0;
 
@@ -348,28 +342,6 @@ public class SectionVewControlManager : MonoBehaviour
                     yRotSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
                     zPosSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
                     zRotSlider.transform.parent.GetComponent<sliderValueControl>().isOn = false;
-
-                    /*
-                    if (!rotoryFlag)
-                    {
-                        Current_colliderArea = 0;
-                        //RobotCoord = resetPos;
-                        //RobotRot = xRotPar;
-                    }
-                    else
-                    {
-                        Current_colliderArea = 0;
-
-                        //unity_client.customMove(midPoint[0], midPoint[1], midPoint[2], 0, 0.25, 0.1, movementType: 2);
-                        //unity_client.customMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, movementType: 0);
-
-                        unity_client.customMove(-1.8765, -1.22337, 2.4, -1.19516, 2.06182, -7.85783, movementType: 3);
-
-                        //unity_client.circularMove(midPoint[0], midPoint[1], midPoint[2], midPoint[3], midPoint[4], midPoint[5], 0);
-                        //unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
-
-                        rotoryFlag = false;
-                    }*/
                 }
 
                 if (((pre_pos != RobotCoord) | (pre_rot != RobotRot)) & sliderMoveFlag)
@@ -385,9 +357,7 @@ public class SectionVewControlManager : MonoBehaviour
                         if (!verticalAxisAddOnReady)
                         {
                             verticalAxisAddon();
-
                             verticalAxisAddOnT1 = DateTime.Now;
-
                             verticalAxisAddOnReady = true;
                         }
                     }
@@ -398,9 +368,7 @@ public class SectionVewControlManager : MonoBehaviour
                             if (!verticalAxisAddOnReady)
                             {
                                 verticalAxisAddon();
-
                                 verticalAxisAddOnT1 = DateTime.Now;
-
                                 verticalAxisAddOnReady = true;
                             }
                         }
@@ -417,6 +385,10 @@ public class SectionVewControlManager : MonoBehaviour
                     unity_client.customMove(RobotCoord.x, RobotCoord.y, RobotCoord.z, RobotRot.x, RobotRot.y, RobotRot.z, movementType: moveType, interruptible: interruptible);
 
                     verticalAxisAddOnReady = false;
+
+                    verticalAxisAddOnDone = true;
+
+                    verticalAxisAddOnT2 = DateTime.Now;
                 }
                 
 
@@ -565,6 +537,29 @@ public class SectionVewControlManager : MonoBehaviour
             unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
 
             fastMoveFlag = false;
+        }
+    }
+
+    IEnumerator centerSliderKnob()
+    {
+        while (true)
+        {
+            if (Current_colliderArea == 0)
+            {
+                if (shortInOut.value < 150)
+                {
+                    shortInOut.SetSlider(200);
+                }
+                else if (shortInOut.value > 250)
+                {
+                    shortInOut.SetSlider(-200);
+                }
+                else
+                {
+                    shortInOut.SetSlider(0);
+                }
+            }
+            yield return null;
         }
     }
 
