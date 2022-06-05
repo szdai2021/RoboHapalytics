@@ -112,8 +112,6 @@ public class SectionVewControlManager : MonoBehaviour
 
         Vector3 RobotCoord = robotResetPos;
         Vector3 RobotRot = robotResetRot;
-
-        StartCoroutine(centerSliderKnob());
     }
 
     // Update is called once per frame
@@ -548,11 +546,11 @@ public class SectionVewControlManager : MonoBehaviour
             {
                 if (shortInOut.value < 150)
                 {
-                    shortInOut.SetSlider(200);
+                    shortInOut.SetSlider(280);
                 }
                 else if (shortInOut.value > 250)
                 {
-                    shortInOut.SetSlider(-200);
+                    shortInOut.SetSlider(-280);
                 }
                 else
                 {

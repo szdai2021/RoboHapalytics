@@ -74,6 +74,8 @@ public class sliderValueControl : MonoBehaviour
     private int dynamicCounter = 0;
     private float speedScale = 7.0f;
 
+    private int motorPWM_Bias = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -91,6 +93,7 @@ public class sliderValueControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        sliderMoveFlag = !isOn;
         knobCentre.transform.position = refernce.transform.position;
 
         onSliderValue = sliderKnobe.transform.localPosition.y;
@@ -139,10 +142,21 @@ public class sliderValueControl : MonoBehaviour
             if (stateCheck())
             {
                 sliderControlIsOn = true;
+
+                SectionVewControlManager.verticalAxisAddOnDone = false;
             }
 
             if (sliderControlIsOn)
             {
+                if (index == 2)
+                {
+                    motorPWM_Bias = -300;
+                }
+                else
+                {
+                    motorPWM_Bias = 0;
+                }
+
                 moveRobotDynamic(150, 250);
 
                 updateVirtualSlider();
@@ -225,12 +239,12 @@ public class sliderValueControl : MonoBehaviour
 
                     if (shortInOut.value < bufferOne & !dynamicRightEnd)
                     {
-                        shortInOut.SetSlider((int)(Mathf.Abs(shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (120) + 190));
+                        shortInOut.SetSlider((int)(Mathf.Abs(shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (120) + 190) + motorPWM_Bias);
                     }
 
                     if (shortInOut.value > bufferTwo & !dynamicLeftEnd)
                     {
-                        shortInOut.SetSlider((int)(Mathf.Abs(shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (-120) - 190));
+                        shortInOut.SetSlider((int)(Mathf.Abs(shortInOut.value - 415.0f / 2.0f) / (415.0f / 2.0f) * (-120) - 190) + motorPWM_Bias);
                     }
                 }
 
@@ -242,7 +256,7 @@ public class sliderValueControl : MonoBehaviour
                 {
                     unity_client.stopRobot();
                     dynamicMoving = false;
-                    shortInOut.SetSlider(0);
+                    shortInOut.SetSlider(0 + motorPWM_Bias);
                 }
             }
         }
@@ -256,11 +270,11 @@ public class sliderValueControl : MonoBehaviour
 
         switch (index)
         {
-            case 1: offset = 0.8f;
+            case 1: offset = 0.82f;
                 break;
-            case 2: offset = -1.4f;
+            case 2: offset = -0.82f;
                 break;
-            case 3: offset = -0.8f;
+            case 3: offset = -0.82f;
                 break;
             default: offset = 0f;
                 break;
