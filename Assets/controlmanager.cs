@@ -121,7 +121,7 @@ public class controlmanager : MonoBehaviour
     private float norm;
 
     public float sp = 0.01f;
-
+    public static DateTime dt;
     public void startScenario()
     {
         HideShowTagGameObject("Slider", false);
@@ -316,6 +316,12 @@ public class controlmanager : MonoBehaviour
         {
             unity_client.customMove(0.23, 0.17593, 0.045218, -0.6, 1.5, 0.62, movementType: 0);
             prototypeFlag2 = true;
+        }
+        else if (Input.GetKeyDown("z"))
+        {
+            unity_client.customMove(0,0,0,0,0,0, scenario: 3);
+            dt = DateTime.Now;
+            Debug.Log("Sent Time: " + dt);
         }
 
         if (prototypeFlag2 & testStartCheck)

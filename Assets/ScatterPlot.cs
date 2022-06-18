@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using TMPro;
+using System;
 
 public class ScatterPlot : MonoBehaviour
 {
@@ -85,6 +86,10 @@ public class ScatterPlot : MonoBehaviour
     public bool testFlag2 = false;
 
     private bool resetKnobPosFlag;
+
+    private DateTime dt;
+    private bool dtFlag = true;
+    private bool differenceFlag = true;
 
     // Start is called before the first frame update
     void Start()
@@ -315,6 +320,7 @@ public class ScatterPlot : MonoBehaviour
 
         if (chartCollider.bounds.Contains(p0) & !testFlag2)
         {
+            //actionStartTime();
             centerKnob();
 
             GameObject closest = plotParent.transform.GetChild(0).gameObject;
@@ -356,6 +362,11 @@ public class ScatterPlot : MonoBehaviour
 
             frameCounter++;
         }
+        else
+        {
+            dtFlag = true;
+            differenceFlag = true;
+        }
 
 
         if (testFlag)
@@ -375,6 +386,8 @@ public class ScatterPlot : MonoBehaviour
 
         if (prePos != newPos)
         {
+            actionStartTime();
+
             unity_client.customMove(newPos.x, newPos.y, newPos.z, -0.6, 1.47, 0.62, movementType: 1, angle6: angle);
 
             //sliderMoveFlag = false;
@@ -431,6 +444,8 @@ public class ScatterPlot : MonoBehaviour
         pre_inCollider = chartCollider.bounds.Contains(p0);
 
         pre_country = selectedCountry;
+
+        actionFinishTime();
     }
 
     //private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
@@ -586,6 +601,36 @@ public class ScatterPlot : MonoBehaviour
             yield return new WaitUntil(() => Mathf.Abs(ShortSliderInOut.value - 415 / 2) < 20);
 
             resetKnobPosFlag = false;
+        }
+    }
+
+    private void actionStartTime()
+    {
+        if (dtFlag)
+        {
+            dt = DateTime.Now;
+            Debug.Log("Start Time: " + dt.ToString());
+            
+            dtFlag = false;
+        }
+    }
+
+    private void actionFinishTime()
+    {
+        if (DateTime.Now > dt.AddSeconds(0.4) & differenceFlag & !dtFlag & unity_client.robotStopped)
+        {
+            DateTime dt2 = DateTime.Now;
+
+            Debug.Log("Finished Time: " + dt2.ToString());
+            Debug.Log("Difference: " + (dt2 - dt).TotalMilliseconds.ToString("F6"));
+
+            differenceFlag = false;
+        }
+
+        if (!differenceFlag)
+        {
+            differenceFlag = true;
+            dtFlag = true;
         }
     }
 }

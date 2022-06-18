@@ -341,7 +341,14 @@ public class UnityClient : MonoBehaviour
         getSpeedInfo.Abort();
         getSpeedInfo = new Thread(getInfo);
         getSpeedInfo.Start();
-        
+
+        if (fromRobot.StartsWith("R"))
+        {
+            DateTime dt2 = DateTime.Now;
+            Debug.Log("Returned Time: " + dt2);
+            Debug.Log("Difference: " + (dt2 - controlmanager.dt).TotalMilliseconds.ToString("F6")+"ms");
+        }
+
         var items = fromRobot.Split(new string[] { "i","p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
 
         float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);

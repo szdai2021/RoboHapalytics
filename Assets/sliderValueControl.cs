@@ -141,6 +141,16 @@ public class sliderValueControl : MonoBehaviour
 
             if (stateCheck())
             {
+                if (!sliderControlIsOn)
+                {
+                    DateTime actionFinishTime = DateTime.Now;
+
+                    Debug.Log("Finished Time: " + actionFinishTime.ToString());
+                    Debug.Log("Difference: " + (actionFinishTime - SectionVewControlManager.actionStartTime).TotalMilliseconds.ToString("F6"));
+
+                    SectionVewControlManager.countTimeFlag = true;
+                }
+
                 sliderControlIsOn = true;
 
                 SectionVewControlManager.verticalAxisAddOnDone = false;

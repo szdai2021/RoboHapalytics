@@ -100,6 +100,9 @@ public class SectionVewControlManager : MonoBehaviour
     public static bool verticalAxisAddOnDone = false;
     public static DateTime verticalAxisAddOnT2;
 
+    public static DateTime actionStartTime;
+    public static bool countTimeFlag = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -126,6 +129,7 @@ public class SectionVewControlManager : MonoBehaviour
                 interruptible = 1;
                 if (xCollider.bounds.Contains(p0))
                 {
+                    getActionStartTime();
                     //moveType = 0;
                     Current_colliderArea = 1;
                     virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, 0, 90f);
@@ -167,6 +171,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (yCollider.bounds.Contains(p0))
                 {
+                    getActionStartTime();
                     //moveType = 0;
                     Current_colliderArea = 2;
                     virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, -90f, 90f);
@@ -209,6 +214,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (zCollider.bounds.Contains(p0))
                 {
+                    getActionStartTime();
                     Current_colliderArea = 3;
                     virtualFingerTouchPoint.transform.eulerAngles = new Vector3(0, -90f, 0);
 
@@ -253,6 +259,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (xRotoryCollider.bounds.Contains(p0))
                 {
+                    getActionStartTime();
                     //moveType = 2;
                     rotoryFlag = true;
 
@@ -267,6 +274,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (yRotoryCollider.bounds.Contains(p0))
                 {
+                    getActionStartTime();
                     //moveType = 2;
                     rotoryFlag = true;
 
@@ -289,6 +297,7 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else if (zRotoryCollider.bounds.Contains(p0))
                 {
+                    getActionStartTime();
                     //moveType = 2;
                     rotoryFlag = true;
 
@@ -312,6 +321,8 @@ public class SectionVewControlManager : MonoBehaviour
                 }
                 else
                 {
+                    countTimeFlag = true;
+
                     verticalAxisAddOnDone = false;
                     sliderMoveFlag = true;
                     onSliderIndex = 0;
@@ -535,6 +546,17 @@ public class SectionVewControlManager : MonoBehaviour
             unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
 
             fastMoveFlag = false;
+        }
+    }
+
+    private void getActionStartTime()
+    {
+        if (countTimeFlag)
+        {
+            actionStartTime = DateTime.Now;
+            Debug.Log("Start Time: " + actionStartTime.ToString());
+
+            countTimeFlag = false;
         }
     }
 
