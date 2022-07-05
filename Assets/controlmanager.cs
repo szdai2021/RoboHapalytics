@@ -37,10 +37,6 @@ public class controlmanager : MonoBehaviour
     public UnityClient unity_client;
     public SerialInOut shortSliderInOut;
 
-    public GameObject sliderModel;
-    public GameObject torusModel;
-    public GameObject plot;
-
     public GameObject tcp_pos;
 
     public GameObject sliderKnob;

@@ -19,24 +19,11 @@ public class UnityClient : MonoBehaviour
 
     private StreamWriter outChannel;
 
-    //private GameObject End_effector_virtual_plane;
-
-    private List<Action> trajectoryQueue;
-    //private List<Action> angularQueue;
-    private List<float[]> posQueue;
-    private Dictionary<int, char> link_index_to_axis_mapper;
-    private Dictionary<int, float> link_offset;
-    private Dictionary<int, int> link_direction;
-
     public string host_ip = "localhost";
     public int host_port = 27;
 
-    public GameObject Virtual_end_effector;
-
     public GameObject UR3;
     public GameObject[] joint_links;
-
-    public GameObject endEffector;
 
     public TMP_Text debugger_text; 
 
@@ -79,7 +66,6 @@ public class UnityClient : MonoBehaviour
     private double a = 2;
     private double v = 1.5;
 
-
     private double prev_x, prev_y, prev_z;
 
     public bool receiveFlag = false;
@@ -87,52 +73,20 @@ public class UnityClient : MonoBehaviour
 
     public string fromRobot;
 
-    private string angleCMD;
-
     private Thread getSpeedInfo;
 
     public bool robotStopped = true;
 
-    private DateTime robotMoveStartT;
+    private Matrix4x4 transMatrix = Matrix4x4.zero;
+    private Matrix4x4 unityCoordMatrix = Matrix4x4.zero;
+    private Matrix4x4 robotCoordMatrix = Matrix4x4.zero;
+
+    private Vector3 robotCoordTemp;
+
+    public GameObject virtualEndEffector;
 
     void Start()
     {
-        trajectoryQueue = new List<Action>();
-        //angularQueue = new List<Action>();
-
-        posQueue = new List<float[]>();
-
-        link_index_to_axis_mapper = new Dictionary<int, char>() {
-            {0, 'y' },
-            {1, 'x' },
-            {2, 'y' },
-            {3, 'x' },
-            {4, 'y' },
-            {5, 'z' }
-        };
-
-        link_offset = new Dictionary<int, float>()
-        {
-            {0, 462.078f},
-            {1, 0.416f},
-            {2, 89.922f},
-            {3, -267.005f},
-            {4, 182.724f},
-            {5, 89.122f},
-        };
-
-        link_direction = new Dictionary<int, int>()
-        {
-            {0, -1}, //-1
-            {1, 1},
-            {2, -1},
-            {3, -1},
-            {4, 1},
-            {5, 1},
-
-        };
-        //y, x, y, x, y, z
-
         client = new TcpClient(host_ip, host_port);
         Debug.Log("Connected to relay server");
 
@@ -140,13 +94,82 @@ public class UnityClient : MonoBehaviour
         inChannel = new StreamReader(client.GetStream());
         outChannel = new StreamWriter(client.GetStream());
 
-        robotMoveStartT = DateTime.Now;
 
         initialPos();
 
         getSpeedInfo = new Thread(getInfo);
 
-        getSpeedInfo.Start();
+        getSpeedInfo.Start(); 
+        
+        StartCoroutine(RobotCoordUnityCoordCalibration());
+    }
+
+    IEnumerator RobotCoordUnityCoordCalibration()
+    {
+        // wait for 15 seconds before the calibration
+        yield return new WaitForSeconds(15f);
+
+        // send command to robot for the first movement and wait for 5 seconds
+        customMove(0.2f,0.2f,0.2f,-0.6f,1.47f,0.62f, movementType: 1);
+        yield return new WaitForSeconds(5f);
+        // record unity coord and robot coord in matrix
+        robotCoordMatrix[0, 0] = robotCoordTemp.x;
+        robotCoordMatrix[1, 0] = robotCoordTemp.y;
+        robotCoordMatrix[2, 0] = robotCoordTemp.z;
+        robotCoordMatrix[3, 0] = 1f;
+
+        unityCoordMatrix[0, 0] = virtualEndEffector.transform.position.x;
+        unityCoordMatrix[1, 0] = virtualEndEffector.transform.position.y;
+        unityCoordMatrix[2, 0] = virtualEndEffector.transform.position.z;
+        unityCoordMatrix[3, 0] = 1f;
+
+        // send command to robot for the second movement and wait for 5 seconds
+        customMove(-4.16445f, -1.18897f, 1.90225f, -2.1865f, 1.56376f, -9.35597f, movementType: 3);
+        yield return new WaitForSeconds(5f);
+        // record unity coord and robot coord in matrix
+        robotCoordMatrix[0, 1] = robotCoordTemp.x;
+        robotCoordMatrix[1, 1] = robotCoordTemp.y;
+        robotCoordMatrix[2, 1] = robotCoordTemp.z;
+        robotCoordMatrix[3, 1] = 1f;
+
+        unityCoordMatrix[0, 1] = virtualEndEffector.transform.position.x;
+        unityCoordMatrix[1, 1] = virtualEndEffector.transform.position.y;
+        unityCoordMatrix[2, 1] = virtualEndEffector.transform.position.z;
+        unityCoordMatrix[3, 1] = 1f;
+
+        // send command to robot for the third movement and wait for 5 seconds
+        customMove(0.281548f, -0.827192f, 1.47676f, -2.17393f, 1.69551f, -8.9832f, movementType: 3);
+        yield return new WaitForSeconds(5f);
+        // record unity coord and robot coord in matrix
+        robotCoordMatrix[0, 2] = robotCoordTemp.x;
+        robotCoordMatrix[1, 2] = robotCoordTemp.y;
+        robotCoordMatrix[2, 2] = robotCoordTemp.z;
+        robotCoordMatrix[3, 2] = 1f;
+
+        unityCoordMatrix[0, 2] = virtualEndEffector.transform.position.x;
+        unityCoordMatrix[1, 2] = virtualEndEffector.transform.position.y;
+        unityCoordMatrix[2, 2] = virtualEndEffector.transform.position.z;
+        unityCoordMatrix[3, 2] = 1f;
+
+        // send command to robot for the fourth movement and wait for 5 seconds
+        customMove(-2.74635f, -2.30404f, 0.623497f, -1.38846f, -1.35079f, -3.09798f, movementType: 3);
+        yield return new WaitForSeconds(5f);
+        // record unity coord and robot coord in matrix
+        robotCoordMatrix[0, 3] = robotCoordTemp.x;
+        robotCoordMatrix[1, 3] = robotCoordTemp.y;
+        robotCoordMatrix[2, 3] = robotCoordTemp.z;
+        robotCoordMatrix[3, 3] = 1f;
+
+        unityCoordMatrix[0, 3] = virtualEndEffector.transform.position.x;
+        unityCoordMatrix[1, 3] = virtualEndEffector.transform.position.y;
+        unityCoordMatrix[2, 3] = virtualEndEffector.transform.position.z;
+        unityCoordMatrix[3, 3] = 1f;
+
+        transMatrix = robotCoordMatrix * unityCoordMatrix.inverse;
+
+        Debug.Log(transMatrix);
+
+        customMove(-1.8765f, -1.22337f, 2.4f, -1.19516f, 2.06182f, -7.85783f, movementType: 3);
     }
 
     private void initialPos()
@@ -313,7 +336,6 @@ public class UnityClient : MonoBehaviour
         prev_z = Pos_z;
 
         robotStopped = false;
-        robotMoveStartT = DateTime.Now;
 
         return cmd;
     }
@@ -345,15 +367,24 @@ public class UnityClient : MonoBehaviour
         if (fromRobot.StartsWith("R"))
         {
             DateTime dt2 = DateTime.Now;
-            Debug.Log("Returned Time: " + dt2);
-            Debug.Log("Difference: " + (dt2 - controlmanager.dt).TotalMilliseconds.ToString("F6")+"ms");
+            //Debug.Log("Returned Time: " + dt2);
+            //Debug.Log("Difference: " + (dt2 - controlmanager.dt).TotalMilliseconds.ToString("F6")+"ms");
         }
+        else if (fromRobot.StartsWith("p"))
+        {
+            var items = fromRobot.Split(new string[] { "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
+            robotCoordTemp[0] = float.Parse(items[0]);
+            robotCoordTemp[1] = float.Parse(items[1]);
+            robotCoordTemp[2] = float.Parse(items[2]);
+        }
+        else if (fromRobot.StartsWith("i"))
+        {
+            var items = fromRobot.Split(new string[] { "i", "p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
 
-        var items = fromRobot.Split(new string[] { "i","p", "[", "]", "," }, StringSplitOptions.RemoveEmptyEntries);
+            float sp = float.Parse(items[0]) * float.Parse(items[0]) + float.Parse(items[1]) * float.Parse(items[1]) + float.Parse(items[2]) * float.Parse(items[2]);
 
-        float sp = float.Parse(items[0])* float.Parse(items[0]) + float.Parse(items[1])* float.Parse(items[1]) + float.Parse(items[2])* float.Parse(items[2]);
-
-        robotStopped = sp < 0.0001;
+            robotStopped = sp < 0.0001;
+        }
     }
 
     void OnDestroy()
@@ -365,5 +396,10 @@ public class UnityClient : MonoBehaviour
         Debug.Log("Client close");
     }
 
+    public Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
+    {
+        Vector3 new_p = transMatrix.MultiplyPoint3x4(p1);
 
+        return new_p;
+    }
 }

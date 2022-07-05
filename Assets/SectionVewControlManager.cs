@@ -595,15 +595,17 @@ public class SectionVewControlManager : MonoBehaviour
 
     private Vector3 convertUnityCoord2RobotCoord(Vector3 p1)
     {
-        p1.x -= -0.5606855f - -0.5606583f;
-        p1.y -= -0.001490745f - -0.0005011343f;
-        p1.z -= 0.3161324f - 0.3580751f;
+        //p1.x -= -0.5606855f - -0.5606583f;
+        //p1.y -= -0.001490745f - -0.0005011343f;
+        //p1.z -= 0.3161324f - 0.3580751f;
 
-        float new_x = 0.7098f * p1.x + -0.00617f * p1.y + 0.707f * p1.z + 0.345378f;
-        float new_y = -0.7098f * p1.x + 0.00617f * p1.y + 0.7014f * p1.z - 0.338f;
-        float new_z = 0.0071f * p1.x + 1f * p1.y + 0.000028f * p1.z + 0.0064f;
+        //float new_x = 0.7098f * p1.x + -0.00617f * p1.y + 0.707f * p1.z + 0.345378f;
+        //float new_y = -0.7098f * p1.x + 0.00617f * p1.y + 0.7014f * p1.z - 0.338f;
+        //float new_z = 0.0071f * p1.x + 1f * p1.y + 0.000028f * p1.z + 0.0064f;
 
-        return new Vector3(new_x, new_y, new_z);
+        //return new Vector3(new_x, new_y, new_z);
+
+        return unity_client.convertUnityCoord2RobotCoord(p1);
     }
 
     public void HideObject(GameObject obj, bool hideFlag = false)
