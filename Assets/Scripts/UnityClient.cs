@@ -84,6 +84,7 @@ public class UnityClient : MonoBehaviour
     private Vector3 robotCoordTemp;
 
     public GameObject virtualEndEffector;
+    public bool startCalibration = true;
 
     void Start()
     {
@@ -109,67 +110,110 @@ public class UnityClient : MonoBehaviour
         // wait for 15 seconds before the calibration
         yield return new WaitForSeconds(15f);
 
-        // send command to robot for the first movement and wait for 5 seconds
-        customMove(0.2f,0.2f,0.2f,-0.6f,1.47f,0.62f, movementType: 1);
-        yield return new WaitForSeconds(5f);
-        // record unity coord and robot coord in matrix
-        robotCoordMatrix[0, 0] = robotCoordTemp.x;
-        robotCoordMatrix[1, 0] = robotCoordTemp.y;
-        robotCoordMatrix[2, 0] = robotCoordTemp.z;
-        robotCoordMatrix[3, 0] = 1f;
+        while (true)
+        {
+            while (startCalibration)
+            {
+                // send command to robot for the first movement and wait for 5 seconds
+                customMove(0.2f, 0.2f, 0.2f, -0.6f, 1.47f, 0.62f, movementType: 1, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0.2f, 0.2f, 0.2f, -0.6f, 1.47f, 0.62f, movementType: 1, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0.2f, 0.2f, 0.2f, -0.6f, 1.47f, 0.62f, movementType: 1, interruptible: 0);
+                yield return new WaitForSeconds(3f);
+                // record unity coord and robot coord in matrix
 
-        unityCoordMatrix[0, 0] = virtualEndEffector.transform.position.x;
-        unityCoordMatrix[1, 0] = virtualEndEffector.transform.position.y;
-        unityCoordMatrix[2, 0] = virtualEndEffector.transform.position.z;
-        unityCoordMatrix[3, 0] = 1f;
+                Debug.Log(robotCoordTemp.ToString("f6") + " " + virtualEndEffector.transform.position.ToString("f6"));
 
-        // send command to robot for the second movement and wait for 5 seconds
-        customMove(-4.16445f, -1.18897f, 1.90225f, -2.1865f, 1.56376f, -9.35597f, movementType: 3);
-        yield return new WaitForSeconds(5f);
-        // record unity coord and robot coord in matrix
-        robotCoordMatrix[0, 1] = robotCoordTemp.x;
-        robotCoordMatrix[1, 1] = robotCoordTemp.y;
-        robotCoordMatrix[2, 1] = robotCoordTemp.z;
-        robotCoordMatrix[3, 1] = 1f;
+                robotCoordMatrix[0, 0] = robotCoordTemp.x;
+                robotCoordMatrix[1, 0] = robotCoordTemp.y;
+                robotCoordMatrix[2, 0] = robotCoordTemp.z;
+                robotCoordMatrix[3, 0] = 1f;
 
-        unityCoordMatrix[0, 1] = virtualEndEffector.transform.position.x;
-        unityCoordMatrix[1, 1] = virtualEndEffector.transform.position.y;
-        unityCoordMatrix[2, 1] = virtualEndEffector.transform.position.z;
-        unityCoordMatrix[3, 1] = 1f;
+                unityCoordMatrix[0, 0] = virtualEndEffector.transform.position.x;
+                unityCoordMatrix[1, 0] = virtualEndEffector.transform.position.y;
+                unityCoordMatrix[2, 0] = virtualEndEffector.transform.position.z;
+                unityCoordMatrix[3, 0] = 1f;
 
-        // send command to robot for the third movement and wait for 5 seconds
-        customMove(0.281548f, -0.827192f, 1.47676f, -2.17393f, 1.69551f, -8.9832f, movementType: 3);
-        yield return new WaitForSeconds(5f);
-        // record unity coord and robot coord in matrix
-        robotCoordMatrix[0, 2] = robotCoordTemp.x;
-        robotCoordMatrix[1, 2] = robotCoordTemp.y;
-        robotCoordMatrix[2, 2] = robotCoordTemp.z;
-        robotCoordMatrix[3, 2] = 1f;
+                // send command to robot for the second movement and wait for 5 seconds
+                customMove(0.35f, 0.1f, 0.1f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0.35f, 0.1f, 0.1f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0.35f, 0.1f, 0.1f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(3f);
+                // record unity coord and robot coord in matrix
 
-        unityCoordMatrix[0, 2] = virtualEndEffector.transform.position.x;
-        unityCoordMatrix[1, 2] = virtualEndEffector.transform.position.y;
-        unityCoordMatrix[2, 2] = virtualEndEffector.transform.position.z;
-        unityCoordMatrix[3, 2] = 1f;
+                Debug.Log(robotCoordTemp + " " + virtualEndEffector.transform.position);
 
-        // send command to robot for the fourth movement and wait for 5 seconds
-        customMove(-2.74635f, -2.30404f, 0.623497f, -1.38846f, -1.35079f, -3.09798f, movementType: 3);
-        yield return new WaitForSeconds(5f);
-        // record unity coord and robot coord in matrix
-        robotCoordMatrix[0, 3] = robotCoordTemp.x;
-        robotCoordMatrix[1, 3] = robotCoordTemp.y;
-        robotCoordMatrix[2, 3] = robotCoordTemp.z;
-        robotCoordMatrix[3, 3] = 1f;
+                robotCoordMatrix[0, 1] = robotCoordTemp.x;
+                robotCoordMatrix[1, 1] = robotCoordTemp.y;
+                robotCoordMatrix[2, 1] = robotCoordTemp.z;
+                robotCoordMatrix[3, 1] = 1f;
 
-        unityCoordMatrix[0, 3] = virtualEndEffector.transform.position.x;
-        unityCoordMatrix[1, 3] = virtualEndEffector.transform.position.y;
-        unityCoordMatrix[2, 3] = virtualEndEffector.transform.position.z;
-        unityCoordMatrix[3, 3] = 1f;
+                unityCoordMatrix[0, 1] = virtualEndEffector.transform.position.x;
+                unityCoordMatrix[1, 1] = virtualEndEffector.transform.position.y;
+                unityCoordMatrix[2, 1] = virtualEndEffector.transform.position.z;
+                unityCoordMatrix[3, 1] = 1f;
 
-        transMatrix = robotCoordMatrix * unityCoordMatrix.inverse;
+                // send command to robot for the third movement and wait for 5 seconds
+                customMove(0f, 0.45f, 0.3f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0f, 0.45f, 0.3f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0f, 0.45f, 0.3f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(3f);
+                // record unity coord and robot coord in matrix
 
-        Debug.Log(transMatrix);
+                Debug.Log(robotCoordTemp + " " + virtualEndEffector.transform.position);
 
-        customMove(-1.8765f, -1.22337f, 2.4f, -1.19516f, 2.06182f, -7.85783f, movementType: 3);
+                robotCoordMatrix[0, 2] = robotCoordTemp.x;
+                robotCoordMatrix[1, 2] = robotCoordTemp.y;
+                robotCoordMatrix[2, 2] = robotCoordTemp.z;
+                robotCoordMatrix[3, 2] = 1f;
+
+                unityCoordMatrix[0, 2] = virtualEndEffector.transform.position.x;
+                unityCoordMatrix[1, 2] = virtualEndEffector.transform.position.y;
+                unityCoordMatrix[2, 2] = virtualEndEffector.transform.position.z;
+                unityCoordMatrix[3, 2] = 1f;
+
+                // send command to robot for the fourth movement and wait for 5 seconds
+                customMove(0.3f, 0f, 0.35f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0.3f, 0f, 0.35f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(1f);
+                customMove(0.3f, 0f, 0.35f, -0.6f, 1.47f, 0.62f, movementType: 0, interruptible: 0);
+                yield return new WaitForSeconds(3f);
+                // record unity coord and robot coord in matrix
+
+                Debug.Log(robotCoordTemp + " " + virtualEndEffector.transform.position);
+
+                robotCoordMatrix[0, 3] = robotCoordTemp.x;
+                robotCoordMatrix[1, 3] = robotCoordTemp.y;
+                robotCoordMatrix[2, 3] = robotCoordTemp.z;
+                robotCoordMatrix[3, 3] = 1f;
+
+                unityCoordMatrix[0, 3] = virtualEndEffector.transform.position.x;
+                unityCoordMatrix[1, 3] = virtualEndEffector.transform.position.y;
+                unityCoordMatrix[2, 3] = virtualEndEffector.transform.position.z;
+                unityCoordMatrix[3, 3] = 1f;
+
+                transMatrix = robotCoordMatrix * unityCoordMatrix.inverse;
+
+                Debug.Log(transMatrix);
+
+                Debug.Log(robotCoordMatrix);
+
+                Debug.Log(unityCoordMatrix);
+
+                Debug.Log(transMatrix.MultiplyPoint3x4(new Vector3(unityCoordMatrix[0, 3], unityCoordMatrix[1, 3], unityCoordMatrix[2, 3])));
+
+                customMove(-1.8765f, -1.22337f, 2.4f, -1.19516f, 2.06182f, -7.85783f, movementType: 3, interruptible: 0);
+
+                startCalibration = false;
+            }
+            yield return new WaitForSeconds(5f);
+        }
     }
 
     private void initialPos()
@@ -360,10 +404,6 @@ public class UnityClient : MonoBehaviour
 
     private void Update()
     {
-        getSpeedInfo.Abort();
-        getSpeedInfo = new Thread(getInfo);
-        getSpeedInfo.Start();
-
         if (fromRobot.StartsWith("R"))
         {
             DateTime dt2 = DateTime.Now;
@@ -385,6 +425,10 @@ public class UnityClient : MonoBehaviour
 
             robotStopped = sp < 0.0001;
         }
+
+        getSpeedInfo.Abort();
+        getSpeedInfo = new Thread(getInfo);
+        getSpeedInfo.Start();
     }
 
     void OnDestroy()

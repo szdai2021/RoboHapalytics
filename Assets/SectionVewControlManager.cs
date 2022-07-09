@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Threading;
 
 public class SectionVewControlManager : MonoBehaviour
 {
@@ -103,6 +104,8 @@ public class SectionVewControlManager : MonoBehaviour
     public static DateTime actionStartTime;
     public static bool countTimeFlag = true;
 
+    private Thread physicalKnobToCentre;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -115,6 +118,10 @@ public class SectionVewControlManager : MonoBehaviour
 
         Vector3 RobotCoord = robotResetPos;
         Vector3 RobotRot = robotResetRot;
+
+        physicalKnobToCentre = new Thread(reCentre);
+
+        physicalKnobToCentre.Start();
     }
 
     // Update is called once per frame
@@ -265,7 +272,8 @@ public class SectionVewControlManager : MonoBehaviour
 
                     if (!xRotoryEncoder.GetComponent<RotationalEncoder>().isOn)
                     {
-                        unity_client.customMove(-4.16445f, -1.18897f, 1.90225f, -2.1865f, 1.56376f, -9.35597f, movementType: 3);
+                        unity_client.customMove(-4.125f, -1.27675f, 2.15227f, -2.1382f, 1.56588f, -9.50453f, movementType: 3);
+                        //-4.125,-1.27675,2.15227,-2.1382,1.56588,-9.50453
                     }
 
                     xRotoryEncoder.GetComponent<RotationalEncoder>().isOnCheck();
@@ -280,14 +288,8 @@ public class SectionVewControlManager : MonoBehaviour
 
                     if (!yRotoryEncoder.GetComponent<RotationalEncoder>().isOn)
                     {
-                        //unity_client.circularMove(test2_mid[0], test2_mid[1], test2_mid[2], test2_mid[3], test2_mid[4], test2_mid[5], 0);
-                        //unity_client.circularMove(test2[0], test2[1], test2[2], test2[3], test2[4], test2[5], 0);
-
-                        //unity_client.customMove(test2_mid[0], test2_mid[1], test2_mid[2], test2[0], test2[1], test2[2], movementType: 2);
-                        //unity_client.customMove(test2[0], test2[1], test2[2], test2[3], test2[4], test2[5], movementType: 0);
-
-                        //unity_client.customMove(test2R[0], test2R[1], test2R[2], test2R[3], test2R[4], test2R[5], movementType: 3);
-                        unity_client.customMove(0.281548f, -0.827192f, 1.47676f, -2.17393f, 1.69551f, -8.9832f, movementType: 3);
+                        unity_client.customMove(0.0813002f, -0.740302f, 1.49914f, -2.13427f, 1.5759f, -2.38002f, movementType: 3);
+                        //0.0813002,-0.740302,1.49914,-2.13427,1.5759,-2.38002
                     }
 
                     //midPoint = test2_mid;
@@ -303,14 +305,8 @@ public class SectionVewControlManager : MonoBehaviour
 
                     if (!zRotoryEncoder.GetComponent<RotationalEncoder>().isOn)
                     {
-                        //unity_client.circularMove(test3_mid[0], test3_mid[1], test3_mid[2], test3_mid[3], test3_mid[4], test3_mid[5], 0);
-                        //unity_client.circularMove(test3[0], test3[1], test3[2], test3[3], test3[4], test3[5], 0);
-
-                        //unity_client.customMove(test3_mid[0], test3_mid[1], test3_mid[2], test3[0], test3[1], test3[2], movementType: 2);
-                        //unity_client.customMove(test3[0], test3[1], test3[2], test3[3], test3[4], test3[5], movementType: 0);
-
-                        //unity_client.customMove(test3R[0], test3R[1], test3R[2], test3R[3], test3R[4], test3R[5], movementType: 3);
-                        unity_client.customMove(-2.74635f, -2.30404f, 0.623497f, -1.38846f, -1.35079f, -3.09798f, movementType: 3);
+                        unity_client.customMove(-2.90202f, -2.03647f, 0.0419922f, -1.18633f, -1.21483f, -3.12974f, movementType: 3);
+                        //-2.90202,-2.03647,0.0419922,-1.18633,-1.21483,-3.12974
                     }
 
                     //midPoint = test3_mid;
@@ -617,5 +613,29 @@ public class SectionVewControlManager : MonoBehaviour
             rr.enabled = hideFlag;
         }
 
+    }
+
+    private void reCentre()
+    {
+        while (true)
+        {
+            while (Current_colliderArea == 0)
+            {
+                if (shortInOut.value > 220)
+                {
+                    shortInOut.SetSlider(-250);
+                }
+                else if(shortInOut.value < 180)
+                {
+                    shortInOut.SetSlider(250);
+                }
+                else
+                {
+                    shortInOut.SetSlider(0);
+                }
+            }
+
+            new WaitForSeconds(1f);
+        }
     }
 }
