@@ -56,9 +56,9 @@ public class SectionVewControlManager : MonoBehaviour
     private Vector3 yRotPar = new Vector3(-1.746f, 0.7065f, 1.754f);
     private Vector3 zRotPar = new Vector3(0.741f, -1.748f, -1.7855f);
 
-    private Vector3 xSliderNodeOffset = new Vector3(0,0,0);
-    private Vector3 ySliderNodeOffset = new Vector3(0,0,0);
-    private Vector3 zSliderNodeOffset = new Vector3(0,0,0);
+    private Vector3 xSliderNodeOffset = new Vector3(0, 0, 0);
+    private Vector3 ySliderNodeOffset = new Vector3(0, 0, 0);
+    private Vector3 zSliderNodeOffset = new Vector3(0, 0, 0);
 
     public GameObject finger;
     public GameObject virtualFingerTouchPoint;
@@ -106,6 +106,9 @@ public class SectionVewControlManager : MonoBehaviour
 
     private Thread physicalKnobToCentre;
 
+    public List<GameObject> boxColliders;
+    public bool showBoxCollider;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -127,6 +130,8 @@ public class SectionVewControlManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        displayBoxCollider();
+
         if (start)
         {
             var p0 = finger.transform.position;
@@ -542,6 +547,14 @@ public class SectionVewControlManager : MonoBehaviour
             unity_client.circularMove(0, 0.25, 0.1, -0.6, 1.47, 0.62, 0);
 
             fastMoveFlag = false;
+        }
+    }
+
+    private void displayBoxCollider()
+    {
+        foreach (GameObject g in boxColliders)
+        {
+            g.gameObject.GetComponent<MeshRenderer>().enabled = showBoxCollider;
         }
     }
 
