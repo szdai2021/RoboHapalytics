@@ -280,11 +280,11 @@ public class sliderValueControl : MonoBehaviour
 
         switch (index)
         {
-            case 1: offset = 0.82f;
+            case 1: offset = 0.78f;
                 break;
-            case 2: offset = -0.82f;
+            case 2: offset = -0.78f;
                 break;
-            case 3: offset = -0.82f;
+            case 3: offset = -0.78f;
                 break;
             default: offset = 0f;
                 break;
